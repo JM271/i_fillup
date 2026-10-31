@@ -1,8 +1,14 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:latlong2/latlong.dart';
 
+import 'address_search.dart';
 import 'app_style.dart';
 import 'authentication.dart';
+import 'google_address_picker.dart';
+import 'location_picker.dart';
+import 'route_planner.dart';
 import 'water_place.dart';
 import 'water_places_map.dart';
 import 'water_repository.dart';
@@ -14,21 +20,55 @@ class RefillHome extends StatefulWidget {
     this.auth,
     this.onHome,
     this.onOfferWater,
+    this.routeService,
+    this.locate = currentRefillLocation,
+    this.chooseDestination = chooseRouteDestination,
   });
   final VoidCallback? onHome;
   final VoidCallback? onOfferWater;
   final FirebaseAuth? auth;
   final WaterRepository? repository;
+  final RouteService? routeService;
+  final Future<LatLng> Function() locate;
+  final Future<AddressMatch?> Function(BuildContext context) chooseDestination;
 
   @override
   State<RefillHome> createState() => _RefillHomeState();
 }
+
+Future<AddressMatch?> chooseRouteDestination(BuildContext context) {
+  if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+    return chooseGoogleAddress('');
+  }
+  return Navigator.of(context).push<AddressMatch>(
+    MaterialPageRoute(builder: (_) => const AddressSearchPage()),
+  );
+}
+
+String formatKm(double meters) => meters < 10000
+    ? '${(meters / 1000).toStringAsFixed(1)} km'
+    : '${(meters / 1000).round()} km';
+
+const routeRadiiKm = [1, 2, 5, 10, 25];
+
+String routeStopLabel(RouteStop stop) => [
+  stop.along < 100 ? 'At your start' : 'After ${formatKm(stop.along)}',
+  stop.offRoute < 100 ? 'on route' : '${formatKm(stop.offRoute)} off route',
+].join(' · ');
 
 class _RefillHomeState extends State<RefillHome> {
   String query = '';
   String filter = 'All places';
   int page = 0;
   final List<String> demoRequests = [];
+  PlannedRoute? route;
+  List<RouteStop>? stops;
+  List<WaterPlace>? routedPlaces;
+  bool routing = false;
+  int radiusKm = 5;
+
+  late final RouteService routeService =
+      widget.routeService ?? OsrmRouteService();
 
   late final WaterRepository repository =
       widget.repository ?? const DemoWaterRepository();
@@ -269,6 +309,148 @@ class _RefillHomeState extends State<RefillHome> {
     liters.dispose();
   }
 
+  void showMessage(Object error) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(error.toString().replaceFirst('Exception: ', ''))),
+    );
+  }
+
+  Future<void> planRoute(List<WaterPlace> allPlaces) async {
+    try {
+      final destination = await widget.chooseDestination(context);
+      if (destination == null || !mounted) return;
+      setState(() => routing = true);
+      final start = await widget.locate().timeout(const Duration(seconds: 20));
+      final planned = await routeService.route(
+        start,
+        destination.location,
+        destination.label,
+      );
+      final found = await routeService.stopsAlong(
+        planned,
+        allPlaces,
+        maxOffRoute: routeRadiiKm.last * 1000,
+      );
+      if (!mounted) return;
+      setState(() {
+        route = planned;
+        stops = found;
+        routedPlaces = allPlaces;
+      });
+    } catch (error) {
+      showMessage(error);
+    } finally {
+      if (mounted) setState(() => routing = false);
+    }
+  }
+
+  /// Keeps route stops current when listings change while a route is active.
+  Future<void> refreshStops(List<WaterPlace> allPlaces) async {
+    final planned = route;
+    if (planned == null) return;
+    routedPlaces = allPlaces;
+    try {
+      final found = await routeService.stopsAlong(
+        planned,
+        allPlaces,
+        maxOffRoute: routeRadiiKm.last * 1000,
+      );
+      if (mounted && identical(route, planned)) setState(() => stops = found);
+    } catch (error) {
+      showMessage(error);
+    }
+  }
+
+  Widget routePanel(List<WaterPlace> allPlaces) {
+    final planned = route;
+    if (planned == null) {
+      return OutlinedButton.icon(
+        onPressed: routing ? null : () => planRoute(allPlaces),
+        icon: routing
+            ? const SizedBox.square(
+                dimension: 18,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : const Icon(Icons.route_outlined),
+        label: Text(routing ? 'Planning route…' : 'Plan a route'),
+      );
+    }
+    return Card(
+      elevation: 0,
+      color: Colors.white,
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 4, 4, 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.route_outlined, color: teal),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'To ${planned.destination}',
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w700,
+                          color: ink,
+                        ),
+                      ),
+                      Text(
+                        '${formatKm(planned.meters)} drive from your location',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Color(0xFF617575),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  tooltip: 'Clear route',
+                  onPressed: () => setState(() {
+                    route = null;
+                    stops = null;
+                    routedPlaces = null;
+                  }),
+                  icon: const Icon(Icons.close),
+                ),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: Row(
+                children: [
+                  const Text('Within'),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: SegmentedButton<int>(
+                      showSelectedIcon: false,
+                      segments: [
+                        for (final km in routeRadiiKm)
+                          ButtonSegment(value: km, label: Text('$km')),
+                      ],
+                      selected: {radiusKm},
+                      onSelectionChanged: (value) =>
+                          setState(() => radiusKm = value.single),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  const Text('km'),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     const destinations = [
@@ -289,16 +471,26 @@ class _RefillHomeState extends State<RefillHome> {
       initialData: repository.isDemo ? places : null,
       builder: (context, placesSnapshot) {
         final allPlaces = placesSnapshot.data ?? const <WaterPlace>[];
-        final visible = allPlaces
-            .where(
-              (p) =>
-                  '${p.name} ${p.area} ${p.host}'.toLowerCase().contains(
-                    query.toLowerCase(),
-                  ) &&
-                  (filter == 'All places' ||
-                      (filter == 'Private hosts' ? p.private : !p.private)),
-            )
-            .toList();
+        if (route != null &&
+            !routing &&
+            placesSnapshot.hasData &&
+            !identical(routedPlaces, allPlaces)) {
+          refreshStops(allPlaces);
+        }
+        bool matches(WaterPlace p) =>
+            '${p.name} ${p.area} ${p.host}'.toLowerCase().contains(
+              query.toLowerCase(),
+            ) &&
+            (filter == 'All places' ||
+                (filter == 'Private hosts' ? p.private : !p.private));
+        final routeStops = {
+          for (final stop in stops ?? const <RouteStop>[])
+            if (stop.offRoute <= radiusKm * 1000 && matches(stop.place))
+              stop.place: stop,
+        };
+        final visible = route == null
+            ? allPlaces.where(matches).toList()
+            : routeStops.keys.toList();
         return Scaffold(
           appBar: AppBar(
             backgroundColor: const Color(0xFFF6F8F4),
@@ -386,6 +578,8 @@ class _RefillHomeState extends State<RefillHome> {
                                       .toList(),
                             ),
                           ),
+                          const SizedBox(height: 8),
+                          routePanel(allPlaces),
                           const SizedBox(height: 12),
                           Row(
                             children: [
@@ -400,7 +594,9 @@ class _RefillHomeState extends State<RefillHome> {
                                           .titleLarge,
                                     ),
                                     Text(
-                                      '${visible.length} ${repository.isDemo ? 'demo ' : ''}places · ${repository.isDemo ? 'Sample places in Switzerland' : 'Live community listings'}',
+                                      route != null
+                                          ? '${visible.length} places within $radiusKm km of your route'
+                                          : '${visible.length} ${repository.isDemo ? 'demo ' : ''}places · ${repository.isDemo ? 'Sample places in Switzerland' : 'Live community listings'}',
                                       style: const TextStyle(
                                         fontSize: 12,
                                         color: Color(0xFF617575),
@@ -420,6 +616,7 @@ class _RefillHomeState extends State<RefillHome> {
                                                     builder: (_) =>
                                                         WaterPlacesMap(
                                                           places: visible,
+                                                          route: route?.path,
                                                         ),
                                                   ),
                                                 );
@@ -447,10 +644,12 @@ class _RefillHomeState extends State<RefillHome> {
                               child: CircularProgressIndicator(),
                             )
                           else if (visible.isEmpty)
-                            const Padding(
-                              padding: EdgeInsets.all(24),
+                            Padding(
+                              padding: const EdgeInsets.all(24),
                               child: Text(
-                                'No places match. Try a different town or filter.',
+                                route != null
+                                    ? 'No places within $radiusKm km of your route. Try a wider distance.'
+                                    : 'No places match. Try a different town or filter.',
                               ),
                             ),
                           ...visible.map(
@@ -510,6 +709,16 @@ class _RefillHomeState extends State<RefillHome> {
                                                   color: ink,
                                                 ),
                                               ),
+                                              if (routeStops[place]
+                                                  case final stop?)
+                                                Text(
+                                                  routeStopLabel(stop),
+                                                  style: const TextStyle(
+                                                    fontSize: 13,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: teal,
+                                                  ),
+                                                ),
                                             ],
                                           ),
                                         ),

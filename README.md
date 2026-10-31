@@ -56,6 +56,12 @@ In Offer water, choose **Choose address from list**, enter a street and town, an
 
 Search uses the [Photon public demo API](https://github.com/komoot/photon), triggered only by an explicit search, with a small session cache. The search text is sent to Photon. Internet is required; manual address entry and map selection remain available. The public demo service has no availability guarantee and is intended for reasonable request volumes. Configure a private/hosted Photon endpoint for production with `--dart-define=ADDRESS_SEARCH_URL=https://your-server/api/`.
 
+## Route planning
+
+In Take water, **Plan a route** asks for a destination (Google picker on Android, Photon list elsewhere) and plans a driving route from the device location. Choose **Within 1 / 2 / 5 / 10 / 25 km** to list places near the route, in the order you reach them. Each place shows the driving distance from your start and how far it is off the route by road (half the extra driving there and back). **Map** draws the route with the places.
+
+Routing uses the [OSRM public demo server](https://github.com/Project-OSRM/osrm-backend/wiki/Demo-server), which is free, has no availability guarantee and is intended for light use. Your start and destination coordinates and those of nearby places are sent to it. For production, host OSRM or a compatible service and set `--dart-define=ROUTING_URL=https://your-server/`.
+
 ## Google Places address picker (Android)
 
 Android now uses Google's native Places Autocomplete (New) picker through the `i_fillup/google_places` channel. It fetches the selected address and coordinates with the same session token. Cancelling keeps the existing address. Web/desktop retain the Photon picker.

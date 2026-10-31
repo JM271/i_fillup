@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'app_style.dart';
@@ -7,9 +8,17 @@ import 'water_place.dart';
 
 /// The same filtered places as discovery, shown at illustrative demo coordinates.
 class WaterPlacesMap extends StatelessWidget {
-  const WaterPlacesMap({super.key, required this.places, this.tileProvider});
+  const WaterPlacesMap({
+    super.key,
+    required this.places,
+    this.route,
+    this.tileProvider,
+  });
 
   final List<WaterPlace> places;
+
+  /// Driving route to draw beneath the places, when one is planned.
+  final List<LatLng>? route;
   final TileProvider? tileProvider;
 
   @override
@@ -29,9 +38,10 @@ class WaterPlacesMap extends StatelessWidget {
               initialCenter: places.first.location,
               initialZoom: 12,
               initialCameraFit: CameraFit.bounds(
-                bounds: LatLngBounds.fromPoints(
-                  places.map((p) => p.location).toList(),
-                ),
+                bounds: LatLngBounds.fromPoints([
+                  ...places.map((p) => p.location),
+                  ...?route,
+                ]),
                 padding: const EdgeInsets.all(64),
                 maxZoom: 13,
               ),
@@ -45,6 +55,12 @@ class WaterPlacesMap extends StatelessWidget {
                 maxNativeZoom: 19,
                 tileProvider: tileProvider,
               ),
+              if (route case final path?)
+                PolylineLayer(
+                  polylines: [
+                    Polyline(points: path, strokeWidth: 5, color: ink),
+                  ],
+                ),
               MarkerLayer(
                 markers: places
                     .map(
