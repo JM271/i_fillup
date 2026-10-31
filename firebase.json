@@ -8,7 +8,7 @@
         "lib/firebase_options.dart": {
           "projectId": "i-fillup",
           "configurations": {
-            "android": "1:941210525816:android:ea597e36ed50f741b54d8d",
+            "android": "1:941210525816:android:6e3f50487bcd20abb54d8d",
             "web": "1:941210525816:web:ea7db1f8e76384b3b54d8d"
           }
         }
@@ -16,7 +16,7 @@
       "android": {
         "default": {
           "projectId": "i-fillup",
-          "appId": "1:941210525816:android:ea597e36ed50f741b54d8d",
+          "appId": "1:941210525816:android:6e3f50487bcd20abb54d8d",
           "fileOutput": "android/app/google-services.json"
         }
       }

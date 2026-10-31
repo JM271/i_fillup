@@ -58,6 +58,21 @@ class AccountButton extends StatelessWidget {
                   icon: const Icon(Icons.badge_outlined),
                   label: const Text('Edit profile'),
                 ),
+              TextButton.icon(
+                style: TextButton.styleFrom(
+                  padding: EdgeInsets.zero,
+                  foregroundColor: Theme.of(context).colorScheme.error,
+                ),
+                onPressed: () {
+                  Navigator.pop(dialogContext);
+                  showDialog<void>(
+                    context: context,
+                    builder: (_) => DeleteAccountDialog(auth: auth!),
+                  );
+                },
+                icon: const Icon(Icons.person_remove_outlined),
+                label: const Text('Delete account'),
+              ),
             ],
           ),
           actions: [
@@ -88,6 +103,97 @@ class AccountButton extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Deletes the signed-in account after the password is confirmed. The
+/// deleteUserData Cloud Function then removes the account's data.
+class DeleteAccountDialog extends StatefulWidget {
+  const DeleteAccountDialog({super.key, required this.auth});
+  final FirebaseAuth auth;
+
+  @override
+  State<DeleteAccountDialog> createState() => _DeleteAccountDialogState();
+}
+
+class _DeleteAccountDialogState extends State<DeleteAccountDialog> {
+  final password = TextEditingController();
+  bool busy = false;
+  String? error;
+
+  @override
+  void dispose() {
+    password.dispose();
+    super.dispose();
+  }
+
+  Future<void> delete() async {
+    final user = widget.auth.currentUser;
+    final email = user?.email;
+    if (user == null || email == null) return;
+    setState(() {
+      busy = true;
+      error = null;
+    });
+    try {
+      // Firebase only deletes accounts that signed in recently.
+      await user.reauthenticateWithCredential(
+        EmailAuthProvider.credential(email: email, password: password.text),
+      );
+      await PushNotifications.disable();
+      await user.delete();
+      if (mounted) Navigator.pop(context);
+    } on FirebaseAuthException catch (exception) {
+      if (!mounted) return;
+      setState(() {
+        busy = false;
+        error =
+            const {
+              'wrong-password',
+              'invalid-credential',
+            }.contains(exception.code)
+            ? 'The password is incorrect.'
+            : 'Could not delete your account. Please try again.';
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => AlertDialog(
+    title: const Text('Delete your account?'),
+    content: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'This permanently deletes your account, your water place, your profile and your refill requests. It cannot be undone.',
+        ),
+        const SizedBox(height: 16),
+        TextField(
+          controller: password,
+          obscureText: true,
+          enabled: !busy,
+          decoration: InputDecoration(
+            labelText: 'Password',
+            errorText: error,
+            border: const OutlineInputBorder(),
+          ),
+        ),
+      ],
+    ),
+    actions: [
+      TextButton(
+        onPressed: busy ? null : () => Navigator.pop(context),
+        child: const Text('Keep account'),
+      ),
+      FilledButton(
+        style: FilledButton.styleFrom(
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+        onPressed: busy ? null : delete,
+        child: Text(busy ? 'Deleting…' : 'Delete account'),
+      ),
+    ],
+  );
 }
 
 class LoginScreen extends StatefulWidget {

@@ -14,6 +14,12 @@ val placesSecrets = Properties().apply {
     if (source.exists()) source.inputStream().use { load(it) }
 }
 
+// Upload key for Google Play; created by tool/create_upload_key.sh.
+val uploadKey = Properties().apply {
+    val source = rootProject.file("key.properties")
+    if (source.exists()) source.inputStream().use { load(it) }
+}
+
 android {
     namespace = "com.example.i_fillup"
     compileSdk = flutter.compileSdkVersion
@@ -25,8 +31,8 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.i_fillup"
+        // The Google Play ID; it can never change once the app is published.
+        applicationId = "com.jonasmuehle.ifillup"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
@@ -46,11 +52,23 @@ android {
         buildConfig = true
     }
 
+    signingConfigs {
+        if (!uploadKey.isEmpty) {
+            create("release") {
+                keyAlias = uploadKey.getProperty("keyAlias")
+                keyPassword = uploadKey.getProperty("keyPassword")
+                storeFile = file(uploadKey.getProperty("storeFile"))
+                storePassword = uploadKey.getProperty("storePassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            // Without key.properties, release builds fall back to the debug
+            // key so `flutter run --release` still works; Play rejects those.
+            signingConfig = signingConfigs.findByName("release")
+                ?: signingConfigs.getByName("debug")
         }
     }
 }

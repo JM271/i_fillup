@@ -52,6 +52,27 @@ class TestAuth extends Fake implements FirebaseAuth {
 
 class TestCredential extends Fake implements UserCredential {}
 
+class EmailUser extends Fake implements User {
+  String? password;
+  bool deleted = false;
+  @override
+  String? get email => 'lea@example.com';
+  @override
+  Future<UserCredential> reauthenticateWithCredential(
+    AuthCredential credential,
+  ) async {
+    final given = (credential as EmailAuthCredential).password;
+    if (given != 'secret123') {
+      throw FirebaseAuthException(code: 'invalid-credential');
+    }
+    password = given;
+    return TestCredential();
+  }
+
+  @override
+  Future<void> delete() async => deleted = true;
+}
+
 class AnonymousUser extends Fake implements User {
   AuthCredential? linkedCredential;
   @override
@@ -159,5 +180,36 @@ void main() {
     await tester.pumpWidget(MaterialApp(home: GiverHome(auth: auth)));
     await tester.pump();
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Accounts can be deleted after confirming the password', (
+    tester,
+  ) async {
+    final user = EmailUser();
+    final auth = TestAuth()..user = user;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          appBar: AppBar(actions: [AccountButton(auth: auth)]),
+        ),
+      ),
+    );
+    await tester.tap(find.byTooltip('Account'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Delete account'));
+    await tester.pumpAndSettle();
+    expect(find.text('Delete your account?'), findsOneWidget);
+
+    await tester.enterText(find.byType(TextField), 'wrong');
+    await tester.tap(find.widgetWithText(FilledButton, 'Delete account'));
+    await tester.pumpAndSettle();
+    expect(find.text('The password is incorrect.'), findsOneWidget);
+    expect(user.deleted, isFalse);
+
+    await tester.enterText(find.byType(TextField), 'secret123');
+    await tester.tap(find.widgetWithText(FilledButton, 'Delete account'));
+    await tester.pumpAndSettle();
+    expect(user.deleted, isTrue);
+    expect(find.text('Delete your account?'), findsNothing);
   });
 }

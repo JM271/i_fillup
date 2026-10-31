@@ -37,38 +37,9 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:941210525816:android:d48df4bca25afef2b54d8d",
+        "mobilesdk_app_id": "1:941210525816:android:6e3f50487bcd20abb54d8d",
         "android_client_info": {
-          "package_name": "com.example.i_fillup.giver"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "941210525816-bvmghh6pek6dj501anf1u7rkha6b72jc.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyCT-593mMxT5tT4AzhSaAh1PIst4dStftY"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "941210525816-bvmghh6pek6dj501anf1u7rkha6b72jc.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:941210525816:android:85d125b80d774257b54d8d",
-        "android_client_info": {
-          "package_name": "com.example.i_fillup.taker"
+          "package_name": "com.jonasmuehle.ifillup"
         }
       },
       "oauth_client": [

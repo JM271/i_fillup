@@ -179,9 +179,7 @@ void main() {
     expect(find.text('Old well is your water place'), findsOneWidget);
   });
 
-  testWidgets('A tapped notification opens incoming requests', (
-    tester,
-  ) async {
+  testWidgets('A tapped notification opens incoming requests', (tester) async {
     final showRequests = ValueNotifier(0);
     addTearDown(showRequests.dispose);
     await tester.pumpWidget(
