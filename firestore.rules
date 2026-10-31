@@ -1,0 +1,90 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function activePlace(placeId) {
+      return exists(/databases/$(database)/documents/waterPlaces/$(placeId))
+        && get(/databases/$(database)/documents/waterPlaces/$(placeId)).data.isActive == true;
+    }
+
+    match /waterPlaces/{placeId} {
+      allow read: if resource.data.isActive == true
+        || (signedIn() && resource.data.ownerUid == request.auth.uid);
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly([
+          'name', 'area', 'host', 'private', 'price', 'description',
+          'openingTimes', 'latitude', 'longitude', 'ownerUid', 'isActive',
+          'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.keys().hasAll([
+          'name', 'area', 'host', 'private', 'price', 'description',
+          'openingTimes', 'latitude', 'longitude', 'ownerUid', 'isActive',
+          'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.isActive == true
+        && request.resource.data.createdAt is timestamp
+        && request.resource.data.updatedAt is timestamp
+        && request.resource.data.name is string
+        && request.resource.data.area is string
+        && request.resource.data.host is string
+        && request.resource.data.price is string
+        && request.resource.data.description is string
+        && request.resource.data.openingTimes is string
+        && request.resource.data.latitude is number
+        && request.resource.data.latitude >= -90
+        && request.resource.data.latitude <= 90
+        && request.resource.data.longitude is number
+        && request.resource.data.longitude >= -180
+        && request.resource.data.longitude <= 180
+        && request.resource.data.private is bool;
+      allow update: if signedIn()
+        && resource.data.ownerUid == request.auth.uid
+        && request.resource.data.ownerUid == resource.data.ownerUid
+        && request.resource.data.isActive is bool
+        && request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['name', 'area', 'host', 'private', 'price', 'description',
+                    'openingTimes', 'latitude', 'longitude', 'isActive',
+                    'updatedAt']);
+      allow delete: if signedIn() && resource.data.ownerUid == request.auth.uid;
+    }
+
+    match /refillRequests/{requestId} {
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly([
+          'placeId', 'placeName', 'hostUid', 'requesterUid', 'liters',
+          'message', 'status', 'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.keys().hasAll([
+          'placeId', 'placeName', 'hostUid', 'requesterUid', 'liters',
+          'message', 'status', 'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.requesterUid == request.auth.uid
+        && request.resource.data.hostUid is string
+        && request.resource.data.placeId is string
+        && activePlace(request.resource.data.placeId)
+        && get(/databases/$(database)/documents/waterPlaces/$(request.resource.data.placeId)).data.ownerUid
+          == request.resource.data.hostUid
+        && request.resource.data.liters is int
+        && request.resource.data.liters > 0
+        && request.resource.data.placeName is string
+        && request.resource.data.message is string
+        && request.resource.data.message.size() <= 1000
+        && request.resource.data.status == 'pending';
+      allow read: if signedIn()
+        && (resource.data.requesterUid == request.auth.uid
+          || resource.data.hostUid == request.auth.uid);
+      allow update: if signedIn()
+        && resource.data.hostUid == request.auth.uid
+        && resource.data.status == 'pending'
+        && request.resource.data.status in ['accepted', 'declined']
+        && request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['status', 'updatedAt']);
+      allow delete: if false;
+    }
+  }
+}

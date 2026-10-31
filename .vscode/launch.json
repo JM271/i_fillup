@@ -1,0 +1,19 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Water taker (Android)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main_taker.dart",
+      "args": ["--flavor", "taker"]
+    },
+    {
+      "name": "Water giver (Android)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main_giver.dart",
+      "args": ["--flavor", "giver"]
+    }
+  ]
+}

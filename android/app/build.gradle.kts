@@ -1,7 +1,17 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
+    // START: FlutterFire Configuration
+    id("com.google.gms.google-services")
+    // END: FlutterFire Configuration
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
+}
+
+val placesSecrets = Properties().apply {
+    val source = rootProject.file("secrets.properties")
+    if (source.exists()) source.inputStream().use { load(it) }
 }
 
 android {
@@ -25,8 +35,30 @@ android {
         // is added automatically by Flutter. (https://developer.android.com/studio/build/configure-apk-splits#configure-APK-versions)
         // You can force using the value of versionCode by specifying the `-P force-version-code-ignoring-abi=true`
         // flag during build.
+        buildConfigField("String", "PLACES_API_KEY", "\"${placesSecrets.getProperty("PLACES_API_KEY", "").trim()}\"")
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+    }
+
+    buildFeatures {
+        resValues = true
+        buildConfig = true
+    }
+
+    flavorDimensions += "role"
+    productFlavors {
+        create("taker") {
+            dimension = "role"
+            applicationIdSuffix = ".taker"
+            manifestPlaceholders["appScheme"] = "ifillup-taker"
+            resValue("string", "app_name", "i fillup Take")
+        }
+        create("giver") {
+            dimension = "role"
+            applicationIdSuffix = ".giver"
+            manifestPlaceholders["appScheme"] = "ifillup-giver"
+            resValue("string", "app_name", "i fillup Give")
+        }
     }
 
     buildTypes {
@@ -46,4 +78,8 @@ kotlin {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    implementation("com.google.android.libraries.places:places:6.0.2")
 }

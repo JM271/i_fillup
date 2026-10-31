@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "941210525816",
+    "project_id": "i-fillup",
+    "storage_bucket": "i-fillup.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:941210525816:android:d48df4bca25afef2b54d8d",
+        "android_client_info": {
+          "package_name": "com.example.i_fillup.giver"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCT-593mMxT5tT4AzhSaAh1PIst4dStftY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:941210525816:android:85d125b80d774257b54d8d",
+        "android_client_info": {
+          "package_name": "com.example.i_fillup.taker"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCT-593mMxT5tT4AzhSaAh1PIst4dStftY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
