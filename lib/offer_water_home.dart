@@ -1,42 +1,11 @@
-import 'fillup_home.dart';
-
 import 'package:firebase_auth/firebase_auth.dart';
-
-import 'authentication.dart';
-
 import 'package:flutter/material.dart';
 
-import 'app_switch_button.dart';
-import 'app_style.dart';
+import 'authentication.dart';
 import 'offer_water_form.dart';
 import 'water_place.dart';
 import 'water_places_map.dart';
 import 'water_repository.dart';
-
-class WaterGiverApp extends StatelessWidget {
-  const WaterGiverApp({super.key, this.repository, this.auth});
-  final FirebaseAuth? auth;
-
-  final WaterRepository? repository;
-
-  @override
-  Widget build(BuildContext context) => MaterialApp(
-    title: 'i fillup',
-    debugShowCheckedModeBanner: false,
-    theme: ThemeData(
-      useMaterial3: true,
-      colorScheme: ColorScheme.fromSeed(seedColor: teal),
-      scaffoldBackgroundColor: const Color(0xFFF6F8F4),
-    ),
-    home: auth == null
-        ? FillupHome(repository: repository)
-        : AuthenticationGate(
-            auth: auth!,
-            builder: (repository) =>
-                FillupHome(repository: repository, auth: auth),
-          ),
-  );
-}
 
 class GiverHome extends StatefulWidget {
   const GiverHome({
@@ -111,9 +80,7 @@ class _GiverHomeState extends State<GiverHome> {
                 onPressed: widget.onTakeWater,
                 icon: const Icon(Icons.swap_horiz),
                 label: const Text('Take water'),
-              )
-            else
-              const AppSwitchButton(toGiver: false),
+              ),
           ],
         ),
       ),

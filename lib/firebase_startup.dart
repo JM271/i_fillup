@@ -1,30 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
-import 'firebase_options_giver.dart' as giver_options;
-import 'giver_app.dart';
-
-import 'package:firebase_auth/firebase_auth.dart';
-
-Future<void> startGiverApp() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  try {
-    final app = await Firebase.initializeApp(
-      options: giver_options.DefaultFirebaseOptions.currentPlatform,
-    );
-    runApp(WaterGiverApp(auth: FirebaseAuth.instanceFor(app: app)));
-  } on FirebaseException catch (error, stackTrace) {
-    debugPrintStack(stackTrace: stackTrace);
-    runApp(
-      FirebaseStartupError(
-        error: error,
-        onRetry: startGiverApp,
-        preview: const WaterGiverApp(),
-      ),
-    );
-  }
-}
-
 class FirebaseStartupError extends StatefulWidget {
   const FirebaseStartupError({
     super.key,

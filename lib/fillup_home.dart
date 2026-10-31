@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 
 import 'app_style.dart';
 import 'authentication.dart';
-import 'giver_app.dart';
-import 'main.dart' show RefillHome;
+import 'offer_water_home.dart';
+import 'take_water_home.dart';
 import 'water_repository.dart';
 
 /// Keeps both sides mounted so switching home does not discard an offer draft.

@@ -8,7 +8,7 @@ import 'package:flutter/foundation.dart'
 ///
 /// Example:
 /// ```dart
-/// import 'firebase_options_taker.dart';
+/// import 'firebase_options.dart';
 /// // ...
 /// await Firebase.initializeApp(
 ///   options: DefaultFirebaseOptions.currentPlatform,
@@ -60,7 +60,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyCT-593mMxT5tT4AzhSaAh1PIst4dStftY',
-    appId: '1:941210525816:android:85d125b80d774257b54d8d',
+    appId: '1:941210525816:android:ea597e36ed50f741b54d8d',
     messagingSenderId: '941210525816',
     projectId: 'i-fillup',
     storageBucket: 'i-fillup.firebasestorage.app',

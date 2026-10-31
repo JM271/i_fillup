@@ -6,7 +6,7 @@ import 'package:i_fillup/address_search.dart';
 
 import 'dart:async';
 
-import 'package:i_fillup/giver_app.dart';
+import 'package:i_fillup/take_water_home.dart';
 
 import 'package:latlong2/latlong.dart';
 import 'package:i_fillup/location_picker.dart';
@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:i_fillup/main.dart';
 import 'package:i_fillup/offer_water_form.dart';
+import 'package:i_fillup/water_place.dart';
 
 class TestTiles extends TileProvider {
   @override
@@ -45,7 +46,7 @@ void main() {
           onRetry: () async {
             retries++;
           },
-          preview: const MyApp(),
+          preview: const FillupApp(),
         ),
       );
       expect(
@@ -215,7 +216,7 @@ void main() {
   testWidgets('Taker recovers a removed tab retained by hot reload', (
     tester,
   ) async {
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(const FillupApp());
     await tester.tap(find.text('Take water'));
     await tester.pumpAndSettle();
     final dynamic state = tester.state(find.byType(RefillHome));
@@ -363,7 +364,7 @@ void main() {
   testWidgets('Find places, filter and save a demo refill request', (
     tester,
   ) async {
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(const FillupApp());
     await tester.tap(find.text('Take water'));
     await tester.pumpAndSettle();
     expect(find.text('Fresh water.\nOpen roads.'), findsOneWidget);
@@ -405,7 +406,7 @@ void main() {
   testWidgets('Search shows empty state and offer tab explains host flow', (
     tester,
   ) async {
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(const FillupApp());
     await tester.tap(find.text('Take water'));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), 'unknown town');
@@ -417,7 +418,7 @@ void main() {
     );
     expect(find.textContaining('No places match'), findsOneWidget);
     expect(find.text('Offer water'), findsOneWidget);
-    await tester.pumpWidget(const WaterGiverApp());
+    await tester.pumpWidget(const FillupApp());
     await tester.tap(find.text('Offer water'));
     await tester.pumpAndSettle();
     expect(find.text('Your water places'), findsOneWidget);
@@ -433,7 +434,7 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(const FillupApp());
     await tester.pumpAndSettle();
     expect(find.text('Welcome to i fillup'), findsOneWidget);
     expect(tester.takeException(), isNull);

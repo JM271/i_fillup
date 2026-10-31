@@ -38,27 +38,12 @@ android {
         buildConfigField("String", "PLACES_API_KEY", "\"${placesSecrets.getProperty("PLACES_API_KEY", "").trim()}\"")
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        resValue("string", "app_name", "i fillup")
     }
 
     buildFeatures {
         resValues = true
         buildConfig = true
-    }
-
-    flavorDimensions += "role"
-    productFlavors {
-        create("taker") {
-            dimension = "role"
-            applicationIdSuffix = ".taker"
-            manifestPlaceholders["appScheme"] = "ifillup-taker"
-            resValue("string", "app_name", "i fillup Take")
-        }
-        create("giver") {
-            dimension = "role"
-            applicationIdSuffix = ".giver"
-            manifestPlaceholders["appScheme"] = "ifillup-giver"
-            resValue("string", "app_name", "i fillup Give")
-        }
     }
 
     buildTypes {

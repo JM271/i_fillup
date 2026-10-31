@@ -5,17 +5,10 @@
   "flutter": {
     "platforms": {
       "dart": {
-        "lib/firebase_options_taker.dart": {
+        "lib/firebase_options.dart": {
           "projectId": "i-fillup",
           "configurations": {
-            "android": "1:941210525816:android:85d125b80d774257b54d8d",
-            "web": "1:941210525816:web:ea7db1f8e76384b3b54d8d"
-          }
-        },
-        "lib/firebase_options_giver.dart": {
-          "projectId": "i-fillup",
-          "configurations": {
-            "android": "1:941210525816:android:d48df4bca25afef2b54d8d",
+            "android": "1:941210525816:android:ea597e36ed50f741b54d8d",
             "web": "1:941210525816:web:ea7db1f8e76384b3b54d8d"
           }
         }
@@ -23,7 +16,7 @@
       "android": {
         "default": {
           "projectId": "i-fillup",
-          "appId": "1:941210525816:android:d48df4bca25afef2b54d8d",
+          "appId": "1:941210525816:android:ea597e36ed50f741b54d8d",
           "fileOutput": "android/app/google-services.json"
         }
       }
