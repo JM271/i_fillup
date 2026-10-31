@@ -37,6 +37,7 @@ abstract interface class WaterRepository {
   Stream<List<RefillRequest>> watchIncomingRequests();
 
   Future<void> saveOffer(WaterPlace place);
+  Future<void> deleteOffer(WaterPlace place);
   Future<void> createRequest({
     required WaterPlace place,
     required int liters,
@@ -65,6 +66,9 @@ class DemoWaterRepository implements WaterRepository {
 
   @override
   Future<void> saveOffer(WaterPlace place) async {}
+
+  @override
+  Future<void> deleteOffer(WaterPlace place) async {}
 
   @override
   Future<void> createRequest({
@@ -185,6 +189,13 @@ class FirebaseWaterRepository implements WaterRepository {
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     });
+  }
+
+  @override
+  Future<void> deleteOffer(WaterPlace place) async {
+    final id = place.id;
+    if (id == null) throw ArgumentError.value(place, 'place', 'has no id');
+    await _firestore.collection('waterPlaces').doc(id).delete();
   }
 
   @override

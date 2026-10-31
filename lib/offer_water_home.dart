@@ -49,6 +49,46 @@ class _GiverHomeState extends State<GiverHome> {
     if (mounted) setState(() => page = 0);
   }
 
+  Future<void> deleteOffer(WaterPlace place) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text('Delete ${place.name}?'),
+        content: const Text(
+          'Travelers will no longer see this place. Requests you already received stay in Requests.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(dialogContext).colorScheme.error,
+            ),
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
+    if (repository.isDemo) {
+      setState(() => demoOffers.remove(place));
+    } else {
+      try {
+        await repository.deleteOffer(place);
+      } on FirebaseException catch (error) {
+        messenger.showSnackBar(
+          SnackBar(content: Text('Could not delete place: ${error.message}')),
+        );
+        return;
+      }
+    }
+    messenger.showSnackBar(SnackBar(content: Text('${place.name} deleted')));
+  }
+
   Future<void> updateRequest(RefillRequest request, String status) async {
     try {
       await repository.updateRequestStatus(request, status);
@@ -178,6 +218,14 @@ class _GiverHomeState extends State<GiverHome> {
                                   icon: const Icon(
                                     Icons.map_outlined,
                                     color: teal,
+                                  ),
+                                ),
+                                IconButton(
+                                  tooltip: 'Delete place',
+                                  onPressed: () => deleteOffer(place),
+                                  icon: Icon(
+                                    Icons.delete_outline,
+                                    color: Theme.of(context).colorScheme.error,
                                   ),
                                 ),
                               ],
