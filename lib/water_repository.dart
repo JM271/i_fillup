@@ -150,7 +150,8 @@ class FirebaseWaterRepository implements WaterRepository {
 
   @override
   Future<void> saveOffer(WaterPlace place) async {
-    await _firestore.collection('waterPlaces').add({
+    // One place per account: the rules only allow the owner's UID as its ID.
+    await _firestore.collection('waterPlaces').doc(_userId).set({
       'name': place.name,
       'area': place.area,
       'host': place.host,

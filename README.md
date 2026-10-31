@@ -34,7 +34,7 @@ Enable **Email/Password** under Firebase Console → i-fillup → Authentication
 
 When an existing anonymous user creates a new account, credentials are linked to that UID, preserving ownership of their offers and requests. Logging into an already existing account uses that account's UID; it does not merge data from a different anonymous identity. Existing anonymous identities are retained until registration or login.
 
-Offers are stored in `waterPlaces` and requests in `refillRequests`. Owners can manage their offers; requests are visible to their requester and host. Hosts can accept or decline pending requests.
+Offers are stored in `waterPlaces` and requests in `refillRequests`. Each account can offer one water place: its document ID is the owner's UID, which the rules require on create. Places created before this rule keep their random IDs; owners must delete them before the app lets them offer a new one. Owners can manage their offers; requests are visible to their requester and host. Hosts can accept or decline pending requests.
 
 ## Connection status
 
@@ -87,7 +87,7 @@ Without a configured key the button displays a configuration message; it does no
 
 If Firebase sign-in fails (including CONFIGURATION_NOT_FOUND), startup explains the missing Anonymous provider, offers a retry, and provides an explicit preview without cloud. Preview offers are labeled as session-only. Saving an offer disables repeat submission until completion; failed saves preserve all entered values for retry.
 
-The local refill-request rule now checks that the referenced place is active and the request's host UID matches its owner. The requester no longer has to own the host's place. The local rules passed 15 emulator checks on 2026-10-31 covering offer ownership, request creation, forged host rejection, request privacy and host-only status transitions. Deployment and a live request round trip remain pending until the database exists.
+The local refill-request rule now checks that the referenced place is active and the request's host UID matches its owner. The requester no longer has to own the host's place. The local rules passed 15 emulator checks on 2026-10-31 (the one-place rule adds two more, not yet run) covering offer ownership, request creation, forged host rejection, request privacy and host-only status transitions. Deployment and a live request round trip remain pending until the database exists.
 
 ## Local rules verification
 

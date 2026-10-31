@@ -8,6 +8,9 @@ import 'water_place.dart';
 import 'water_places_map.dart';
 import 'water_repository.dart';
 
+const onePlaceRule =
+    'Each account can offer one water place, to keep listings trustworthy.';
+
 class GiverHome extends StatefulWidget {
   const GiverHome({
     super.key,
@@ -38,6 +41,7 @@ class _GiverHomeState extends State<GiverHome> {
 
   Future<void> saveOffer(WaterPlace place) async {
     if (repository.isDemo) {
+      if (demoOffers.isNotEmpty) return;
       setState(() {
         demoOffers.add(place);
         page = 0;
@@ -147,178 +151,215 @@ class _GiverHomeState extends State<GiverHome> {
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 760),
-          child: IndexedStack(
-            index: page,
-            children: [
-              StreamBuilder<List<WaterPlace>>(
-                stream: placesStream,
-                initialData: repository.isDemo ? const [] : null,
-                builder: (context, snapshot) {
-                  if (snapshot.hasError) {
-                    return Center(
+          child: StreamBuilder<List<WaterPlace>>(
+            stream: placesStream,
+            initialData: repository.isDemo ? const [] : null,
+            builder: (context, snapshot) {
+              final offers = repository.isDemo
+                  ? demoOffers
+                  : snapshot.data ?? const <WaterPlace>[];
+              final loading = !repository.isDemo && snapshot.data == null;
+              return IndexedStack(
+                index: page,
+                children: [
+                  if (snapshot.hasError)
+                    Center(
                       child: Text('Could not load places: ${snapshot.error}'),
-                    );
-                  }
-                  final offers = repository.isDemo
-                      ? demoOffers
-                      : snapshot.data ?? const <WaterPlace>[];
-                  return ListView(
-                    padding: const EdgeInsets.all(16),
-                    children: [
-                      Text(
-                        'Your water places',
-                        style: Theme.of(context).textTheme.headlineSmall,
-                      ),
-                      const SizedBox(height: 4),
-                      const Text(
-                        'Manage the places where travelers can refill.',
-                      ),
-                      const SizedBox(height: 12),
-                      if (offers.isEmpty)
+                    )
+                  else
+                    ListView(
+                      padding: const EdgeInsets.all(16),
+                      children: [
+                        Text(
+                          'Your water places',
+                          style: Theme.of(context).textTheme.headlineSmall,
+                        ),
+                        const SizedBox(height: 4),
                         const Text(
-                          'No places yet. Add your first water offer below.',
+                          'Manage the places where travelers can refill.',
                         ),
-                      ...offers.map(
-                        (place) => Card(
-                          margin: const EdgeInsets.only(bottom: 8),
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(12, 8, 4, 8),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        place.name,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .titleMedium,
-                                      ),
-                                      Text('${place.area} · ${place.price}'),
-                                      Text(
-                                        place.openingTimes,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodySmall,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                IconButton(
-                                  tooltip: 'View on map',
-                                  onPressed: () => Navigator.of(context)
-                                      .push<WaterPlace>(
-                                        MaterialPageRoute(
-                                          builder: (_) =>
-                                              WaterPlacesMap(places: [place]),
+                        const SizedBox(height: 12),
+                        if (offers.isEmpty)
+                          const Text(
+                            'No places yet. Add your first water offer below.',
+                          ),
+                        ...offers.map(
+                          (place) => Card(
+                            margin: const EdgeInsets.only(bottom: 8),
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(12, 8, 4, 8),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          place.name,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .titleMedium,
                                         ),
-                                      ),
-                                  icon: const Icon(
-                                    Icons.map_outlined,
-                                    color: teal,
+                                        Text('${place.area} · ${place.price}'),
+                                        Text(
+                                          place.openingTimes,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall,
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                IconButton(
-                                  tooltip: 'Delete place',
-                                  onPressed: () => deleteOffer(place),
-                                  icon: Icon(
-                                    Icons.delete_outline,
-                                    color: Theme.of(context).colorScheme.error,
+                                  IconButton(
+                                    tooltip: 'View on map',
+                                    onPressed: () => Navigator.of(context)
+                                        .push<WaterPlace>(
+                                          MaterialPageRoute(
+                                            builder: (_) =>
+                                                WaterPlacesMap(places: [place]),
+                                          ),
+                                        ),
+                                    icon: const Icon(
+                                      Icons.map_outlined,
+                                      color: teal,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                  IconButton(
+                                    tooltip: 'Delete place',
+                                    onPressed: () => deleteOffer(place),
+                                    icon: Icon(
+                                      Icons.delete_outline,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .error,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 16),
-                      FilledButton.icon(
-                        onPressed: () => setState(() => page = 1),
-                        icon: const Icon(Icons.add),
-                        label: const Text('Offer water'),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        repository.isDemo
-                            ? 'Demo only. Offers are not shared with the water taker app.'
-                            : 'Your active offers are visible in Find water.',
-                      ),
-                    ],
-                  );
-                },
-              ),
-              OfferWaterForm(onSave: saveOffer, isDemo: repository.isDemo),
-              StreamBuilder<List<RefillRequest>>(
-                stream: requestsStream,
-                initialData: repository.isDemo ? const [] : null,
-                builder: (context, snapshot) {
-                  if (snapshot.hasError) {
-                    return Center(
-                      child: Text('Could not load requests: ${snapshot.error}'),
-                    );
-                  }
-                  final requests = snapshot.data ?? const <RefillRequest>[];
-                  return ListView(
-                    padding: const EdgeInsets.all(16),
-                    children: [
-                      Text(
-                        'Incoming requests',
-                        style: Theme.of(context).textTheme.headlineSmall,
-                      ),
-                      const SizedBox(height: 12),
-                      if (requests.isEmpty)
-                        const Text('New traveler requests will appear here.'),
-                      ...requests.map(
-                        (request) => Card(
-                          child: Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  request.placeName,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleMedium,
+                        const SizedBox(height: 16),
+                        if (offers.isEmpty)
+                          FilledButton.icon(
+                            onPressed: () => setState(() => page = 1),
+                            icon: const Icon(Icons.add),
+                            label: const Text('Offer water'),
+                          ),
+                        const SizedBox(height: 16),
+                        Text(
+                          repository.isDemo
+                              ? 'Demo only. Offers are not shared with the water taker app.'
+                              : 'Your active offers are visible in Find water.',
+                        ),
+                        const SizedBox(height: 4),
+                        const Text(onePlaceRule),
+                      ],
+                    ),
+                  if (snapshot.hasError || loading)
+                    const Center(child: CircularProgressIndicator())
+                  else if (offers.isEmpty)
+                    OfferWaterForm(onSave: saveOffer, isDemo: repository.isDemo)
+                  else
+                    ListView(
+                      padding: const EdgeInsets.all(16),
+                      children: [
+                        Text(
+                          'You already offer a place',
+                          style: Theme.of(context).textTheme.headlineSmall,
+                        ),
+                        const SizedBox(height: 4),
+                        const Text(
+                          '$onePlaceRule Delete your place in My places to offer a different one.',
+                        ),
+                        const SizedBox(height: 12),
+                        FilledButton.icon(
+                          onPressed: () => setState(() => page = 0),
+                          icon: const Icon(Icons.water_drop_outlined),
+                          label: const Text('Go to My places'),
+                        ),
+                      ],
+                    ),
+                  StreamBuilder<List<RefillRequest>>(
+                    stream: requestsStream,
+                    initialData: repository.isDemo ? const [] : null,
+                    builder: (context, snapshot) {
+                      if (snapshot.hasError) {
+                        return Center(
+                          child: Text(
+                            'Could not load requests: ${snapshot.error}',
+                          ),
+                        );
+                      }
+                      final requests = snapshot.data ?? const <RefillRequest>[];
+                      return ListView(
+                        padding: const EdgeInsets.all(16),
+                        children: [
+                          Text(
+                            'Incoming requests',
+                            style: Theme.of(context).textTheme.headlineSmall,
+                          ),
+                          const SizedBox(height: 12),
+                          if (requests.isEmpty)
+                            const Text(
+                              'New traveler requests will appear here.',
+                            ),
+                          ...requests.map(
+                            (request) => Card(
+                              child: Padding(
+                                padding: const EdgeInsets.all(12),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      request.placeName,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text('${request.liters} liters'),
+                                    Text(request.message),
+                                    const SizedBox(height: 8),
+                                    Text('Status: ${request.status}'),
+                                    if (request.status == 'pending' &&
+                                        !repository.isDemo)
+                                      Wrap(
+                                        spacing: 8,
+                                        children: [
+                                          TextButton(
+                                            onPressed: () => updateRequest(
+                                              request,
+                                              'accepted',
+                                            ),
+                                            child: const Text('Accept'),
+                                          ),
+                                          TextButton(
+                                            onPressed: () => updateRequest(
+                                              request,
+                                              'declined',
+                                            ),
+                                            child: const Text('Decline'),
+                                          ),
+                                        ],
+                                      ),
+                                  ],
                                 ),
-                                const SizedBox(height: 8),
-                                Text('${request.liters} liters'),
-                                Text(request.message),
-                                const SizedBox(height: 8),
-                                Text('Status: ${request.status}'),
-                                if (request.status == 'pending' &&
-                                    !repository.isDemo)
-                                  Wrap(
-                                    spacing: 8,
-                                    children: [
-                                      TextButton(
-                                        onPressed: () =>
-                                            updateRequest(request, 'accepted'),
-                                        child: const Text('Accept'),
-                                      ),
-                                      TextButton(
-                                        onPressed: () =>
-                                            updateRequest(request, 'declined'),
-                                        child: const Text('Decline'),
-                                      ),
-                                    ],
-                                  ),
-                              ],
+                              ),
                             ),
                           ),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      const Text(
-                        'Payments are arranged directly with travelers. The app does not collect payments or record earnings.',
-                      ),
-                    ],
-                  );
-                },
-              ),
-            ],
+                          const SizedBox(height: 12),
+                          const Text(
+                            'Payments are arranged directly with travelers. The app does not collect payments or record earnings.',
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ],
+              );
+            },
           ),
         ),
       ),

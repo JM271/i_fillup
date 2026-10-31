@@ -48,29 +48,33 @@ def request(method, path, uid, data=None, expected=200):
 
 
 suffix = uuid.uuid4().hex
-place_id = 'place-' + suffix
+host = 'host-' + suffix
+# One place per account: a place's ID must be its owner's UID.
+place_id = host
 request_id = 'request-' + suffix
 place = dict(name='Test water', area='Zurich', host='Host', private=True,
              price='Free', description='Test', openingTimes='Always',
-             latitude=47.3, longitude=8.5, ownerUid='host', isActive=True,
+             latitude=47.3, longitude=8.5, ownerUid=host, isActive=True,
              createdAt='', updatedAt='')
-request('PATCH', '/waterPlaces/' + place_id, 'host', place)
+request('PATCH', '/waterPlaces/second-' + suffix, host, place, 403)
+request('PATCH', '/waterPlaces/' + place_id, host, place)
+request('PATCH', '/waterPlaces/' + place_id, host, place, 403)
 request('PATCH', '/waterPlaces/forged-' + suffix, 'stranger', place, 403)
 request('PATCH', '/waterPlaces/unsigned-' + suffix, None, place, 403)
-refill = dict(placeId=place_id, placeName='Test water', hostUid='host',
+refill = dict(placeId=place_id, placeName='Test water', hostUid=host,
               requesterUid='traveler', liters=50, message='Hello', status='pending',
               createdAt='', updatedAt='')
 request('PATCH', '/refillRequests/' + request_id, 'traveler', refill)
 request('PATCH', '/refillRequests/forged-' + suffix, 'traveler', dict(refill, hostUid='stranger'), 403)
 request('PATCH', '/refillRequests/zero-' + suffix, 'traveler', dict(refill, liters=0), 403)
 request('GET', '/refillRequests/' + request_id, 'traveler')
-request('GET', '/refillRequests/' + request_id, 'host')
+request('GET', '/refillRequests/' + request_id, host)
 request('GET', '/refillRequests/' + request_id, 'stranger', expected=403)
 request('GET', '/refillRequests/' + request_id, None, expected=403)
 status_path = '/refillRequests/' + request_id + '?updateMask.fieldPaths=status&updateMask.fieldPaths=updatedAt'
 request('PATCH', status_path, 'traveler', dict(status='accepted', updatedAt=''), 403)
-request('PATCH', status_path, 'host', dict(status='accepted', updatedAt=''))
-request('PATCH', status_path, 'host', dict(status='declined', updatedAt=''), 403)
+request('PATCH', status_path, host, dict(status='accepted', updatedAt=''))
+request('PATCH', status_path, host, dict(status='declined', updatedAt=''), 403)
 request('DELETE', '/waterPlaces/' + place_id, 'stranger', expected=403)
-request('DELETE', '/waterPlaces/' + place_id, 'host')
-print('15 Firestore rules checks passed (local emulator only).')
+request('DELETE', '/waterPlaces/' + place_id, host)
+print('17 Firestore rules checks passed (local emulator only).')

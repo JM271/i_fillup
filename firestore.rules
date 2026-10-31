@@ -14,7 +14,9 @@ service cloud.firestore {
     match /waterPlaces/{placeId} {
       allow read: if resource.data.isActive == true
         || (signedIn() && resource.data.ownerUid == request.auth.uid);
+      // One place per account: the document ID is the owner's UID.
       allow create: if signedIn()
+        && placeId == request.auth.uid
         && request.resource.data.keys().hasOnly([
           'name', 'area', 'host', 'private', 'price', 'description',
           'openingTimes', 'latitude', 'longitude', 'ownerUid', 'isActive',
