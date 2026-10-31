@@ -195,11 +195,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.headlineSmall,
                     ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'Use the same account in Take and Give.',
-                      textAlign: TextAlign.center,
-                    ),
                     const SizedBox(height: 24),
                     TextFormField(
                       controller: email,
