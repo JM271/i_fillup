@@ -34,7 +34,7 @@ Enable **Email/Password** under Firebase Console → i-fillup → Authentication
 
 When an existing anonymous user creates a new account, credentials are linked to that UID, preserving ownership of their offers and requests. Logging into an already existing account uses that account's UID; it does not merge data from a different anonymous identity. Existing anonymous identities are retained until registration or login.
 
-Offers are stored in `waterPlaces` and requests in `refillRequests`. Each account can offer one water place: its document ID is the owner's UID, which the rules require on create. Places created before this rule keep their random IDs; owners must delete them before the app lets them offer a new one. Owners can manage their offers; requests are visible to their requester and host. Hosts can accept or decline pending requests.
+Offers are stored in `waterPlaces` and requests in `refillRequests`. Each account can offer one water place: its document ID is the owner's UID, which the rules require on create. Places created before this rule have other IDs: Find water hides them, and My places shows them as **Not listed** with **Keep this one**, which copies the chosen place to the owner's UID and deletes the rest in one batch. Owners can manage their offers; requests are visible to their requester and host. Hosts can accept or decline pending requests.
 
 ## Connection status
 

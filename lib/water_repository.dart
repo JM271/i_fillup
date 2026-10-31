@@ -38,6 +38,9 @@ abstract interface class WaterRepository {
 
   Future<void> saveOffer(WaterPlace place);
   Future<void> deleteOffer(WaterPlace place);
+
+  /// Makes [keep] the account's one place and deletes all [others].
+  Future<void> keepOnlyOffer(WaterPlace keep, List<WaterPlace> others);
   Future<void> createRequest({
     required WaterPlace place,
     required int liters,
@@ -69,6 +72,9 @@ class DemoWaterRepository implements WaterRepository {
 
   @override
   Future<void> deleteOffer(WaterPlace place) async {}
+
+  @override
+  Future<void> keepOnlyOffer(WaterPlace keep, List<WaterPlace> others) async {}
 
   @override
   Future<void> createRequest({
@@ -110,6 +116,8 @@ class FirebaseWaterRepository implements WaterRepository {
               (document) =>
                   WaterPlace.fromFirestore(document.id, document.data()),
             )
+            // Extra places from before the one-place rule stay unlisted.
+            .where((place) => place.isAccountPlace)
             .toList(),
       );
 
@@ -148,24 +156,52 @@ class FirebaseWaterRepository implements WaterRepository {
             .toList(),
       );
 
+  Map<String, Object?> _placeFields(WaterPlace place) => {
+    'name': place.name,
+    'area': place.area,
+    'host': place.host,
+    'private': place.private,
+    'price': place.price,
+    'description': place.description,
+    'openingTimes': place.openingTimes,
+    'latitude': place.location.latitude,
+    'longitude': place.location.longitude,
+    'isActive': true,
+    'updatedAt': FieldValue.serverTimestamp(),
+  };
+
   @override
   Future<void> saveOffer(WaterPlace place) async {
     // One place per account: the rules only allow the owner's UID as its ID.
     await _firestore.collection('waterPlaces').doc(_userId).set({
-      'name': place.name,
-      'area': place.area,
-      'host': place.host,
-      'private': place.private,
-      'price': place.price,
-      'description': place.description,
-      'openingTimes': place.openingTimes,
-      'latitude': place.location.latitude,
-      'longitude': place.location.longitude,
+      ..._placeFields(place),
       'ownerUid': _userId,
-      'isActive': true,
       'createdAt': FieldValue.serverTimestamp(),
-      'updatedAt': FieldValue.serverTimestamp(),
     });
+  }
+
+  @override
+  Future<void> keepOnlyOffer(WaterPlace keep, List<WaterPlace> others) async {
+    final places = _firestore.collection('waterPlaces');
+    final batch = _firestore.batch();
+    if (keep.id != _userId) {
+      final accountPlace = places.doc(_userId);
+      if (others.any((place) => place.id == _userId)) {
+        batch.update(accountPlace, _placeFields(keep));
+      } else {
+        batch.set(accountPlace, {
+          ..._placeFields(keep),
+          'ownerUid': _userId,
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+      }
+    }
+    for (final place in [keep, ...others]) {
+      if (place.id case final id? when id != _userId) {
+        batch.delete(places.doc(id));
+      }
+    }
+    await batch.commit();
   }
 
   @override

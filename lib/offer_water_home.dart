@@ -8,6 +8,10 @@ import 'water_place.dart';
 import 'water_places_map.dart';
 import 'water_repository.dart';
 
+/// Accounts from before the one-place rule may hold several or unlisted places.
+bool mustChoosePlace(List<WaterPlace> offers) =>
+    offers.length > 1 || offers.any((place) => !place.isAccountPlace);
+
 const onePlaceRule =
     'Each account can offer one water place, to keep listings trustworthy.';
 
@@ -51,6 +55,44 @@ class _GiverHomeState extends State<GiverHome> {
 
     await repository.saveOffer(place);
     if (mounted) setState(() => page = 0);
+  }
+
+  Future<void> keepOnlyOffer(WaterPlace keep, List<WaterPlace> offers) async {
+    final others = offers.where((place) => place != keep).toList();
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text('Keep ${keep.name}?'),
+        content: Text(
+          others.isEmpty
+              ? 'It becomes your one water place and is listed for travelers again.'
+              : 'It becomes your one water place. Your other ${others.length == 1 ? 'place' : '${others.length} places'} will be deleted. Requests you already received stay in Requests.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Keep this one'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await repository.keepOnlyOffer(keep, others);
+    } on FirebaseException catch (error) {
+      messenger.showSnackBar(
+        SnackBar(content: Text('Could not update places: ${error.message}')),
+      );
+      return;
+    }
+    messenger.showSnackBar(
+      SnackBar(content: Text('${keep.name} is your water place')),
+    );
   }
 
   Future<void> deleteOffer(WaterPlace place) async {
@@ -183,6 +225,24 @@ class _GiverHomeState extends State<GiverHome> {
                           const Text(
                             'No places yet. Add your first water offer below.',
                           ),
+                        if (mustChoosePlace(offers))
+                          Card(
+                            margin: const EdgeInsets.only(bottom: 8),
+                            color: Theme.of(context).colorScheme.errorContainer,
+                            child: ListTile(
+                              leading: const Icon(Icons.warning_amber_rounded),
+                              title: Text(
+                                offers.length == 1
+                                    ? 'List your place again'
+                                    : 'Choose your one water place',
+                              ),
+                              subtitle: Text(
+                                offers.length == 1
+                                    ? 'Your place was created before the one-place rule and is hidden from travelers. Tap "Keep this one" to list it again.'
+                                    : 'Places marked "Not listed" are hidden from travelers. Tap "Keep this one" on the place you want to offer; the others are deleted.',
+                              ),
+                            ),
+                          ),
                         ...offers.map(
                           (place) => Card(
                             margin: const EdgeInsets.only(bottom: 8),
@@ -208,6 +268,30 @@ class _GiverHomeState extends State<GiverHome> {
                                               .textTheme
                                               .bodySmall,
                                         ),
+                                        if (!place.isAccountPlace)
+                                          Text(
+                                            'Not listed',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w700,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .error,
+                                            ),
+                                          ),
+                                        if (mustChoosePlace(offers))
+                                          Align(
+                                            alignment: Alignment.centerLeft,
+                                            child: TextButton.icon(
+                                              onPressed: () =>
+                                                  keepOnlyOffer(place, offers),
+                                              icon: const Icon(
+                                                Icons.check_circle_outline,
+                                              ),
+                                              label: const Text(
+                                                'Keep this one',
+                                              ),
+                                            ),
+                                          ),
                                       ],
                                     ),
                                   ),

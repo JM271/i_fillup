@@ -23,6 +23,10 @@ class WaterPlace {
   final String? id;
   final String? ownerId;
 
+  /// Whether this is its owner's one listed place, stored under the owner's
+  /// UID. Places created before the one-place rule have other IDs.
+  bool get isAccountPlace => id == null || id == ownerId;
+
   factory WaterPlace.fromFirestore(String id, Map<String, dynamic> data) {
     final latitude = data['latitude'];
     final longitude = data['longitude'];

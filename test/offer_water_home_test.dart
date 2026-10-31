@@ -2,6 +2,57 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:i_fillup/offer_water_home.dart';
 import 'package:i_fillup/water_place.dart';
+import 'package:i_fillup/water_repository.dart';
+
+WaterPlace legacyPlace(String id, String name) => WaterPlace(
+  name,
+  'Thun, Switzerland',
+  'Anna',
+  true,
+  'Free',
+  'Old listing',
+  Icons.cottage_outlined,
+  places.first.location,
+  id: id,
+  ownerId: 'me',
+);
+
+class LegacyRepository implements WaterRepository {
+  final kept = <(String, List<String>)>[];
+  final myPlaces = [
+    legacyPlace('old-1', 'Old tap'),
+    legacyPlace('old-2', 'Old well'),
+  ];
+
+  @override
+  bool get isDemo => false;
+  @override
+  Stream<List<WaterPlace>> watchPlaces() => Stream.value(const []);
+  @override
+  Stream<List<WaterPlace>> watchMyPlaces() => Stream.value(myPlaces);
+  @override
+  Stream<List<RefillRequest>> watchMyRequests() => Stream.value(const []);
+  @override
+  Stream<List<RefillRequest>> watchIncomingRequests() => Stream.value(const []);
+  @override
+  Future<void> saveOffer(WaterPlace place) async {}
+  @override
+  Future<void> deleteOffer(WaterPlace place) async {}
+  @override
+  Future<void> keepOnlyOffer(WaterPlace keep, List<WaterPlace> others) async =>
+      kept.add((keep.id!, [for (final place in others) place.id!]));
+  @override
+  Future<void> createRequest({
+    required WaterPlace place,
+    required int liters,
+    required String message,
+  }) async {}
+  @override
+  Future<void> updateRequestStatus(
+    RefillRequest request,
+    String status,
+  ) async {}
+}
 
 void main() {
   testWidgets('Your water places can be deleted after confirmation', (
@@ -55,5 +106,36 @@ void main() {
     await tester.tap(find.text('Offer water').last);
     await tester.pumpAndSettle();
     expect(find.text('Offer water.\nEarn cash.'), findsOneWidget);
+  });
+
+  test('Only a place stored under its owner UID is the account place', () {
+    expect(legacyPlace('me', 'Tap').isAccountPlace, isTrue);
+    expect(legacyPlace('old-1', 'Tap').isAccountPlace, isFalse);
+    expect(places.first.isAccountPlace, isTrue);
+  });
+
+  testWidgets('Owners of older places choose the one place to keep', (
+    tester,
+  ) async {
+    final repository = LegacyRepository();
+    await tester.pumpWidget(
+      MaterialApp(home: GiverHome(repository: repository)),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Choose your one water place'), findsOneWidget);
+    expect(find.text('Not listed'), findsNWidgets(2));
+
+    await tester.tap(find.text('Keep this one').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Keep Old well?'), findsOneWidget);
+    expect(
+      find.textContaining('Your other place will be deleted'),
+      findsOneWidget,
+    );
+    await tester.tap(find.widgetWithText(FilledButton, 'Keep this one'));
+    await tester.pumpAndSettle();
+    expect(repository.kept.single.$1, 'old-2');
+    expect(repository.kept.single.$2, ['old-1']);
+    expect(find.text('Old well is your water place'), findsOneWidget);
   });
 }
