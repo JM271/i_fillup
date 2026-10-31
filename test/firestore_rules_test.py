@@ -84,6 +84,9 @@ request('PATCH', status_path, host, dict(status='declined', updatedAt=''), 403)
 hide_path = '/refillRequests/' + request_id + '?updateMask.fieldPaths=hostHidden&updateMask.fieldPaths=updatedAt'
 request('PATCH', hide_path, 'traveler', dict(hostHidden=True, updatedAt=''), 403)
 request('PATCH', hide_path, host, dict(hostHidden=True, updatedAt=''))
+mine_path = '/refillRequests/' + request_id + '?updateMask.fieldPaths=requesterHidden&updateMask.fieldPaths=updatedAt'
+request('PATCH', mine_path, host, dict(requesterHidden=True, updatedAt=''), 403)
+request('PATCH', mine_path, 'traveler', dict(requesterHidden=True, updatedAt=''))
 request('DELETE', '/waterPlaces/' + place_id, 'stranger', expected=403)
 request('DELETE', '/waterPlaces/' + place_id, host)
-print('19 Firestore rules checks passed (local emulator only).')
+print('21 Firestore rules checks passed (local emulator only).')

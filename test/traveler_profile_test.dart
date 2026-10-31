@@ -16,9 +16,14 @@ const lea = TravelerProfile(
 );
 
 class ProfileRepository implements WaterRepository {
-  ProfileRepository({this.profile, this.incoming = const []});
+  ProfileRepository({
+    this.profile,
+    this.incoming = const [],
+    this.mine = const [],
+  });
   TravelerProfile? profile;
   final List<RefillRequest> incoming;
+  final List<RefillRequest> mine;
   final sent = <TravelerProfile>[];
   final deletedRequests = <String>[];
 
@@ -29,7 +34,7 @@ class ProfileRepository implements WaterRepository {
   @override
   Stream<List<WaterPlace>> watchMyPlaces() => Stream.value(const []);
   @override
-  Stream<List<RefillRequest>> watchMyRequests() => Stream.value(const []);
+  Stream<List<RefillRequest>> watchMyRequests() => Stream.value(mine);
   @override
   Stream<List<RefillRequest>> watchIncomingRequests() => Stream.value(incoming);
   @override
@@ -56,6 +61,9 @@ class ProfileRepository implements WaterRepository {
   ) async {}
   @override
   Future<void> deleteIncomingRequest(RefillRequest request) async =>
+      deletedRequests.add(request.id);
+  @override
+  Future<void> deleteMyRequest(RefillRequest request) async =>
       deletedRequests.add(request.id);
 }
 
@@ -238,5 +246,72 @@ void main() {
       'hostHidden': true,
     });
     expect(request.hostHidden, isTrue);
+    expect(request.requesterHidden, isFalse);
+  });
+
+  testWidgets('Water takers can delete their requests', (tester) async {
+    final repository = ProfileRepository(
+      mine: const [
+        RefillRequest(
+          id: 'm1',
+          placeName: 'Garden tap',
+          liters: 80,
+          message: 'Tomorrow',
+          status: 'pending',
+        ),
+        RefillRequest(
+          id: 'm2',
+          placeName: 'Farm well',
+          liters: 40,
+          message: 'Last week',
+          status: 'declined',
+        ),
+      ],
+    );
+    await tester.pumpWidget(
+      MaterialApp(home: RefillHome(repository: repository)),
+    );
+    await tester.tap(find.text('Requests'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('Delete request').first);
+    await tester.pumpAndSettle();
+    expect(
+      find.textContaining('The host will see that you cancelled it'),
+      findsOneWidget,
+    );
+    await tester.tap(find.text('Keep'));
+    await tester.pumpAndSettle();
+    expect(repository.deletedRequests, isEmpty);
+
+    await tester.tap(find.byTooltip('Delete request').first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Cancel and delete'));
+    await tester.pumpAndSettle();
+    expect(repository.deletedRequests, ['m1']);
+
+    await tester.tap(find.byTooltip('Delete request').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
+    await tester.pumpAndSettle();
+    expect(repository.deletedRequests, ['m1', 'm2']);
+  });
+
+  testWidgets('Demo requests can be deleted', (tester) async {
+    await tester.pumpWidget(const MaterialApp(home: RefillHome()));
+    final dynamic state = tester.state(find.byType(RefillHome));
+    state.requestWater(places.first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(ActionChip, 'ASAP'));
+    await tester.pump();
+    await tester.tap(find.text('Save demo request'));
+    await tester.pumpAndSettle();
+    expect(find.text(places.first.name), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Delete request'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Cancel and delete'));
+    await tester.pumpAndSettle();
+    expect(find.byTooltip('Delete request'), findsNothing);
   });
 }

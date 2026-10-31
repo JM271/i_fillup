@@ -144,6 +144,18 @@ service cloud.firestore {
             && request.resource.data.hostHidden == true
             && request.resource.data.diff(resource.data).affectedKeys()
               .hasOnly(['hostHidden', 'updatedAt'])));
+      // Water takers can delete requests from their list; a pending request
+      // is cancelled when deleted.
+      allow update: if signedIn()
+        && resource.data.requesterUid == request.auth.uid
+        && request.resource.data.requesterHidden == true
+        && ((resource.data.status == 'pending'
+            && request.resource.data.status == 'cancelled'
+            && request.resource.data.diff(resource.data).affectedKeys()
+              .hasOnly(['status', 'requesterHidden', 'updatedAt']))
+          || (resource.data.status != 'pending'
+            && request.resource.data.diff(resource.data).affectedKeys()
+              .hasOnly(['requesterHidden', 'updatedAt'])));
       allow delete: if false;
     }
   }

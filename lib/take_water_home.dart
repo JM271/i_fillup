@@ -413,6 +413,51 @@ class _RefillHomeState extends State<RefillHome> {
     liters.dispose();
   }
 
+  Widget deleteRequestButton({
+    required bool pending,
+    required Future<void> Function() onDelete,
+  }) => IconButton(
+    tooltip: 'Delete request',
+    icon: Icon(
+      Icons.delete_outline,
+      color: Theme.of(context).colorScheme.error,
+    ),
+    onPressed: () async {
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: const Text('Delete request?'),
+          content: Text(
+            pending
+                ? 'It is removed from your requests and cancelled. The host will see that you cancelled it.'
+                : 'It is removed from your requests.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: const Text('Keep'),
+            ),
+            FilledButton(
+              style: FilledButton.styleFrom(
+                backgroundColor: Theme.of(dialogContext).colorScheme.error,
+              ),
+              onPressed: () => Navigator.pop(dialogContext, true),
+              child: Text(pending ? 'Cancel and delete' : 'Delete'),
+            ),
+          ],
+        ),
+      );
+      if (confirmed != true || !mounted) return;
+      try {
+        await onDelete();
+      } on FirebaseException catch (error) {
+        showMessage('Could not delete request: ${error.message}');
+        return;
+      }
+      showMessage('Request deleted');
+    },
+  );
+
   void showMessage(Object error) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -1038,6 +1083,12 @@ class _RefillHomeState extends State<RefillHome> {
                                             subtitle: Text(
                                               '${request.liters} liters · ${request.message}\nStatus: ${request.status}',
                                             ),
+                                            trailing: deleteRequestButton(
+                                              pending:
+                                                  request.status == 'pending',
+                                              onDelete: () => repository
+                                                  .deleteMyRequest(request),
+                                            ),
                                           ),
                                         ),
                                       )
@@ -1056,6 +1107,12 @@ class _RefillHomeState extends State<RefillHome> {
                                 title: Text(request.split('\n').first),
                                 subtitle: Text(
                                   'Demo · ${request.split('\n').skip(1).join('\n')}',
+                                ),
+                                trailing: deleteRequestButton(
+                                  pending: true,
+                                  onDelete: () async => setState(
+                                    () => demoRequests.remove(request),
+                                  ),
                                 ),
                               ),
                             ),

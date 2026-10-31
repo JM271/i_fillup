@@ -62,6 +62,9 @@ class LegacyRepository implements WaterRepository {
   @override
   Future<void> deleteIncomingRequest(RefillRequest request) async =>
       deletedRequests.add(request.id);
+  @override
+  Future<void> deleteMyRequest(RefillRequest request) async =>
+      deletedRequests.add(request.id);
 }
 
 void main() {
