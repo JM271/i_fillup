@@ -58,9 +58,11 @@ Search uses the [Photon public demo API](https://github.com/komoot/photon), trig
 
 ## Route planning
 
+**Near me** lists places within **1 / 2 / 5 / 10 / 25 km** driving distance of the device location, nearest first, each showing how far away it is by road.
+
 In Take water, **Plan a route** asks for a destination (Google picker on Android, Photon list elsewhere) and plans a driving route from the device location. Choose **Within 1 / 2 / 5 / 10 / 25 km** to list places near the route, in the order you reach them. Each place shows the driving distance from your start and how far it is off the route by road (half the extra driving there and back). **Map** draws the route with the places.
 
-Routing uses the [OSRM public demo server](https://github.com/Project-OSRM/osrm-backend/wiki/Demo-server), which is free, has no availability guarantee and is intended for light use. Your start and destination coordinates and those of nearby places are sent to it. For production, host OSRM or a compatible service and set `--dart-define=ROUTING_URL=https://your-server/`.
+Routing uses the [OSRM public demo server](https://github.com/Project-OSRM/osrm-backend/wiki/Demo-server), which is free, has no availability guarantee and is intended for light use. Your location, any destination and the coordinates of nearby places are sent to it. For production, host OSRM or a compatible service and set `--dart-define=ROUTING_URL=https://your-server/`.
 
 ## Google Places address picker (Android)
 

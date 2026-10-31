@@ -13,11 +13,22 @@ class PlannedRoute {
     required this.end,
     required this.path,
     required this.meters,
-  });
+  }) : aroundStart = false;
+
+  /// A zero-length route whose stops are measured by driving from [origin].
+  PlannedRoute.around(LatLng origin)
+    : destination = '',
+      start = origin,
+      end = origin,
+      path = [origin],
+      meters = 0,
+      aroundStart = true;
+
   final String destination;
   final LatLng start, end;
   final List<LatLng> path;
   final double meters;
+  final bool aroundStart;
 }
 
 /// A water place reachable from a route, measured by driving distance.

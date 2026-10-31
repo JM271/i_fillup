@@ -163,4 +163,37 @@ void main() {
     expect(find.text('Plan a route'), findsOneWidget);
     expect(find.textContaining('3 demo places'), findsOneWidget);
   });
+
+  testWidgets('Near me shows places within driving distance of you', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(400, 1200);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: RefillHome(
+          routeService: FakeRouteService(),
+          locate: () async => thun,
+          chooseDestination: (_) async => null,
+        ),
+      ),
+    );
+    await tester.tap(find.text('Near me'));
+    await tester.pumpAndSettle();
+    expect(find.text('Near your location'), findsOneWidget);
+    expect(find.text('1 place within 5 km of you'), findsOneWidget);
+    expect(find.text('At your location'), findsOneWidget);
+
+    await tester.tap(find.text('25'));
+    await tester.pumpAndSettle();
+    expect(find.text('2 places within 25 km of you'), findsOneWidget);
+    expect(find.text('14 km away'), findsOneWidget);
+    expect(find.text('Riverside camper stop'), findsNothing);
+
+    await tester.tap(find.byTooltip('Clear distance filter'));
+    await tester.pumpAndSettle();
+    expect(find.text('Near me'), findsOneWidget);
+  });
 }

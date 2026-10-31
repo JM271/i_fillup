@@ -51,10 +51,21 @@ String formatKm(double meters) => meters < 10000
 
 const routeRadiiKm = [1, 2, 5, 10, 25];
 
-String routeStopLabel(RouteStop stop) => [
-  stop.along < 100 ? 'At your start' : 'After ${formatKm(stop.along)}',
-  stop.offRoute < 100 ? 'on route' : '${formatKm(stop.offRoute)} off route',
-].join(' · ');
+String routeStopLabel(PlannedRoute route, RouteStop stop) {
+  if (route.aroundStart) {
+    return stop.along < 100
+        ? 'At your location'
+        : '${formatKm(stop.along)} away';
+  }
+  return [
+    stop.along < 100 ? 'At your start' : 'After ${formatKm(stop.along)}',
+    stop.offRoute < 100 ? 'on route' : '${formatKm(stop.offRoute)} off route',
+  ].join(' · ');
+}
+
+/// Driving meters that the distance filter compares with the chosen radius.
+double filterDistance(PlannedRoute route, RouteStop stop) =>
+    route.aroundStart ? stop.along : stop.offRoute;
 
 class _RefillHomeState extends State<RefillHome> {
   String query = '';
@@ -64,7 +75,7 @@ class _RefillHomeState extends State<RefillHome> {
   PlannedRoute? route;
   List<RouteStop>? stops;
   List<WaterPlace>? routedPlaces;
-  bool routing = false;
+  String? busy;
   int radiusKm = 5;
 
   late final RouteService routeService =
@@ -316,17 +327,14 @@ class _RefillHomeState extends State<RefillHome> {
     );
   }
 
-  Future<void> planRoute(List<WaterPlace> allPlaces) async {
+  Future<void> applyRoute(
+    List<WaterPlace> allPlaces,
+    String busyLabel,
+    Future<PlannedRoute> Function() plan,
+  ) async {
+    setState(() => busy = busyLabel);
     try {
-      final destination = await widget.chooseDestination(context);
-      if (destination == null || !mounted) return;
-      setState(() => routing = true);
-      final start = await widget.locate().timeout(const Duration(seconds: 20));
-      final planned = await routeService.route(
-        start,
-        destination.location,
-        destination.label,
-      );
+      final planned = await plan();
       final found = await routeService.stopsAlong(
         planned,
         allPlaces,
@@ -341,8 +349,37 @@ class _RefillHomeState extends State<RefillHome> {
     } catch (error) {
       showMessage(error);
     } finally {
-      if (mounted) setState(() => routing = false);
+      if (mounted) setState(() => busy = null);
     }
+  }
+
+  Future<LatLng> locate() =>
+      widget.locate().timeout(const Duration(seconds: 20));
+
+  Future<void> findNearby(List<WaterPlace> allPlaces) => applyRoute(
+    allPlaces,
+    'Locating…',
+    () async => PlannedRoute.around(await locate()),
+  );
+
+  Future<void> planRoute(List<WaterPlace> allPlaces) async {
+    final AddressMatch? destination;
+    try {
+      destination = await widget.chooseDestination(context);
+    } catch (error) {
+      showMessage(error);
+      return;
+    }
+    if (destination == null || !mounted) return;
+    await applyRoute(
+      allPlaces,
+      'Planning…',
+      () async => routeService.route(
+        await locate(),
+        destination!.location,
+        destination.label,
+      ),
+    );
   }
 
   /// Keeps route stops current when listings change while a route is active.
@@ -362,18 +399,43 @@ class _RefillHomeState extends State<RefillHome> {
     }
   }
 
+  Widget distanceButton(
+    String label,
+    IconData icon,
+    String busyLabel,
+    VoidCallback onPressed,
+  ) => Expanded(
+    child: OutlinedButton.icon(
+      onPressed: busy == null ? onPressed : null,
+      icon: busy == busyLabel
+          ? const SizedBox.square(
+              dimension: 18,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
+          : Icon(icon),
+      label: Text(busy == busyLabel ? busyLabel : label),
+    ),
+  );
+
   Widget routePanel(List<WaterPlace> allPlaces) {
     final planned = route;
     if (planned == null) {
-      return OutlinedButton.icon(
-        onPressed: routing ? null : () => planRoute(allPlaces),
-        icon: routing
-            ? const SizedBox.square(
-                dimension: 18,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              )
-            : const Icon(Icons.route_outlined),
-        label: Text(routing ? 'Planning route…' : 'Plan a route'),
+      return Row(
+        children: [
+          distanceButton(
+            'Near me',
+            Icons.near_me_outlined,
+            'Locating…',
+            () => findNearby(allPlaces),
+          ),
+          const SizedBox(width: 8),
+          distanceButton(
+            'Plan a route',
+            Icons.route_outlined,
+            'Planning…',
+            () => planRoute(allPlaces),
+          ),
+        ],
       );
     }
     return Card(
@@ -387,14 +449,21 @@ class _RefillHomeState extends State<RefillHome> {
           children: [
             Row(
               children: [
-                const Icon(Icons.route_outlined, color: teal),
+                Icon(
+                  planned.aroundStart
+                      ? Icons.near_me_outlined
+                      : Icons.route_outlined,
+                  color: teal,
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'To ${planned.destination}',
+                        planned.aroundStart
+                            ? 'Near your location'
+                            : 'To ${planned.destination}',
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           fontWeight: FontWeight.w700,
@@ -402,7 +471,9 @@ class _RefillHomeState extends State<RefillHome> {
                         ),
                       ),
                       Text(
-                        '${formatKm(planned.meters)} drive from your location',
+                        planned.aroundStart
+                            ? 'Driving distance from where you are'
+                            : '${formatKm(planned.meters)} drive from your location',
                         style: const TextStyle(
                           fontSize: 12,
                           color: Color(0xFF617575),
@@ -412,7 +483,9 @@ class _RefillHomeState extends State<RefillHome> {
                   ),
                 ),
                 IconButton(
-                  tooltip: 'Clear route',
+                  tooltip: planned.aroundStart
+                      ? 'Clear distance filter'
+                      : 'Clear route',
                   onPressed: () => setState(() {
                     route = null;
                     stops = null;
@@ -472,7 +545,7 @@ class _RefillHomeState extends State<RefillHome> {
       builder: (context, placesSnapshot) {
         final allPlaces = placesSnapshot.data ?? const <WaterPlace>[];
         if (route != null &&
-            !routing &&
+            busy == null &&
             placesSnapshot.hasData &&
             !identical(routedPlaces, allPlaces)) {
           refreshStops(allPlaces);
@@ -485,7 +558,8 @@ class _RefillHomeState extends State<RefillHome> {
                 (filter == 'Private hosts' ? p.private : !p.private));
         final routeStops = {
           for (final stop in stops ?? const <RouteStop>[])
-            if (stop.offRoute <= radiusKm * 1000 && matches(stop.place))
+            if (filterDistance(route!, stop) <= radiusKm * 1000 &&
+                matches(stop.place))
               stop.place: stop,
         };
         final visible = route == null
@@ -595,7 +669,7 @@ class _RefillHomeState extends State<RefillHome> {
                                     ),
                                     Text(
                                       route != null
-                                          ? '${visible.length} places within $radiusKm km of your route'
+                                          ? '${visible.length} ${visible.length == 1 ? 'place' : 'places'} within $radiusKm km of ${route!.aroundStart ? 'you' : 'your route'}'
                                           : '${visible.length} ${repository.isDemo ? 'demo ' : ''}places · ${repository.isDemo ? 'Sample places in Switzerland' : 'Live community listings'}',
                                       style: const TextStyle(
                                         fontSize: 12,
@@ -610,16 +684,20 @@ class _RefillHomeState extends State<RefillHome> {
                                     ? null
                                     : () async {
                                         final selected =
-                                            await Navigator.of(context)
-                                                .push<WaterPlace>(
-                                                  MaterialPageRoute(
-                                                    builder: (_) =>
-                                                        WaterPlacesMap(
-                                                          places: visible,
-                                                          route: route?.path,
-                                                        ),
-                                                  ),
-                                                );
+                                            await Navigator.of(
+                                              context,
+                                            ).push<WaterPlace>(
+                                              MaterialPageRoute(
+                                                builder: (_) => WaterPlacesMap(
+                                                  places: visible,
+                                                  route:
+                                                      route?.aroundStart ==
+                                                          false
+                                                      ? route!.path
+                                                      : null,
+                                                ),
+                                              ),
+                                            );
                                         if (selected != null && mounted) {
                                           await showPlace(selected);
                                         }
@@ -648,7 +726,7 @@ class _RefillHomeState extends State<RefillHome> {
                               padding: const EdgeInsets.all(24),
                               child: Text(
                                 route != null
-                                    ? 'No places within $radiusKm km of your route. Try a wider distance.'
+                                    ? 'No places within $radiusKm km of ${route!.aroundStart ? 'you' : 'your route'}. Try a wider distance.'
                                     : 'No places match. Try a different town or filter.',
                               ),
                             ),
@@ -712,7 +790,7 @@ class _RefillHomeState extends State<RefillHome> {
                                               if (routeStops[place]
                                                   case final stop?)
                                                 Text(
-                                                  routeStopLabel(stop),
+                                                  routeStopLabel(route!, stop),
                                                   style: const TextStyle(
                                                     fontSize: 13,
                                                     fontWeight: FontWeight.w600,
