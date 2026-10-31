@@ -22,7 +22,7 @@ The apps use Firebase project `i-fillup`, email/password Firebase Authentication
 
 The Android app `com.example.i_fillup` is registered in Firebase; its config is in `android/app/google-services.json`. The old `.taker` and `.giver` registrations are obsolete and can be deleted in the Firebase console.
 
-The default Firestore database still needs to be created in the Firebase project. Device logs on 2026-10-31 confirm that the default database does not exist. Enable the Cloud Firestore API if prompted, then create the default Firestore database in `europe-west6` (Zurich), the region selected for the Swiss-first MVP.
+The default Firestore database still needs to be created in the Firebase project. Device logs on 2026-10-31 confirm that the default database does not exist. Enable the Cloud Firestore API if prompted, then create the default Firestore database. (It was created in the `eur3` multi-region.)
 
 Deploy the repository's Firestore security rules after the database is ready:
 
@@ -60,7 +60,7 @@ Search uses the [Photon public demo API](https://github.com/komoot/photon), trig
 
 Hosts get a push notification as soon as a traveler sends a refill request. When an account has a water place, the app asks for notification permission and stores the device's FCM token in `devices/{uid}` (owner-only by the rules; up to 10 devices). The `notifyHostOfRequest` Cloud Function in `functions/index.js` runs when a `refillRequests` document is created and sends "New refill request: <name> would like <liters> l at <place>" to the host's devices, removing tokens that are no longer valid. Tapping the notification opens Offer water → Requests; while the app is open a banner with **View** appears instead. Signing out removes the device's token.
 
-Cloud Functions require the Blaze plan. The function's region must match the Firestore database location (set in `functions/index.js`, currently `europe-west6`). Deploy with Node.js 22 and the Firebase CLI:
+Cloud Functions require the Blaze plan. The function's region must lie within the Firestore database location, which is the `eur3` multi-region, so it runs in `europe-west1` (set in `functions/index.js`). Deploy with Node.js 22 and the Firebase CLI:
 
 ```sh
 cd functions && npm install && cd ..

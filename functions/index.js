@@ -5,8 +5,8 @@ const {getMessaging} = require('firebase-admin/messaging');
 
 initializeApp();
 
-// Must match the Firestore database location (Firebase console > Firestore).
-const region = 'europe-west6';
+// Must lie within the Firestore database location, the eur3 multi-region.
+const region = 'europe-west1';
 
 const staleTokenErrors = new Set([
   'messaging/registration-token-not-registered',
