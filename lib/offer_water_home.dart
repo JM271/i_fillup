@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import 'app_style.dart';
 import 'authentication.dart';
 import 'offer_water_form.dart';
 import 'water_place.dart';
@@ -63,27 +64,26 @@ class _GiverHomeState extends State<GiverHome> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
-      title: const Text('i fillup · Give'),
-      actions: [AccountButton(auth: widget.auth)],
-      bottom: PreferredSize(
-        preferredSize: const Size.fromHeight(48),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            TextButton.icon(
-              onPressed: widget.onHome ?? () => setState(() => page = 0),
-              icon: const Icon(Icons.home_outlined),
-              label: const Text('Home'),
-            ),
-            if (widget.onTakeWater != null)
-              TextButton.icon(
-                onPressed: widget.onTakeWater,
-                icon: const Icon(Icons.swap_horiz),
-                label: const Text('Take water'),
-              ),
-          ],
-        ),
+      leading: IconButton(
+        tooltip: 'Home',
+        icon: const Icon(Icons.home_outlined),
+        onPressed: widget.onHome ?? () => setState(() => page = 0),
       ),
+      titleSpacing: 0,
+      title: const Text(
+        'Offer water',
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(fontWeight: FontWeight.w800, color: ink),
+      ),
+      actions: [
+        if (widget.onTakeWater != null)
+          TextButton.icon(
+            onPressed: widget.onTakeWater,
+            icon: const Icon(Icons.swap_horiz),
+            label: const Text('Take water'),
+          ),
+        AccountButton(auth: widget.auth),
+      ],
     ),
     bottomNavigationBar: NavigationBar(
       selectedIndex: page,
@@ -123,37 +123,51 @@ class _GiverHomeState extends State<GiverHome> {
                       ? demoOffers
                       : snapshot.data ?? const <WaterPlace>[];
                   return ListView(
-                    padding: const EdgeInsets.all(24),
+                    padding: const EdgeInsets.all(16),
                     children: [
                       Text(
                         'Your water places',
-                        style: Theme.of(context).textTheme.headlineMedium,
+                        style: Theme.of(context).textTheme.headlineSmall,
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 4),
                       const Text(
                         'Manage the places where travelers can refill.',
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 12),
                       if (offers.isEmpty)
                         const Text(
                           'No places yet. Add your first water offer below.',
                         ),
                       ...offers.map(
                         (place) => Card(
+                          margin: const EdgeInsets.only(bottom: 8),
                           child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                            padding: const EdgeInsets.fromLTRB(12, 8, 4, 8),
+                            child: Row(
                               children: [
-                                Text(
-                                  place.name,
-                                  style: Theme.of(context).textTheme.titleLarge,
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        place.name,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .titleMedium,
+                                      ),
+                                      Text('${place.area} · ${place.price}'),
+                                      Text(
+                                        place.openingTimes,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall,
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                                Text(place.area),
-                                const SizedBox(height: 8),
-                                Text(place.price),
-                                Text('Opening times: ${place.openingTimes}'),
-                                TextButton.icon(
+                                IconButton(
+                                  tooltip: 'View on map',
                                   onPressed: () => Navigator.of(context)
                                       .push<WaterPlace>(
                                         MaterialPageRoute(
@@ -161,21 +175,23 @@ class _GiverHomeState extends State<GiverHome> {
                                               WaterPlacesMap(places: [place]),
                                         ),
                                       ),
-                                  icon: const Icon(Icons.map_outlined),
-                                  label: const Text('View on map'),
+                                  icon: const Icon(
+                                    Icons.map_outlined,
+                                    color: teal,
+                                  ),
                                 ),
                               ],
                             ),
                           ),
                         ),
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 16),
                       FilledButton.icon(
                         onPressed: () => setState(() => page = 1),
                         icon: const Icon(Icons.add),
                         label: const Text('Offer water'),
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 16),
                       Text(
                         repository.isDemo
                             ? 'Demo only. Offers are not shared with the water taker app.'
@@ -197,25 +213,27 @@ class _GiverHomeState extends State<GiverHome> {
                   }
                   final requests = snapshot.data ?? const <RefillRequest>[];
                   return ListView(
-                    padding: const EdgeInsets.all(24),
+                    padding: const EdgeInsets.all(16),
                     children: [
                       Text(
                         'Incoming requests',
-                        style: Theme.of(context).textTheme.headlineMedium,
+                        style: Theme.of(context).textTheme.headlineSmall,
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 12),
                       if (requests.isEmpty)
                         const Text('New traveler requests will appear here.'),
                       ...requests.map(
                         (request) => Card(
                           child: Padding(
-                            padding: const EdgeInsets.all(16),
+                            padding: const EdgeInsets.all(12),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   request.placeName,
-                                  style: Theme.of(context).textTheme.titleLarge,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium,
                                 ),
                                 const SizedBox(height: 8),
                                 Text('${request.liters} liters'),
@@ -244,7 +262,7 @@ class _GiverHomeState extends State<GiverHome> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 12),
                       const Text(
                         'Payments are arranged directly with travelers. The app does not collect payments or record earnings.',
                       ),

@@ -302,31 +302,26 @@ class _RefillHomeState extends State<RefillHome> {
         return Scaffold(
           appBar: AppBar(
             backgroundColor: const Color(0xFFF6F8F4),
+            leading: IconButton(
+              tooltip: 'Home',
+              icon: const Icon(Icons.home_outlined),
+              onPressed: widget.onHome ?? () => setState(() => page = 0),
+            ),
+            titleSpacing: 0,
             title: const Text(
-              'i fillup · Take',
+              'Take water',
               overflow: TextOverflow.ellipsis,
               style: TextStyle(fontWeight: FontWeight.w800, color: ink),
             ),
-            actions: [AccountButton(auth: widget.auth)],
-            bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(48),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  TextButton.icon(
-                    onPressed: widget.onHome ?? () => setState(() => page = 0),
-                    icon: const Icon(Icons.home_outlined),
-                    label: const Text('Home'),
-                  ),
-                  if (widget.onOfferWater != null)
-                    TextButton.icon(
-                      onPressed: widget.onOfferWater,
-                      icon: const Icon(Icons.swap_horiz),
-                      label: const Text('Offer water'),
-                    ),
-                ],
-              ),
-            ),
+            actions: [
+              if (widget.onOfferWater != null)
+                TextButton.icon(
+                  onPressed: widget.onOfferWater,
+                  icon: const Icon(Icons.swap_horiz),
+                  label: const Text('Offer water'),
+                ),
+              AccountButton(auth: widget.auth),
+            ],
           ),
           bottomNavigationBar: NavigationBar(
             selectedIndex: selectedPage,
@@ -339,107 +334,105 @@ class _RefillHomeState extends State<RefillHome> {
                 constraints: const BoxConstraints(maxWidth: 760),
                 child: selectedPage == 0
                     ? ListView(
-                        padding: const EdgeInsets.all(24),
+                        padding: const EdgeInsets.all(16),
                         children: [
-                          const Text(
-                            'LESS SEARCHING. MORE EXPLORING.',
-                            style: TextStyle(
-                              color: teal,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 11,
-                              letterSpacing: 1.5,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
                           Text(
                             'Fresh water.\nOpen roads.',
                             style: Theme.of(context).textTheme.headlineLarge,
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 4),
                           const Text(
-                            'Find a refill stop for your campervan.\nConnect with local places and friendly private hosts.',
-                            style: TextStyle(
-                              color: Color(0xFF617575),
-                              height: 1.5,
-                              fontSize: 16,
-                            ),
+                            'Refill stops and private hosts for your campervan.',
+                            style: TextStyle(color: Color(0xFF617575)),
                           ),
-                          const SizedBox(height: 24),
+                          const SizedBox(height: 12),
                           TextField(
                             onChanged: (value) => setState(() => query = value),
                             decoration: InputDecoration(
                               hintText: 'Search a town or place',
                               prefixIcon: const Icon(Icons.search),
+                              isDense: true,
                               filled: true,
                               fillColor: Colors.white,
                               border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(18),
+                                borderRadius: BorderRadius.circular(14),
                                 borderSide: BorderSide.none,
                               ),
                             ),
                           ),
-                          const SizedBox(height: 16),
-                          Wrap(
-                            spacing: 8,
-                            children:
-                                ['All places', 'Private hosts', 'Refill stops']
-                                    .map(
-                                      (label) => ChoiceChip(
-                                        label: Text(label),
-                                        selected: filter == label,
-                                        onSelected: (_) =>
-                                            setState(() => filter = label),
-                                      ),
-                                    )
-                                    .toList(),
-                          ),
-                          const SizedBox(height: 16),
-                          FilledButton.icon(
-                            onPressed: visible.isEmpty
-                                ? null
-                                : () async {
-                                    final selected = await Navigator.of(context)
-                                        .push<WaterPlace>(
-                                          MaterialPageRoute(
-                                            builder: (_) =>
-                                                WaterPlacesMap(places: visible),
+                          const SizedBox(height: 8),
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children:
+                                  [
+                                        'All places',
+                                        'Private hosts',
+                                        'Refill stops',
+                                      ]
+                                      .map(
+                                        (label) => Padding(
+                                          padding: const EdgeInsets.only(
+                                            right: 8,
                                           ),
-                                        );
-                                    if (selected != null && mounted) {
-                                      await showPlace(selected);
-                                    }
-                                  },
-                            icon: const Icon(Icons.map_outlined),
-                            label: Text('Show ${visible.length} places on map'),
+                                          child: ChoiceChip(
+                                            label: Text(label),
+                                            selected: filter == label,
+                                            onSelected: (_) =>
+                                                setState(() => filter = label),
+                                          ),
+                                        ),
+                                      )
+                                      .toList(),
+                            ),
                           ),
-                          const SizedBox(height: 26),
-                          Wrap(
-                            spacing: 16,
-                            runSpacing: 8,
+                          const SizedBox(height: 12),
+                          Row(
                             children: [
-                              Text(
-                                'Discover a refill',
-                                style: Theme.of(context).textTheme.titleLarge,
-                              ),
-                              Text(
-                                '${visible.length} ${repository.isDemo ? 'demo ' : ''}places',
-                                style: const TextStyle(
-                                  color: Color(0xFF617575),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Discover a refill',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleLarge,
+                                    ),
+                                    Text(
+                                      '${visible.length} ${repository.isDemo ? 'demo ' : ''}places · ${repository.isDemo ? 'Sample places in Switzerland' : 'Live community listings'}',
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        color: Color(0xFF617575),
+                                      ),
+                                    ),
+                                  ],
                                 ),
+                              ),
+                              FilledButton.tonalIcon(
+                                onPressed: visible.isEmpty
+                                    ? null
+                                    : () async {
+                                        final selected =
+                                            await Navigator.of(context)
+                                                .push<WaterPlace>(
+                                                  MaterialPageRoute(
+                                                    builder: (_) =>
+                                                        WaterPlacesMap(
+                                                          places: visible,
+                                                        ),
+                                                  ),
+                                                );
+                                        if (selected != null && mounted) {
+                                          await showPlace(selected);
+                                        }
+                                      },
+                                icon: const Icon(Icons.map_outlined),
+                                label: const Text('Map'),
                               ),
                             ],
                           ),
                           const SizedBox(height: 8),
-                          Text(
-                            repository.isDemo
-                                ? 'Sample places in Switzerland · No live location used'
-                                : 'Live community listings',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Color(0xFF617575),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
                           if (placesSnapshot.hasError)
                             Padding(
                               padding: const EdgeInsets.all(24),
@@ -462,7 +455,7 @@ class _RefillHomeState extends State<RefillHome> {
                             ),
                           ...visible.map(
                             (place) => Padding(
-                              padding: const EdgeInsets.only(bottom: 16),
+                              padding: const EdgeInsets.only(bottom: 8),
                               child: Card(
                                 elevation: 0,
                                 color: Colors.white,
@@ -470,97 +463,69 @@ class _RefillHomeState extends State<RefillHome> {
                                 clipBehavior: Clip.antiAlias,
                                 child: InkWell(
                                   onTap: () => showPlace(place),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Container(
-                                        height: 112,
-                                        color: place.private
-                                            ? const Color(0xFFDDEBE0)
-                                            : const Color(0xFFDCECEE),
-                                        padding: const EdgeInsets.all(20),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Icon(
-                                              place.icon,
-                                              size: 64,
-                                              color: teal,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(12),
+                                    child: Row(
+                                      children: [
+                                        Container(
+                                          width: 48,
+                                          height: 48,
+                                          decoration: BoxDecoration(
+                                            color: place.private
+                                                ? const Color(0xFFDDEBE0)
+                                                : const Color(0xFFDCECEE),
+                                            borderRadius: BorderRadius.circular(
+                                              12,
                                             ),
-                                            Chip(
-                                              label: Text(
-                                                place.private
-                                                    ? 'Private host'
-                                                    : 'Refill stop',
-                                              ),
-                                              backgroundColor: Colors.white,
-                                              side: BorderSide.none,
-                                            ),
-                                          ],
+                                          ),
+                                          child: Icon(place.icon, color: teal),
                                         ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(18),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              place.name,
-                                              style: const TextStyle(
-                                                fontSize: 19,
-                                                fontWeight: FontWeight.w700,
-                                                color: ink,
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                place.name,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: const TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: ink,
+                                                ),
                                               ),
-                                            ),
-                                            const SizedBox(height: 6),
-                                            Text(
-                                              place.area,
-                                              style: const TextStyle(
-                                                color: Color(0xFF617575),
+                                              Text(
+                                                '${place.area} · ${place.private ? 'Private host' : 'Refill stop'}',
+                                                overflow: TextOverflow.ellipsis,
+                                                style: const TextStyle(
+                                                  fontSize: 13,
+                                                  color: Color(0xFF617575),
+                                                ),
                                               ),
-                                            ),
-                                            const SizedBox(height: 16),
-                                            Row(
-                                              children: [
-                                                Expanded(
-                                                  child: Text(
-                                                    place.price,
-                                                    style: const TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.w700,
-                                                      color: ink,
-                                                    ),
-                                                  ),
+                                              Text(
+                                                place.price,
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.w700,
+                                                  color: ink,
                                                 ),
-                                                const Text(
-                                                  'View place',
-                                                  style: TextStyle(
-                                                    color: teal,
-                                                    fontWeight: FontWeight.w700,
-                                                  ),
-                                                ),
-                                                const SizedBox(width: 6),
-                                                const Icon(
-                                                  Icons.arrow_forward,
-                                                  size: 18,
-                                                  color: teal,
-                                                ),
-                                              ],
-                                            ),
-                                          ],
+                                              ),
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                    ],
+                                        const Icon(
+                                          Icons.chevron_right,
+                                          color: teal,
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
                           ),
                           const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 12),
+                            padding: EdgeInsets.symmetric(vertical: 8),
                             child: Text(
                               'A small stop. A big help for your next adventure.',
                               textAlign: TextAlign.center,
@@ -570,19 +535,19 @@ class _RefillHomeState extends State<RefillHome> {
                         ],
                       )
                     : ListView(
-                        padding: const EdgeInsets.all(24),
+                        padding: const EdgeInsets.all(16),
                         children: [
                           Text(
                             'Your requests',
-                            style: Theme.of(context).textTheme.headlineLarge,
+                            style: Theme.of(context).textTheme.headlineSmall,
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 4),
                           Text(
                             repository.isDemo
                                 ? 'Demo previews only. Nothing is sent, and previews clear when the app restarts.'
                                 : 'Your refill requests and their status appear here.',
                           ),
-                          const SizedBox(height: 24),
+                          const SizedBox(height: 12),
                           if (repository.isDemo && demoRequests.isEmpty)
                             const ListTile(
                               contentPadding: EdgeInsets.zero,

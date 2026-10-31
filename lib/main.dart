@@ -39,11 +39,13 @@ class FillupApp extends StatelessWidget {
     debugShowCheckedModeBanner: false,
     theme: ThemeData(
       useMaterial3: true,
+      visualDensity: VisualDensity.compact,
+      navigationBarTheme: const NavigationBarThemeData(height: 64),
       scaffoldBackgroundColor: const Color(0xFFF6F8F4),
       colorScheme: ColorScheme.fromSeed(seedColor: teal),
       textTheme: const TextTheme(
         headlineLarge: TextStyle(
-          fontSize: 36,
+          fontSize: 28,
           fontWeight: FontWeight.w800,
           color: ink,
           height: 1.12,

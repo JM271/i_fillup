@@ -371,11 +371,11 @@ void main() {
     await tester.tap(find.text('Refill stops'));
     await tester.pumpAndSettle();
     await tester.scrollUntilVisible(
-      find.text('1 demo places'),
+      find.textContaining('1 demo places'),
       100,
       scrollable: find.byType(Scrollable).first,
     );
-    expect(find.text('1 demo places'), findsOneWidget);
+    expect(find.textContaining('1 demo places'), findsOneWidget);
     expect(find.text('A little stop by the lake'), findsNothing);
     await tester.scrollUntilVisible(
       find.text('Riverside camper stop'),
@@ -441,7 +441,7 @@ void main() {
     await tester.tap(find.text('Take water'));
     await tester.pumpAndSettle();
     expect(find.text('Fresh water.\nOpen roads.'), findsOneWidget);
-    await tester.tap(find.text('Home'));
+    await tester.tap(find.byTooltip('Home'));
     await tester.pumpAndSettle();
     expect(find.text('Welcome to i fillup'), findsOneWidget);
     await tester.tap(find.text('Offer water'));
@@ -451,7 +451,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField).first, 'My draft refill');
     FocusManager.instance.primaryFocus?.unfocus();
-    await tester.tap(find.text('Home'));
+    await tester.tap(find.byTooltip('Home'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Offer water'));
     await tester.pumpAndSettle();

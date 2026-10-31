@@ -140,7 +140,7 @@ void main() {
         ),
       ),
     );
-    await tester.tap(find.text('Account'));
+    await tester.tap(find.byTooltip('Account'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Sign out'));
     await tester.pumpAndSettle();

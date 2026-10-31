@@ -54,7 +54,7 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
   Widget build(BuildContext context) => Form(
     key: form,
     child: SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -66,7 +66,7 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
           const Text(
             'Set your price for a campervan refill, add your place and choose your opening times.',
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
           TextFormField(
             controller: name,
             decoration: const InputDecoration(
@@ -76,7 +76,7 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
             ),
             validator: requiredText,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           TextFormField(
             controller: address,
             onChanged: (_) => setState(() => location = null),
@@ -163,7 +163,7 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
               'Choose your place on the map.',
               style: TextStyle(color: Theme.of(context).colorScheme.error),
             ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
           TextFormField(
             controller: hours,
             maxLines: 4,
@@ -178,7 +178,7 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
             ),
             validator: requiredText,
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
           TextFormField(
             key: const ValueKey('offer-price'),
             controller: price,
@@ -199,7 +199,7 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
           const Text(
             'Payment is arranged directly with the traveler. The app does not collect payments or pay out earnings.',
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
           FilledButton.icon(
             onPressed: saving
                 ? null

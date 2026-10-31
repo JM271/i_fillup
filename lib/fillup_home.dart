@@ -34,7 +34,7 @@ class _FillupHomeState extends State<FillupHome> {
         body: SafeArea(
           child: Center(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.all(16),
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 560),
                 child: Column(
@@ -42,35 +42,35 @@ class _FillupHomeState extends State<FillupHome> {
                   children: [
                     const Icon(
                       Icons.water_drop_outlined,
-                      size: 64,
+                      size: 48,
                       color: teal,
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 16),
                     Text(
                       'Welcome to i fillup',
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.headlineLarge,
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 4),
                     const Text(
                       'Fresh water. Shared journeys.',
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 16),
                     _HomeChoice(
                       title: 'Take water',
                       description: 'Find a refill place, check the details and arrange your next fill-up.',
                       icon: Icons.water_drop_outlined,
                       onTap: () => open(1),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12),
                     _HomeChoice(
                       title: 'Offer water',
                       description: 'Share your water point, set your price and manage traveler requests.',
                       icon: Icons.add_location_alt_outlined,
                       onTap: () => open(2),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 16),
                     const Text(
                       'One app. Take water or offer water whenever you need.',
                       textAlign: TextAlign.center,
@@ -117,11 +117,11 @@ class _HomeChoice extends StatelessWidget {
     child: InkWell(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(16),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, color: teal, size: 32),
+            Icon(icon, color: teal, size: 28),
             const SizedBox(width: 16),
             Expanded(
               child: Column(

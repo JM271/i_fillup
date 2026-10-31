@@ -34,9 +34,9 @@ class AccountButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (auth == null) return const SizedBox.shrink();
-    return TextButton.icon(
+    return IconButton(
       icon: const Icon(Icons.account_circle_outlined),
-      label: const Text('Account'),
+      tooltip: 'Account',
       onPressed: () => showDialog<void>(
         context: context,
         builder: (dialogContext) => AlertDialog(
