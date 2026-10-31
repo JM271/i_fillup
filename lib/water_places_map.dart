@@ -6,7 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'app_style.dart';
 import 'water_place.dart';
 
-/// The same filtered places as discovery, shown at illustrative demo coordinates.
+/// The same filtered places as discovery, optionally with the planned route.
 class WaterPlacesMap extends StatelessWidget {
   const WaterPlacesMap({
     super.key,
@@ -28,9 +28,7 @@ class WaterPlacesMap extends StatelessWidget {
       children: [
         const Padding(
           padding: EdgeInsets.fromLTRB(16, 8, 16, 12),
-          child: Text(
-            'Demo locations near each town — not verified refill addresses. Tap a water drop for details.',
-          ),
+          child: Text('Tap a water drop for details.'),
         ),
         Expanded(
           child: FlutterMap(
