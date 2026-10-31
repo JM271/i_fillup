@@ -49,3 +49,6 @@ app.*.map.json
 
 # Local Google Places credential
 /android/secrets.properties
+
+# Cloud Functions
+/functions/node_modules/

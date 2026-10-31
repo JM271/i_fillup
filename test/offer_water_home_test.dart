@@ -65,6 +65,10 @@ class LegacyRepository implements WaterRepository {
   @override
   Future<void> deleteMyRequest(RefillRequest request) async =>
       deletedRequests.add(request.id);
+  @override
+  Future<void> savePushToken(String token) async {}
+  @override
+  Future<void> removePushToken(String token) async {}
 }
 
 void main() {
@@ -173,5 +177,19 @@ void main() {
     expect(repository.kept.single.$1, 'old-2');
     expect(repository.kept.single.$2, ['old-1']);
     expect(find.text('Old well is your water place'), findsOneWidget);
+  });
+
+  testWidgets('A tapped notification opens incoming requests', (
+    tester,
+  ) async {
+    final showRequests = ValueNotifier(0);
+    addTearDown(showRequests.dispose);
+    await tester.pumpWidget(
+      MaterialApp(home: GiverHome(showRequests: showRequests)),
+    );
+    expect(find.text('Your water places'), findsOneWidget);
+    showRequests.value++;
+    await tester.pumpAndSettle();
+    expect(find.text('Incoming requests'), findsOneWidget);
   });
 }

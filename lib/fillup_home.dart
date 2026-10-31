@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 
 import 'app_style.dart';
 import 'authentication.dart';
 import 'offer_water_home.dart';
+import 'push_notifications.dart';
 import 'take_water_home.dart';
 import 'traveler_profile.dart';
 import 'water_repository.dart';
@@ -20,8 +24,39 @@ class FillupHome extends StatefulWidget {
 
 class _FillupHomeState extends State<FillupHome> {
   int section = 0;
+  final showRequests = ValueNotifier(0);
+  var pushSubscriptions = const <StreamSubscription<RemoteMessage>>[];
 
   void open(int value) => setState(() => section = value);
+
+  void openRequests() {
+    open(2);
+    showRequests.value++;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.auth == null) return;
+    pushSubscriptions = PushNotifications.listen(
+      onRequest: (text) => ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(text),
+          action: SnackBarAction(label: 'View', onPressed: openRequests),
+        ),
+      ),
+      onOpen: openRequests,
+    );
+  }
+
+  @override
+  void dispose() {
+    for (final subscription in pushSubscriptions) {
+      subscription.cancel();
+    }
+    showRequests.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) => IndexedStack(
@@ -107,6 +142,7 @@ class _FillupHomeState extends State<FillupHome> {
         auth: widget.auth,
         onHome: () => open(0),
         onTakeWater: () => open(1),
+        showRequests: showRequests,
       ),
     ],
   );

@@ -65,6 +65,10 @@ class ProfileRepository implements WaterRepository {
   @override
   Future<void> deleteMyRequest(RefillRequest request) async =>
       deletedRequests.add(request.id);
+  @override
+  Future<void> savePushToken(String token) async {}
+  @override
+  Future<void> removePushToken(String token) async {}
 }
 
 void main() {

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'app_style.dart';
 import 'authentication.dart';
 import 'offer_water_form.dart';
+import 'push_notifications.dart';
 import 'traveler_profile.dart';
 import 'water_place.dart';
 import 'water_places_map.dart';
@@ -22,9 +23,13 @@ class GiverHome extends StatefulWidget {
     this.auth,
     this.onHome,
     this.onTakeWater,
+    this.showRequests,
   });
   final VoidCallback? onHome;
   final VoidCallback? onTakeWater;
+
+  /// Switches to Requests whenever it notifies, e.g. on a tapped push.
+  final Listenable? showRequests;
   final FirebaseAuth? auth;
 
   final WaterRepository? repository;
@@ -36,6 +41,20 @@ class GiverHome extends StatefulWidget {
 class _GiverHomeState extends State<GiverHome> {
   int page = 0;
   final demoOffers = <WaterPlace>[];
+
+  void openRequests() => setState(() => page = 2);
+
+  @override
+  void initState() {
+    super.initState();
+    widget.showRequests?.addListener(openRequests);
+  }
+
+  @override
+  void dispose() {
+    widget.showRequests?.removeListener(openRequests);
+    super.dispose();
+  }
 
   late final WaterRepository repository =
       widget.repository ?? const DemoWaterRepository();
@@ -248,6 +267,9 @@ class _GiverHomeState extends State<GiverHome> {
                   ? demoOffers
                   : snapshot.data ?? const <WaterPlace>[];
               final loading = !repository.isDemo && snapshot.data == null;
+              // Hosts are asked for notification permission once they offer
+              // a place, so they hear about requests straight away.
+              if (offers.isNotEmpty) PushNotifications.enable(repository);
               return IndexedStack(
                 index: page,
                 children: [

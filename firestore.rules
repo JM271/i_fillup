@@ -33,6 +33,16 @@ service cloud.firestore {
         && request.resource.data.updatedAt is timestamp;
     }
 
+    // Push addresses of a user's devices; read only by the notify function.
+    match /devices/{uid} {
+      allow read, delete: if signedIn() && request.auth.uid == uid;
+      allow create, update: if signedIn() && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['tokens', 'updatedAt'])
+        && request.resource.data.tokens is list
+        && request.resource.data.tokens.size() <= 10
+        && request.resource.data.updatedAt is timestamp;
+    }
+
     function validPlaceExtras(place) {
       return validPhoto(place.photo)
         && place.vehicles is list

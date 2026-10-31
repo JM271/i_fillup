@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import 'push_notifications.dart';
 import 'water_repository.dart';
 
 class AuthenticationGate extends StatelessWidget {
@@ -68,6 +69,7 @@ class AccountButton extends StatelessWidget {
               onPressed: () async {
                 Navigator.pop(dialogContext);
                 try {
+                  await PushNotifications.disable();
                   await auth!.signOut();
                 } catch (_) {
                   if (context.mounted) {

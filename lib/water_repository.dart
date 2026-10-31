@@ -56,6 +56,10 @@ abstract interface class WaterRepository {
   Future<TravelerProfile?> loadMyProfile();
   Future<void> saveMyProfile(TravelerProfile profile);
 
+  /// Push addresses of this user's devices, used to notify hosts.
+  Future<void> savePushToken(String token);
+  Future<void> removePushToken(String token);
+
   Future<void> saveOffer(WaterPlace place);
   Future<void> deleteOffer(WaterPlace place);
 
@@ -101,6 +105,12 @@ class DemoWaterRepository implements WaterRepository {
 
   @override
   Future<void> saveMyProfile(TravelerProfile profile) async {}
+
+  @override
+  Future<void> savePushToken(String token) async {}
+
+  @override
+  Future<void> removePushToken(String token) async {}
 
   @override
   Future<void> saveOffer(WaterPlace place) async {}
@@ -211,6 +221,20 @@ class FirebaseWaterRepository implements WaterRepository {
       .collection('profiles')
       .doc(_userId)
       .set({...profile.toMap(), 'updatedAt': FieldValue.serverTimestamp()});
+
+  @override
+  Future<void> savePushToken(String token) =>
+      _firestore.collection('devices').doc(_userId).set({
+        'tokens': FieldValue.arrayUnion([token]),
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+  @override
+  Future<void> removePushToken(String token) =>
+      _firestore.collection('devices').doc(_userId).set({
+        'tokens': FieldValue.arrayRemove([token]),
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
 
   Map<String, Object?> _placeFields(WaterPlace place) => {
     'name': place.name,
