@@ -1,5 +1,9 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import 'photo_field.dart';
 
 /// What a water taker shares with the hosts they send requests to.
 class TravelerProfile {
@@ -8,9 +12,13 @@ class TravelerProfile {
     required this.vehicle,
     this.phone = '',
     this.about = '',
+    this.photo,
   });
 
   final String name, vehicle, phone, about;
+
+  /// Photo of the traveler's vehicle.
+  final Uint8List? photo;
 
   static TravelerProfile? fromMap(Object? data) {
     if (data is! Map) return null;
@@ -22,6 +30,7 @@ class TravelerProfile {
       vehicle: vehicle,
       phone: phone is String ? phone : '',
       about: about is String ? about : '',
+      photo: decodePhoto(data['photo']),
     );
   }
 
@@ -30,6 +39,7 @@ class TravelerProfile {
     'vehicle': vehicle,
     'phone': phone,
     'about': about,
+    'photo': encodePhoto(photo),
   };
 }
 
@@ -55,6 +65,7 @@ class _ProfilePageState extends State<ProfilePage> {
   late final vehicle = TextEditingController(text: widget.initial?.vehicle);
   late final phone = TextEditingController(text: widget.initial?.phone);
   late final about = TextEditingController(text: widget.initial?.about);
+  late Uint8List? photo = widget.initial?.photo;
   bool saving = false;
 
   @override
@@ -77,6 +88,7 @@ class _ProfilePageState extends State<ProfilePage> {
       vehicle: vehicle.text.trim(),
       phone: phone.text.trim(),
       about: about.text.trim(),
+      photo: photo,
     );
     setState(() => saving = true);
     try {
@@ -100,65 +112,73 @@ class _ProfilePageState extends State<ProfilePage> {
     appBar: AppBar(title: const Text('Your profile')),
     body: Form(
       key: form,
-      child: ListView(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
-        children: [
-          Text(
-            widget.intro ??
-                'Hosts see your profile on the refill requests you send them.',
-          ),
-          const SizedBox(height: 16),
-          TextFormField(
-            controller: name,
-            maxLength: 60,
-            textCapitalization: TextCapitalization.words,
-            decoration: const InputDecoration(
-              labelText: 'Name',
-              hintText: 'First name or nickname',
-              border: OutlineInputBorder(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              widget.intro ?? 'Hosts see your profile on the refill requests you send them.',
             ),
-            validator: required,
-          ),
-          const SizedBox(height: 8),
-          TextFormField(
-            controller: vehicle,
-            maxLength: 80,
-            decoration: const InputDecoration(
-              labelText: 'Vehicle',
-              hintText: 'Campervan, 6 m',
-              border: OutlineInputBorder(),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: name,
+              maxLength: 60,
+              textCapitalization: TextCapitalization.words,
+              decoration: const InputDecoration(
+                labelText: 'Name',
+                hintText: 'First name or nickname',
+                border: OutlineInputBorder(),
+              ),
+              validator: required,
             ),
-            validator: required,
-          ),
-          const SizedBox(height: 8),
-          TextFormField(
-            controller: phone,
-            maxLength: 30,
-            keyboardType: TextInputType.phone,
-            decoration: const InputDecoration(
-              labelText: 'Phone (optional)',
-              hintText: '+41 79 123 45 67',
-              helperText: 'Only shared with hosts you send a request to.',
-              border: OutlineInputBorder(),
+            const SizedBox(height: 8),
+            TextFormField(
+              controller: vehicle,
+              maxLength: 80,
+              decoration: const InputDecoration(
+                labelText: 'Vehicle',
+                hintText: 'Campervan, 6 m',
+                border: OutlineInputBorder(),
+              ),
+              validator: required,
             ),
-          ),
-          const SizedBox(height: 8),
-          TextFormField(
-            controller: about,
-            maxLength: 300,
-            maxLines: 3,
-            decoration: const InputDecoration(
-              labelText: 'About me (optional)',
-              hintText: 'Travelling with two kids and a dog, own hose',
-              border: OutlineInputBorder(),
+            const SizedBox(height: 8),
+            TextFormField(
+              controller: phone,
+              maxLength: 30,
+              keyboardType: TextInputType.phone,
+              decoration: const InputDecoration(
+                labelText: 'Phone (optional)',
+                hintText: '+41 79 123 45 67',
+                helperText: 'Only shared with hosts you send a request to.',
+                border: OutlineInputBorder(),
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
-          FilledButton(
-            onPressed: saving ? null : save,
-            child: Text(saving ? 'Saving…' : 'Save profile'),
-          ),
-        ],
+            const SizedBox(height: 8),
+            TextFormField(
+              controller: about,
+              maxLength: 300,
+              maxLines: 3,
+              decoration: const InputDecoration(
+                labelText: 'About me (optional)',
+                hintText: 'Travelling with two kids and a dog, own hose',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 8),
+            PhotoField(
+              label: 'Photo of your vehicle (optional)',
+              photo: photo,
+              onChanged: (value) => setState(() => photo = value),
+            ),
+            const SizedBox(height: 16),
+            FilledButton(
+              onPressed: saving ? null : save,
+              child: Text(saving ? 'Saving…' : 'Save profile'),
+            ),
+          ],
+        ),
       ),
     ),
   );
@@ -208,7 +228,15 @@ class RequesterSummary extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        CircleAvatar(child: Text(traveler.name.characters.first.toUpperCase())),
+        CircleAvatar(
+          radius: 28,
+          backgroundImage: traveler.photo == null
+              ? null
+              : MemoryImage(traveler.photo!),
+          child: traveler.photo == null
+              ? Text(traveler.name.characters.first.toUpperCase())
+              : null,
+        ),
         const SizedBox(width: 12),
         Expanded(
           child: Column(

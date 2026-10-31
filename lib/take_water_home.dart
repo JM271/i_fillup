@@ -118,7 +118,16 @@ class _RefillHomeState extends State<RefillHome> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(place.icon, size: 48, color: teal),
+              if (place.photo case final photo?)
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: Image.memory(photo, fit: BoxFit.cover),
+                  ),
+                )
+              else
+                Icon(place.icon, size: 48, color: teal),
               const SizedBox(height: 16),
               Text(
                 place.name,
@@ -127,6 +136,10 @@ class _RefillHomeState extends State<RefillHome> {
               Text('${place.area} · ${place.price}'),
               const SizedBox(height: 12),
               Text('Opening times: ${place.openingTimes}'),
+              if (place.vehicles.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Text('Suitable for: ${vehicleSummary(place.vehicles)}'),
+              ],
               const SizedBox(height: 20),
               Text(
                 place.description,
@@ -837,6 +850,7 @@ class _RefillHomeState extends State<RefillHome> {
                                         Container(
                                           width: 48,
                                           height: 48,
+                                          clipBehavior: Clip.antiAlias,
                                           decoration: BoxDecoration(
                                             color: place.private
                                                 ? const Color(0xFFDDEBE0)
@@ -845,7 +859,12 @@ class _RefillHomeState extends State<RefillHome> {
                                               12,
                                             ),
                                           ),
-                                          child: Icon(place.icon, color: teal),
+                                          child: place.photo == null
+                                              ? Icon(place.icon, color: teal)
+                                              : Image.memory(
+                                                  place.photo!,
+                                                  fit: BoxFit.cover,
+                                                ),
                                         ),
                                         const SizedBox(width: 12),
                                         Expanded(

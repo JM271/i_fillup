@@ -114,6 +114,29 @@ void main() {
     expect(find.text('Offer water.\nEarn cash.'), findsOneWidget);
   });
 
+  test('Travelers see one place per owner', () {
+    WaterPlace owned(String id, String owner) => WaterPlace(
+      id,
+      'Thun',
+      'Host',
+      true,
+      'Free',
+      '',
+      Icons.cottage_outlined,
+      places.first.location,
+      id: id,
+      ownerId: owner,
+    );
+    final listed = listedPlaces([
+      owned('old-a', 'anna'), // Anna's only place stays listed.
+      owned('old-b1', 'ben'), // Ben has not chosen yet: hidden.
+      owned('old-b2', 'ben'),
+      owned('cara', 'cara'), // Cara's account place wins over older ones.
+      owned('old-c', 'cara'),
+    ]);
+    expect(listed.map((place) => place.id), ['old-a', 'cara']);
+  });
+
   test('Only a place stored under its owner UID is the account place', () {
     expect(legacyPlace('me', 'Tap').isAccountPlace, isTrue);
     expect(legacyPlace('old-1', 'Tap').isAccountPlace, isFalse);

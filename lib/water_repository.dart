@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 
+import 'photo_field.dart';
 import 'traveler_profile.dart';
 import 'water_place.dart';
 
@@ -129,14 +130,12 @@ class FirebaseWaterRepository implements WaterRepository {
       .where('isActive', isEqualTo: true)
       .snapshots()
       .map(
-        (snapshot) => snapshot.docs
-            .map(
-              (document) =>
-                  WaterPlace.fromFirestore(document.id, document.data()),
-            )
-            // Extra places from before the one-place rule stay unlisted.
-            .where((place) => place.isAccountPlace)
-            .toList(),
+        (snapshot) => listedPlaces(
+          snapshot.docs.map(
+            (document) =>
+                WaterPlace.fromFirestore(document.id, document.data()),
+          ),
+        ),
       );
 
   @override
@@ -195,6 +194,8 @@ class FirebaseWaterRepository implements WaterRepository {
     'openingTimes': place.openingTimes,
     'latitude': place.location.latitude,
     'longitude': place.location.longitude,
+    'photo': encodePhoto(place.photo),
+    'vehicles': place.vehicles,
     'isActive': true,
     'updatedAt': FieldValue.serverTimestamp(),
   };

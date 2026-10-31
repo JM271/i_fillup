@@ -1,5 +1,36 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
+
+import 'photo_field.dart';
+
+/// Vehicles a host can say fit their place, stored by key.
+const vehicleAccess = {
+  'campervan': 'Campervan up to 6 m',
+  'motorhome': 'Motorhome 6–8 m',
+  'large': 'Large motorhome over 8 m',
+  'trailer': 'Caravan or trailer',
+};
+
+/// One place per owner for travelers: the place under the owner's UID, or an
+/// owner's only older place. Owners with several older places must choose.
+List<WaterPlace> listedPlaces(Iterable<WaterPlace> all) {
+  final byOwner = <String?, List<WaterPlace>>{};
+  for (final place in all) {
+    byOwner.putIfAbsent(place.ownerId, () => []).add(place);
+  }
+  return [
+    for (final group in byOwner.values)
+      if (group.any((place) => place.isAccountPlace))
+        ...group.where((place) => place.isAccountPlace)
+      else if (group.length == 1)
+        group.single,
+  ];
+}
+
+String vehicleSummary(List<String> vehicles) =>
+    vehicles.map((key) => vehicleAccess[key]).nonNulls.join(' · ');
 
 class WaterPlace {
   const WaterPlace(
@@ -14,6 +45,8 @@ class WaterPlace {
     this.openingTimes = 'By arrangement with the host',
     this.id,
     this.ownerId,
+    this.photo,
+    this.vehicles = const [],
   });
   final String name, area, host, price, description;
   final bool private;
@@ -22,6 +55,10 @@ class WaterPlace {
   final String openingTimes;
   final String? id;
   final String? ownerId;
+  final Uint8List? photo;
+
+  /// Keys of [vehicleAccess] that can reach the water point.
+  final List<String> vehicles;
 
   /// Whether this is its owner's one listed place, stored under the owner's
   /// UID. Places created before the one-place rule have other IDs.
@@ -47,6 +84,11 @@ class WaterPlace {
       openingTimes: data['openingTimes'] as String,
       id: id,
       ownerId: data['ownerUid'] as String?,
+      photo: decodePhoto(data['photo']),
+      vehicles: [
+        for (final key in data['vehicles'] as List? ?? const [])
+          if (key is String && vehicleAccess.containsKey(key)) key,
+      ],
     );
   }
 }
@@ -61,6 +103,7 @@ const places = [
     'A private driveway with an outdoor tap. Bring your own hose. Contact Anna to agree on access and a time before arriving.',
     Icons.cottage_outlined,
     LatLng(46.758, 7.628),
+    vehicles: ['campervan'],
   ),
   WaterPlace(
     'Riverside camper stop',
@@ -71,6 +114,7 @@ const places = [
     'A refill point at a campsite with space for campervans. Ask the operator about opening hours, water suitability and hose connections.',
     Icons.local_parking_outlined,
     LatLng(46.686, 7.863),
+    vehicles: ['campervan', 'motorhome', 'large', 'trailer'],
   ),
   WaterPlace(
     'Fresh water on the farm',
@@ -81,5 +125,6 @@ const places = [
     'A private farm stop with room to park while filling. Arrange a visit with Lukas and confirm your tank size and connection.',
     Icons.agriculture_outlined,
     LatLng(46.687, 7.680),
+    vehicles: ['campervan', 'motorhome'],
   ),
 ];

@@ -6,8 +6,14 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    // Photos are small base64 JPEGs stored inside the document.
+    function validPhoto(photo) {
+      return photo is string && photo.size() <= 300000;
+    }
+
     function validProfile(profile) {
-      return profile.keys().hasAll(['name', 'vehicle', 'phone', 'about'])
+      return profile.keys().hasAll(['name', 'vehicle', 'phone', 'about', 'photo'])
+        && validPhoto(profile.photo)
         && profile.name is string
         && profile.name.size() > 0 && profile.name.size() <= 60
         && profile.vehicle is string
@@ -21,10 +27,17 @@ service cloud.firestore {
       allow read, delete: if signedIn() && request.auth.uid == uid;
       allow create, update: if signedIn() && request.auth.uid == uid
         && request.resource.data.keys().hasOnly([
-          'name', 'vehicle', 'phone', 'about', 'updatedAt'
+          'name', 'vehicle', 'phone', 'about', 'photo', 'updatedAt'
         ])
         && validProfile(request.resource.data)
         && request.resource.data.updatedAt is timestamp;
+    }
+
+    function validPlaceExtras(place) {
+      return validPhoto(place.photo)
+        && place.vehicles is list
+        && place.vehicles.size() <= 4
+        && place.vehicles.hasOnly(['campervan', 'motorhome', 'large', 'trailer']);
     }
 
     function activePlace(placeId) {
@@ -40,14 +53,15 @@ service cloud.firestore {
         && placeId == request.auth.uid
         && request.resource.data.keys().hasOnly([
           'name', 'area', 'host', 'private', 'price', 'description',
-          'openingTimes', 'latitude', 'longitude', 'ownerUid', 'isActive',
-          'createdAt', 'updatedAt'
+          'openingTimes', 'latitude', 'longitude', 'photo', 'vehicles',
+          'ownerUid', 'isActive', 'createdAt', 'updatedAt'
         ])
         && request.resource.data.keys().hasAll([
           'name', 'area', 'host', 'private', 'price', 'description',
-          'openingTimes', 'latitude', 'longitude', 'ownerUid', 'isActive',
-          'createdAt', 'updatedAt'
+          'openingTimes', 'latitude', 'longitude', 'photo', 'vehicles',
+          'ownerUid', 'isActive', 'createdAt', 'updatedAt'
         ])
+        && validPlaceExtras(request.resource.data)
         && request.resource.data.ownerUid == request.auth.uid
         && request.resource.data.isActive == true
         && request.resource.data.createdAt is timestamp
@@ -69,10 +83,11 @@ service cloud.firestore {
         && resource.data.ownerUid == request.auth.uid
         && request.resource.data.ownerUid == resource.data.ownerUid
         && request.resource.data.isActive is bool
+        && validPlaceExtras(request.resource.data)
         && request.resource.data.diff(resource.data).affectedKeys()
           .hasOnly(['name', 'area', 'host', 'private', 'price', 'description',
-                    'openingTimes', 'latitude', 'longitude', 'isActive',
-                    'updatedAt']);
+                    'openingTimes', 'latitude', 'longitude', 'photo',
+                    'vehicles', 'isActive', 'updatedAt']);
       allow delete: if signedIn() && resource.data.ownerUid == request.auth.uid;
     }
 
@@ -88,7 +103,7 @@ service cloud.firestore {
         ])
         && request.resource.data.requester is map
         && request.resource.data.requester.keys().hasOnly([
-          'name', 'vehicle', 'phone', 'about'
+          'name', 'vehicle', 'phone', 'about', 'photo'
         ])
         && validProfile(request.resource.data.requester)
         && request.resource.data.requesterUid == request.auth.uid

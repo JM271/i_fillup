@@ -4,6 +4,10 @@
 <dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Use your current location to choose your water refill place on the map.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Take a photo of your water place or your vehicle.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Choose a photo of your water place or your vehicle.</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>

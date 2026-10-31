@@ -99,6 +99,10 @@ void main() {
   testWidgets(
     'Choosing an address fills the address and pin in a saved offer',
     (tester) async {
+      tester.view.physicalSize = const Size(800, 2000);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
       WaterPlace? saved;
       var calls = 0;
       var pending = Completer<void>();
@@ -127,6 +131,8 @@ void main() {
       await tester.tap(find.text('Main street 1, Thun'));
       await tester.pumpAndSettle();
       expect(find.text('Pin: 46.76000, 7.63000'), findsOneWidget);
+      await tester.ensureVisible(find.text('Campervan up to 6 m'));
+      await tester.tap(find.text('Campervan up to 6 m'));
       await tester.enterText(
         find.byType(TextFormField).at(2),
         'Mon–Fri 08:00–18:00',
@@ -158,6 +164,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(calls, 2);
       expect(saved!.area, 'Main street 1, Thun');
+      expect(saved!.vehicles, ['campervan']);
       expect(saved!.location.latitude, 46.76);
       expect(saved!.openingTimes, 'Mon–Fri 08:00–18:00');
     },
@@ -307,6 +314,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Please fill in this field'), findsNWidgets(3));
     expect(find.text('Choose your place on the map.'), findsOneWidget);
+    expect(find.text('Choose at least one vehicle type.'), findsOneWidget);
     expect(saved, isNull);
     await tester.enterText(find.byType(TextFormField).at(0), 'Garden tap');
     await tester.enterText(

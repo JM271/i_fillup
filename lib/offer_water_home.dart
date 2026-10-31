@@ -9,9 +9,8 @@ import 'water_place.dart';
 import 'water_places_map.dart';
 import 'water_repository.dart';
 
-/// Accounts from before the one-place rule may hold several or unlisted places.
-bool mustChoosePlace(List<WaterPlace> offers) =>
-    offers.length > 1 || offers.any((place) => !place.isAccountPlace);
+/// Accounts from before the one-place rule may hold several places.
+bool mustChoosePlace(List<WaterPlace> offers) => offers.length > 1;
 
 const onePlaceRule =
     'Each account can offer one water place, to keep listings trustworthy.';
@@ -237,17 +236,11 @@ class _GiverHomeState extends State<GiverHome> {
                           Card(
                             margin: const EdgeInsets.only(bottom: 8),
                             color: Theme.of(context).colorScheme.errorContainer,
-                            child: ListTile(
-                              leading: const Icon(Icons.warning_amber_rounded),
-                              title: Text(
-                                offers.length == 1
-                                    ? 'List your place again'
-                                    : 'Choose your one water place',
-                              ),
+                            child: const ListTile(
+                              leading: Icon(Icons.warning_amber_rounded),
+                              title: Text('Choose your one water place'),
                               subtitle: Text(
-                                offers.length == 1
-                                    ? 'Your place was created before the one-place rule and is hidden from travelers. Tap "Keep this one" to list it again.'
-                                    : 'Places marked "Not listed" are hidden from travelers. Tap "Keep this one" on the place you want to offer; the others are deleted.',
+                                'Places marked "Not listed" are hidden from travelers. Tap "Keep this one" on the place you want to offer; the others are deleted.',
                               ),
                             ),
                           ),
@@ -270,13 +263,21 @@ class _GiverHomeState extends State<GiverHome> {
                                               .titleMedium,
                                         ),
                                         Text('${place.area} · ${place.price}'),
+                                        if (place.vehicles.isNotEmpty)
+                                          Text(
+                                            vehicleSummary(place.vehicles),
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodySmall,
+                                          ),
                                         Text(
                                           place.openingTimes,
                                           style: Theme.of(context)
                                               .textTheme
                                               .bodySmall,
                                         ),
-                                        if (!place.isAccountPlace)
+                                        if (mustChoosePlace(offers) &&
+                                            !place.isAccountPlace)
                                           Text(
                                             'Not listed',
                                             style: TextStyle(

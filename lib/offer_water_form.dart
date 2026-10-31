@@ -8,6 +8,7 @@ import 'address_search.dart';
 import 'package:flutter/material.dart';
 
 import 'location_picker.dart';
+import 'photo_field.dart';
 
 import 'package:latlong2/latlong.dart';
 
@@ -34,7 +35,10 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
   final hours = TextEditingController();
   final price = TextEditingController(text: '5.00');
   LatLng? location;
+  Uint8List? photo;
+  final vehicles = <String>{};
   bool missingLocation = false;
+  bool missingVehicles = false;
   bool saving = false;
   bool get useGoogle =>
       !kIsWeb &&
@@ -179,6 +183,43 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
             validator: requiredText,
           ),
           const SizedBox(height: 16),
+          // One child, so the error line cannot shift the fields around it.
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Which vehicles can reach the water?',
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+              const SizedBox(height: 4),
+              Wrap(
+                spacing: 8,
+                children: [
+                  for (final MapEntry(:key, :value) in vehicleAccess.entries)
+                    FilterChip(
+                      label: Text(value),
+                      selected: vehicles.contains(key),
+                      onSelected: (selected) => setState(() {
+                        selected ? vehicles.add(key) : vehicles.remove(key);
+                        if (vehicles.isNotEmpty) missingVehicles = false;
+                      }),
+                    ),
+                ],
+              ),
+              if (missingVehicles)
+                Text(
+                  'Choose at least one vehicle type.',
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          PhotoField(
+            label: 'Photo of the water place (optional)',
+            photo: photo,
+            onChanged: (value) => setState(() => photo = value),
+          ),
+          const SizedBox(height: 16),
           TextFormField(
             key: const ValueKey('offer-price'),
             controller: price,
@@ -205,8 +246,13 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
                 ? null
                 : () async {
                     final valid = form.currentState!.validate();
-                    setState(() => missingLocation = location == null);
-                    if (!valid || location == null) return;
+                    setState(() {
+                      missingLocation = location == null;
+                      missingVehicles = vehicles.isEmpty;
+                    });
+                    if (!valid || location == null || vehicles.isEmpty) {
+                      return;
+                    }
                     setState(() => saving = true);
                     try {
                       await widget.onSave(
@@ -220,6 +266,11 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
                           Icons.cottage_outlined,
                           location!,
                           openingTimes: hours.text.trim(),
+                          photo: photo,
+                          vehicles: [
+                            for (final key in vehicleAccess.keys)
+                              if (vehicles.contains(key)) key,
+                          ],
                         ),
                       );
                     } catch (error) {
@@ -243,7 +294,11 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
                     address.clear();
                     hours.clear();
                     price.text = '5.00';
-                    setState(() => location = null);
+                    setState(() {
+                      location = null;
+                      photo = null;
+                      vehicles.clear();
+                    });
                   },
             icon: const Icon(Icons.save_outlined),
             label: Text(saving ? 'Saving…' : 'Save offer'),

@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:i_fillup/offer_water_home.dart';
@@ -62,9 +64,51 @@ void main() {
     expect(TravelerProfile.fromMap(null), isNull);
   });
 
+  test('Photos and vehicle access survive storage', () {
+    final photo = Uint8List.fromList([1, 2, 3, 250]);
+    final profile = TravelerProfile.fromMap(
+      const TravelerProfile(name: 'Lea', vehicle: 'Van').toMap()
+        ..['photo'] = TravelerProfile(
+          name: 'Lea',
+          vehicle: 'Van',
+          photo: photo,
+        ).toMap()['photo']!,
+    )!;
+    expect(profile.photo, photo);
+
+    final place = WaterPlace.fromFirestore('me', {
+      'name': 'Tap',
+      'area': 'Thun',
+      'host': 'Anna',
+      'private': true,
+      'price': 'Free',
+      'description': '',
+      'openingTimes': 'Always',
+      'latitude': 46.7,
+      'longitude': 7.6,
+      'ownerUid': 'me',
+      'photo': TravelerProfile(
+        name: 'x',
+        vehicle: 'x',
+        photo: photo,
+      ).toMap()['photo'],
+      'vehicles': ['campervan', 'spaceship', 'trailer'],
+    });
+    expect(place.photo, photo);
+    expect(place.vehicles, ['campervan', 'trailer']);
+    expect(
+      vehicleSummary(place.vehicles),
+      'Campervan up to 6 m · Caravan or trailer',
+    );
+  });
+
   testWidgets('The first request asks the water taker for a profile', (
     tester,
   ) async {
+    tester.view.physicalSize = const Size(800, 2000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
     final repository = ProfileRepository();
     await tester.pumpWidget(
       MaterialApp(home: RefillHome(repository: repository)),
@@ -74,12 +118,14 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Your profile'), findsOneWidget);
 
+    await tester.ensureVisible(find.text('Save profile'));
     await tester.tap(find.text('Save profile'));
     await tester.pump();
     expect(find.text('Please fill in this field'), findsNWidgets(2));
 
     await tester.enterText(find.byType(TextFormField).at(0), 'Lea');
     await tester.enterText(find.byType(TextFormField).at(1), 'Campervan, 6 m');
+    await tester.ensureVisible(find.text('Save profile'));
     await tester.tap(find.text('Save profile'));
     await tester.pumpAndSettle();
     expect(find.text('From Lea · Campervan, 6 m'), findsOneWidget);
