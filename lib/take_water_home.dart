@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'address_search.dart';
 import 'app_style.dart';
@@ -139,6 +140,43 @@ class _RefillHomeState extends State<RefillHome> {
               if (place.vehicles.isNotEmpty) ...[
                 const SizedBox(height: 8),
                 Text('Suitable for: ${vehicleSummary(place.vehicles)}'),
+              ],
+              if (place.promotesBusiness) ...[
+                const SizedBox(height: 20),
+                Text(
+                  'Also here',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    for (final key in place.services)
+                      Chip(
+                        avatar: Icon(
+                          placeServiceIcons[key],
+                          size: 18,
+                          color: teal,
+                        ),
+                        label: Text(placeServices[key]!),
+                      ),
+                  ],
+                ),
+                if (place.businessInfo.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Text(place.businessInfo),
+                ],
+                if (place.website.isNotEmpty)
+                  TextButton.icon(
+                    style: TextButton.styleFrom(padding: EdgeInsets.zero),
+                    onPressed: () => launchUrl(
+                      Uri.parse(place.website),
+                      mode: LaunchMode.externalApplication,
+                    ),
+                    icon: const Icon(Icons.open_in_new),
+                    label: Text(Uri.parse(place.website).host),
+                  ),
               ],
               const SizedBox(height: 20),
               Text(
@@ -889,6 +927,16 @@ class _RefillHomeState extends State<RefillHome> {
                                                   color: Color(0xFF617575),
                                                 ),
                                               ),
+                                              if (place.services.isNotEmpty)
+                                                Text(
+                                                  'Also here: ${serviceSummary(place.services)}',
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  style: const TextStyle(
+                                                    fontSize: 13,
+                                                    color: ink,
+                                                  ),
+                                                ),
                                               Text(
                                                 place.price,
                                                 style: const TextStyle(

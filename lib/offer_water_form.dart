@@ -34,6 +34,9 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
   final address = TextEditingController();
   final hours = TextEditingController();
   final price = TextEditingController(text: '5.00');
+  final businessInfo = TextEditingController();
+  final website = TextEditingController();
+  final services = <String>{};
   LatLng? location;
   Uint8List? photo;
   final vehicles = <String>{};
@@ -51,6 +54,8 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
     address.dispose();
     hours.dispose();
     price.dispose();
+    businessInfo.dispose();
+    website.dispose();
     super.dispose();
   }
 
@@ -183,6 +188,27 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
             validator: requiredText,
           ),
           const SizedBox(height: 16),
+          TextFormField(
+            key: const ValueKey('offer-price'),
+            controller: price,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            decoration: const InputDecoration(
+              labelText: 'Price per fill-up',
+              prefixText: 'CHF ',
+              helperText:
+                  'One price per refill. Enter 0 to offer water for free.',
+              helperMaxLines: 2,
+              border: OutlineInputBorder(),
+            ),
+            validator: (value) => refillPriceLabel(value ?? '') == null
+                ? 'Enter a price of 0 or more, with up to 2 decimals'
+                : null,
+          ),
+          const SizedBox(height: 12),
+          const Text(
+            'Payment is arranged directly with the traveler. The app does not collect payments or pay out earnings.',
+          ),
+          const SizedBox(height: 16),
           // One child, so the error line cannot shift the fields around it.
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -220,25 +246,52 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
             onChanged: (value) => setState(() => photo = value),
           ),
           const SizedBox(height: 16),
-          TextFormField(
-            key: const ValueKey('offer-price'),
-            controller: price,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(
-              labelText: 'Price per fill-up',
-              prefixText: 'CHF ',
-              helperText:
-                  'One price per refill. Enter 0 to offer water for free.',
-              helperMaxLines: 2,
-              border: OutlineInputBorder(),
-            ),
-            validator: (value) => refillPriceLabel(value ?? '') == null
-                ? 'Enter a price of 0 or more, with up to 2 decimals'
-                : null,
+          Text(
+            'Promote your business (optional)',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const Text('Travelers who stop for water see what else you offer.'),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            children: [
+              for (final MapEntry(:key, :value) in placeServices.entries)
+                FilterChip(
+                  avatar: Icon(placeServiceIcons[key], size: 18),
+                  label: Text(value),
+                  selected: services.contains(key),
+                  onSelected: (selected) => setState(
+                    () => selected ? services.add(key) : services.remove(key),
+                  ),
+                ),
+            ],
           ),
           const SizedBox(height: 12),
-          const Text(
-            'Payment is arranged directly with the traveler. The app does not collect payments or pay out earnings.',
+          TextFormField(
+            controller: businessInfo,
+            maxLines: 3,
+            maxLength: 500,
+            decoration: const InputDecoration(
+              labelText: 'About your business',
+              alignLabelWithHint: true,
+              hintText:
+                  'Organic farm shop: eggs, cheese and bread. Sat 08:00–12:00.',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 8),
+          TextFormField(
+            controller: website,
+            keyboardType: TextInputType.url,
+            maxLength: 200,
+            decoration: const InputDecoration(
+              labelText: 'Website',
+              hintText: 'https://www.example.ch',
+              border: OutlineInputBorder(),
+            ),
+            validator: (value) => validWebsite(value?.trim() ?? '')
+                ? null
+                : 'Enter a full address starting with https://',
           ),
           const SizedBox(height: 16),
           FilledButton.icon(
@@ -271,6 +324,12 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
                             for (final key in vehicleAccess.keys)
                               if (vehicles.contains(key)) key,
                           ],
+                          services: [
+                            for (final key in placeServices.keys)
+                              if (services.contains(key)) key,
+                          ],
+                          businessInfo: businessInfo.text.trim(),
+                          website: website.text.trim(),
                         ),
                       );
                     } catch (error) {
@@ -294,10 +353,13 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
                     address.clear();
                     hours.clear();
                     price.text = '5.00';
+                    businessInfo.clear();
+                    website.clear();
                     setState(() {
                       location = null;
                       photo = null;
                       vehicles.clear();
+                      services.clear();
                     });
                   },
             icon: const Icon(Icons.save_outlined),

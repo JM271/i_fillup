@@ -196,6 +196,9 @@ class FirebaseWaterRepository implements WaterRepository {
     'longitude': place.location.longitude,
     'photo': encodePhoto(place.photo),
     'vehicles': place.vehicles,
+    'services': place.services,
+    'businessInfo': place.businessInfo,
+    'website': place.website,
     'isActive': true,
     'updatedAt': FieldValue.serverTimestamp(),
   };

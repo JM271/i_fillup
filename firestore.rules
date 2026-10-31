@@ -37,7 +37,14 @@ service cloud.firestore {
       return validPhoto(place.photo)
         && place.vehicles is list
         && place.vehicles.size() <= 4
-        && place.vehicles.hasOnly(['campervan', 'motorhome', 'large', 'trailer']);
+        && place.vehicles.hasOnly(['campervan', 'motorhome', 'large', 'trailer'])
+        && place.services is list
+        && place.services.size() <= 8
+        && place.services.hasOnly(['farmShop', 'shop', 'food', 'fuel',
+                                   'campsite', 'dump', 'electricity', 'repairs'])
+        && place.businessInfo is string && place.businessInfo.size() <= 500
+        && place.website is string && place.website.size() <= 200
+        && (place.website == '' || place.website.matches('https?://.+'));
     }
 
     function activePlace(placeId) {
@@ -54,11 +61,13 @@ service cloud.firestore {
         && request.resource.data.keys().hasOnly([
           'name', 'area', 'host', 'private', 'price', 'description',
           'openingTimes', 'latitude', 'longitude', 'photo', 'vehicles',
+          'services', 'businessInfo', 'website',
           'ownerUid', 'isActive', 'createdAt', 'updatedAt'
         ])
         && request.resource.data.keys().hasAll([
           'name', 'area', 'host', 'private', 'price', 'description',
           'openingTimes', 'latitude', 'longitude', 'photo', 'vehicles',
+          'services', 'businessInfo', 'website',
           'ownerUid', 'isActive', 'createdAt', 'updatedAt'
         ])
         && validPlaceExtras(request.resource.data)
@@ -87,7 +96,8 @@ service cloud.firestore {
         && request.resource.data.diff(resource.data).affectedKeys()
           .hasOnly(['name', 'area', 'host', 'private', 'price', 'description',
                     'openingTimes', 'latitude', 'longitude', 'photo',
-                    'vehicles', 'isActive', 'updatedAt']);
+                    'vehicles', 'services', 'businessInfo', 'website',
+                    'isActive', 'updatedAt']);
       allow delete: if signedIn() && resource.data.ownerUid == request.auth.uid;
     }
 

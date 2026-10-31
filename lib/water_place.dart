@@ -32,6 +32,41 @@ List<WaterPlace> listedPlaces(Iterable<WaterPlace> all) {
 String vehicleSummary(List<String> vehicles) =>
     vehicles.map((key) => vehicleAccess[key]).nonNulls.join(' · ');
 
+/// What else a host offers besides water, stored by key.
+const placeServices = {
+  'farmShop': 'Farm shop',
+  'shop': 'Shop',
+  'food': 'Café or restaurant',
+  'fuel': 'Fuel',
+  'campsite': 'Campsite or overnight parking',
+  'dump': 'Waste water disposal',
+  'electricity': 'Electricity',
+  'repairs': 'Workshop or repairs',
+};
+
+const placeServiceIcons = {
+  'farmShop': Icons.agriculture_outlined,
+  'shop': Icons.storefront_outlined,
+  'food': Icons.restaurant_outlined,
+  'fuel': Icons.local_gas_station_outlined,
+  'campsite': Icons.rv_hookup_outlined,
+  'dump': Icons.water_damage_outlined,
+  'electricity': Icons.electrical_services_outlined,
+  'repairs': Icons.build_outlined,
+};
+
+String serviceSummary(List<String> services) =>
+    services.map((key) => placeServices[key]).nonNulls.join(' · ');
+
+/// Accepts an empty value or an http(s) address with a host.
+bool validWebsite(String value) {
+  if (value.isEmpty) return true;
+  final uri = Uri.tryParse(value);
+  return uri != null &&
+      (uri.scheme == 'https' || uri.scheme == 'http') &&
+      uri.host.contains('.');
+}
+
 class WaterPlace {
   const WaterPlace(
     this.name,
@@ -47,6 +82,9 @@ class WaterPlace {
     this.ownerId,
     this.photo,
     this.vehicles = const [],
+    this.services = const [],
+    this.businessInfo = '',
+    this.website = '',
   });
   final String name, area, host, price, description;
   final bool private;
@@ -59,6 +97,15 @@ class WaterPlace {
 
   /// Keys of [vehicleAccess] that can reach the water point.
   final List<String> vehicles;
+
+  /// Keys of [placeServices]: the host's business and other offers.
+  final List<String> services;
+
+  /// The host's pitch for their business, and its website.
+  final String businessInfo, website;
+
+  bool get promotesBusiness =>
+      services.isNotEmpty || businessInfo.isNotEmpty || website.isNotEmpty;
 
   /// Whether this is its owner's one listed place, stored under the owner's
   /// UID. Places created before the one-place rule have other IDs.
@@ -89,6 +136,12 @@ class WaterPlace {
         for (final key in data['vehicles'] as List? ?? const [])
           if (key is String && vehicleAccess.containsKey(key)) key,
       ],
+      services: [
+        for (final key in data['services'] as List? ?? const [])
+          if (key is String && placeServices.containsKey(key)) key,
+      ],
+      businessInfo: data['businessInfo'] as String? ?? '',
+      website: data['website'] as String? ?? '',
     );
   }
 }
@@ -126,5 +179,8 @@ const places = [
     Icons.agriculture_outlined,
     LatLng(46.687, 7.680),
     vehicles: ['campervan', 'motorhome'],
+    services: ['farmShop', 'dump'],
+    businessInfo:
+        'Our farm shop sells eggs, cheese and bread. Open Saturday mornings.',
   ),
 ];

@@ -270,6 +270,13 @@ class _GiverHomeState extends State<GiverHome> {
                                                 .textTheme
                                                 .bodySmall,
                                           ),
+                                        if (place.services.isNotEmpty)
+                                          Text(
+                                            'Also here: ${serviceSummary(place.services)}',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodySmall,
+                                          ),
                                         Text(
                                           place.openingTimes,
                                           style: Theme.of(context)
