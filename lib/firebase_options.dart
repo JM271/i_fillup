@@ -60,7 +60,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyCT-593mMxT5tT4AzhSaAh1PIst4dStftY',
-    appId: '1:941210525816:android:6e3f50487bcd20abb54d8d',
+    appId: '1:941210525816:android:5423c398248d3942b54d8d',
     messagingSenderId: '941210525816',
     projectId: 'i-fillup',
     storageBucket: 'i-fillup.firebasestorage.app',

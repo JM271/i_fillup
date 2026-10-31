@@ -63,6 +63,35 @@
           ]
         }
       }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:941210525816:android:5423c398248d3942b54d8d",
+        "android_client_info": {
+          "package_name": "com.petehon.ifillup"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "941210525816-bvmghh6pek6dj501anf1u7rkha6b72jc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCT-593mMxT5tT4AzhSaAh1PIst4dStftY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "941210525816-bvmghh6pek6dj501anf1u7rkha6b72jc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
     }
   ],
   "configuration_version": "1"

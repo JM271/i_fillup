@@ -32,7 +32,7 @@ android {
 
     defaultConfig {
         // The Google Play ID; it can never change once the app is published.
-        applicationId = "com.jonasmuehle.ifillup"
+        applicationId = "com.petehon.ifillup"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
