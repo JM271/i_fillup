@@ -144,7 +144,9 @@ void main() {
         ),
       ),
     );
-    await tester.tap(find.text('Plan a route'));
+    await tester.tap(find.text('On my route'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Choose a destination'));
     await tester.pumpAndSettle();
     expect(find.text('To Interlaken'), findsOneWidget);
     expect(find.text('31 km drive from your location'), findsOneWidget);
@@ -158,10 +160,25 @@ void main() {
     expect(find.text('3 places within 10 km of your route'), findsOneWidget);
     expect(find.text('After 30 km · 8.0 km off route'), findsOneWidget);
 
+    // Each tab keeps its own results and distance.
+    await tester.tap(find.text('Near me'));
+    await tester.pumpAndSettle();
+    expect(find.text('Near your location'), findsOneWidget);
+    expect(find.text('1 place within 5 km of you'), findsOneWidget);
+    await tester.tap(find.text('On my route'));
+    await tester.pumpAndSettle();
+    expect(find.text('To Interlaken'), findsOneWidget);
+    expect(find.text('3 places within 10 km of your route'), findsOneWidget);
+
+    await tester.tap(find.text('All'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('3 demo places'), findsOneWidget);
+
+    await tester.tap(find.text('On my route'));
+    await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('Clear route'));
     await tester.pumpAndSettle();
-    expect(find.text('Plan a route'), findsOneWidget);
-    expect(find.textContaining('3 demo places'), findsOneWidget);
+    expect(find.text('Choose a destination'), findsOneWidget);
   });
 
   testWidgets('Near me shows places within driving distance of you', (
@@ -192,8 +209,8 @@ void main() {
     expect(find.text('14 km away'), findsOneWidget);
     expect(find.text('Riverside camper stop'), findsNothing);
 
-    await tester.tap(find.byTooltip('Clear distance filter'));
+    await tester.tap(find.text('All'));
     await tester.pumpAndSettle();
-    expect(find.text('Near me'), findsOneWidget);
+    expect(find.textContaining('3 demo places'), findsOneWidget);
   });
 }

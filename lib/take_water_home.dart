@@ -67,16 +67,34 @@ String routeStopLabel(PlannedRoute route, RouteStop stop) {
 double filterDistance(PlannedRoute route, RouteStop stop) =>
     route.aroundStart ? stop.along : stop.offRoute;
 
+enum DistanceMode { all, nearMe, onRoute }
+
+/// One distance tab's results, kept while the user switches tabs.
+class DistanceFilter {
+  PlannedRoute? route;
+  List<RouteStop>? stops;
+  List<WaterPlace>? places;
+  int radiusKm = 5;
+}
+
 class _RefillHomeState extends State<RefillHome> {
   String query = '';
   String filter = 'All places';
   int page = 0;
   final List<String> demoRequests = [];
-  PlannedRoute? route;
-  List<RouteStop>? stops;
-  List<WaterPlace>? routedPlaces;
+  DistanceMode mode = DistanceMode.all;
+  final nearMe = DistanceFilter();
+  final onRoute = DistanceFilter();
   String? busy;
-  int radiusKm = 5;
+
+  DistanceFilter? get active => switch (mode) {
+    DistanceMode.all => null,
+    DistanceMode.nearMe => nearMe,
+    DistanceMode.onRoute => onRoute,
+  };
+  PlannedRoute? get route => active?.route;
+  List<RouteStop>? get stops => active?.stops;
+  int get radiusKm => active?.radiusKm ?? 5;
 
   late final RouteService routeService =
       widget.routeService ?? OsrmRouteService();
@@ -328,6 +346,7 @@ class _RefillHomeState extends State<RefillHome> {
   }
 
   Future<void> applyRoute(
+    DistanceFilter target,
     List<WaterPlace> allPlaces,
     String busyLabel,
     Future<PlannedRoute> Function() plan,
@@ -342,9 +361,10 @@ class _RefillHomeState extends State<RefillHome> {
       );
       if (!mounted) return;
       setState(() {
-        route = planned;
-        stops = found;
-        routedPlaces = allPlaces;
+        target
+          ..route = planned
+          ..stops = found
+          ..places = allPlaces;
       });
     } catch (error) {
       showMessage(error);
@@ -357,6 +377,7 @@ class _RefillHomeState extends State<RefillHome> {
       widget.locate().timeout(const Duration(seconds: 20));
 
   Future<void> findNearby(List<WaterPlace> allPlaces) => applyRoute(
+    nearMe,
     allPlaces,
     'Locating…',
     () async => PlannedRoute.around(await locate()),
@@ -372,6 +393,7 @@ class _RefillHomeState extends State<RefillHome> {
     }
     if (destination == null || !mounted) return;
     await applyRoute(
+      onRoute,
       allPlaces,
       'Planning…',
       () async => routeService.route(
@@ -382,62 +404,60 @@ class _RefillHomeState extends State<RefillHome> {
     );
   }
 
-  /// Keeps route stops current when listings change while a route is active.
-  Future<void> refreshStops(List<WaterPlace> allPlaces) async {
-    final planned = route;
+  void selectMode(DistanceMode value, List<WaterPlace> allPlaces) {
+    setState(() => mode = value);
+    if (value == DistanceMode.nearMe && nearMe.route == null && busy == null) {
+      findNearby(allPlaces);
+    }
+  }
+
+  /// Keeps tab results current when listings change while they are shown.
+  Future<void> refreshStops(
+    DistanceFilter target,
+    List<WaterPlace> allPlaces,
+  ) async {
+    final planned = target.route;
     if (planned == null) return;
-    routedPlaces = allPlaces;
+    target.places = allPlaces;
     try {
       final found = await routeService.stopsAlong(
         planned,
         allPlaces,
         maxOffRoute: routeRadiiKm.last * 1000,
       );
-      if (mounted && identical(route, planned)) setState(() => stops = found);
+      if (mounted && identical(target.route, planned)) {
+        setState(() => target.stops = found);
+      }
     } catch (error) {
       showMessage(error);
     }
   }
 
-  Widget distanceButton(
-    String label,
-    IconData icon,
-    String busyLabel,
-    VoidCallback onPressed,
-  ) => Expanded(
-    child: OutlinedButton.icon(
-      onPressed: busy == null ? onPressed : null,
-      icon: busy == busyLabel
-          ? const SizedBox.square(
-              dimension: 18,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            )
-          : Icon(icon),
-      label: Text(busy == busyLabel ? busyLabel : label),
-    ),
+  Widget busyIndicator() => const SizedBox.square(
+    dimension: 18,
+    child: CircularProgressIndicator(strokeWidth: 2),
   );
 
-  Widget routePanel(List<WaterPlace> allPlaces) {
-    final planned = route;
+  Widget distancePanel(List<WaterPlace> allPlaces) {
+    final target = active;
+    if (target == null) return const SizedBox.shrink();
+    final planned = target.route;
     if (planned == null) {
-      return Row(
-        children: [
-          distanceButton(
-            'Near me',
-            Icons.near_me_outlined,
-            'Locating…',
-            () => findNearby(allPlaces),
-          ),
-          const SizedBox(width: 8),
-          distanceButton(
-            'Plan a route',
-            Icons.route_outlined,
-            'Planning…',
-            () => planRoute(allPlaces),
-          ),
-        ],
-      );
+      return mode == DistanceMode.nearMe
+          ? OutlinedButton.icon(
+              onPressed: busy == null ? () => findNearby(allPlaces) : null,
+              icon: busy == null
+                  ? const Icon(Icons.my_location)
+                  : busyIndicator(),
+              label: Text(busy ?? 'Use my location'),
+            )
+          : OutlinedButton.icon(
+              onPressed: busy == null ? () => planRoute(allPlaces) : null,
+              icon: busy == null ? const Icon(Icons.search) : busyIndicator(),
+              label: Text(busy ?? 'Choose a destination'),
+            );
     }
+    final aroundMe = planned.aroundStart;
     return Card(
       elevation: 0,
       color: Colors.white,
@@ -450,9 +470,7 @@ class _RefillHomeState extends State<RefillHome> {
             Row(
               children: [
                 Icon(
-                  planned.aroundStart
-                      ? Icons.near_me_outlined
-                      : Icons.route_outlined,
+                  aroundMe ? Icons.near_me_outlined : Icons.route_outlined,
                   color: teal,
                 ),
                 const SizedBox(width: 12),
@@ -461,7 +479,7 @@ class _RefillHomeState extends State<RefillHome> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        planned.aroundStart
+                        aroundMe
                             ? 'Near your location'
                             : 'To ${planned.destination}',
                         overflow: TextOverflow.ellipsis,
@@ -471,7 +489,7 @@ class _RefillHomeState extends State<RefillHome> {
                         ),
                       ),
                       Text(
-                        planned.aroundStart
+                        aroundMe
                             ? 'Driving distance from where you are'
                             : '${formatKm(planned.meters)} drive from your location',
                         style: const TextStyle(
@@ -482,17 +500,34 @@ class _RefillHomeState extends State<RefillHome> {
                     ],
                   ),
                 ),
-                IconButton(
-                  tooltip: planned.aroundStart
-                      ? 'Clear distance filter'
-                      : 'Clear route',
-                  onPressed: () => setState(() {
-                    route = null;
-                    stops = null;
-                    routedPlaces = null;
-                  }),
-                  icon: const Icon(Icons.close),
-                ),
+                if (busy != null)
+                  Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: busyIndicator(),
+                  )
+                else if (aroundMe)
+                  IconButton(
+                    tooltip: 'Update my location',
+                    onPressed: () => findNearby(allPlaces),
+                    icon: const Icon(Icons.my_location),
+                  )
+                else ...[
+                  IconButton(
+                    tooltip: 'Change destination',
+                    onPressed: () => planRoute(allPlaces),
+                    icon: const Icon(Icons.edit_location_alt_outlined),
+                  ),
+                  IconButton(
+                    tooltip: 'Clear route',
+                    onPressed: () => setState(() {
+                      onRoute
+                        ..route = null
+                        ..stops = null
+                        ..places = null;
+                    }),
+                    icon: const Icon(Icons.close),
+                  ),
+                ],
               ],
             ),
             Padding(
@@ -508,9 +543,9 @@ class _RefillHomeState extends State<RefillHome> {
                         for (final km in routeRadiiKm)
                           ButtonSegment(value: km, label: Text('$km')),
                       ],
-                      selected: {radiusKm},
+                      selected: {target.radiusKm},
                       onSelectionChanged: (value) =>
-                          setState(() => radiusKm = value.single),
+                          setState(() => target.radiusKm = value.single),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -544,11 +579,12 @@ class _RefillHomeState extends State<RefillHome> {
       initialData: repository.isDemo ? places : null,
       builder: (context, placesSnapshot) {
         final allPlaces = placesSnapshot.data ?? const <WaterPlace>[];
-        if (route != null &&
-            busy == null &&
-            placesSnapshot.hasData &&
-            !identical(routedPlaces, allPlaces)) {
-          refreshStops(allPlaces);
+        if (busy == null && placesSnapshot.hasData) {
+          for (final target in [nearMe, onRoute]) {
+            if (target.route != null && !identical(target.places, allPlaces)) {
+              refreshStops(target, allPlaces);
+            }
+          }
         }
         bool matches(WaterPlace p) =>
             '${p.name} ${p.area} ${p.host}'.toLowerCase().contains(
@@ -653,7 +689,30 @@ class _RefillHomeState extends State<RefillHome> {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          routePanel(allPlaces),
+                          SegmentedButton<DistanceMode>(
+                            showSelectedIcon: false,
+                            segments: const [
+                              ButtonSegment(
+                                value: DistanceMode.all,
+                                label: Text('All'),
+                              ),
+                              ButtonSegment(
+                                value: DistanceMode.nearMe,
+                                label: Text('Near me'),
+                              ),
+                              ButtonSegment(
+                                value: DistanceMode.onRoute,
+                                label: Text('On my route'),
+                              ),
+                            ],
+                            selected: {mode},
+                            onSelectionChanged: (value) =>
+                                selectMode(value.single, allPlaces),
+                          ),
+                          if (mode != DistanceMode.all) ...[
+                            const SizedBox(height: 8),
+                            distancePanel(allPlaces),
+                          ],
                           const SizedBox(height: 12),
                           Row(
                             children: [

@@ -56,11 +56,12 @@ In Offer water, choose **Choose address from list**, enter a street and town, an
 
 Search uses the [Photon public demo API](https://github.com/komoot/photon), triggered only by an explicit search, with a small session cache. The search text is sent to Photon. Internet is required; manual address entry and map selection remain available. The public demo service has no availability guarantee and is intended for reasonable request volumes. Configure a private/hosted Photon endpoint for production with `--dart-define=ADDRESS_SEARCH_URL=https://your-server/api/`.
 
-## Route planning
+## Distance filters
 
-**Near me** lists places within **1 / 2 / 5 / 10 / 25 km** driving distance of the device location, nearest first, each showing how far away it is by road.
+Take water has three tabs above the list: **All**, **Near me** and **On my route**. Each tab keeps its own distance (**1 / 2 / 5 / 10 / 25 km**) and results while you switch.
 
-In Take water, **Plan a route** asks for a destination (Google picker on Android, Photon list elsewhere) and plans a driving route from the device location. Choose **Within 1 / 2 / 5 / 10 / 25 km** to list places near the route, in the order you reach them. Each place shows the driving distance from your start and how far it is off the route by road (half the extra driving there and back). **Map** draws the route with the places.
+- **Near me** locates the device and lists places within that driving distance, nearest first. The location button refreshes your position.
+- **On my route** asks for a destination (Google picker on Android, Photon list elsewhere) and plans a driving route from the device location. It lists places within that distance of the route by road, in the order you reach them, with the distance from your start and how far each is off the route (half the extra driving there and back). **Map** draws the route.
 
 Routing uses the [OSRM public demo server](https://github.com/Project-OSRM/osrm-backend/wiki/Demo-server), which is free, has no availability guarantee and is intended for light use. Your location, any destination and the coordinates of nearby places are sent to it. For production, host OSRM or a compatible service and set `--dart-define=ROUTING_URL=https://your-server/`.
 
