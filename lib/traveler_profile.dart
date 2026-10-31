@@ -152,6 +152,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 labelText: 'Phone (optional)',
                 hintText: '+41 79 123 45 67',
                 helperText: 'Only shared with hosts you send a request to.',
+              helperMaxLines: 2,
                 border: OutlineInputBorder(),
               ),
             ),
