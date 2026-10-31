@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'app_style.dart';
 import 'authentication.dart';
 import 'offer_water_form.dart';
+import 'traveler_profile.dart';
 import 'water_place.dart';
 import 'water_places_map.dart';
 import 'water_repository.dart';
@@ -168,7 +169,14 @@ class _GiverHomeState extends State<GiverHome> {
             icon: const Icon(Icons.swap_horiz),
             label: const Text('Take water'),
           ),
-        AccountButton(auth: widget.auth),
+        AccountButton(
+          auth: widget.auth,
+          onEditProfile: () => editProfile(
+            context,
+            load: repository.loadMyProfile,
+            save: repository.saveMyProfile,
+          ),
+        ),
       ],
     ),
     bottomNavigationBar: NavigationBar(
@@ -401,6 +409,10 @@ class _GiverHomeState extends State<GiverHome> {
                                       style: Theme.of(context)
                                           .textTheme
                                           .titleMedium,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    RequesterSummary(
+                                      profile: request.requester,
                                     ),
                                     const SizedBox(height: 8),
                                     Text('${request.liters} liters'),

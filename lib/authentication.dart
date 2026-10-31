@@ -28,8 +28,9 @@ class AuthenticationGate extends StatelessWidget {
 }
 
 class AccountButton extends StatelessWidget {
-  const AccountButton({super.key, this.auth});
+  const AccountButton({super.key, this.auth, this.onEditProfile});
   final FirebaseAuth? auth;
+  final VoidCallback? onEditProfile;
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +42,23 @@ class AccountButton extends StatelessWidget {
         context: context,
         builder: (dialogContext) => AlertDialog(
           title: const Text('Your account'),
-          content: Text(auth!.currentUser?.email ?? ''),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(auth!.currentUser?.email ?? ''),
+              if (onEditProfile case final edit?)
+                TextButton.icon(
+                  style: TextButton.styleFrom(padding: EdgeInsets.zero),
+                  onPressed: () {
+                    Navigator.pop(dialogContext);
+                    edit();
+                  },
+                  icon: const Icon(Icons.badge_outlined),
+                  label: const Text('Edit profile'),
+                ),
+            ],
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext),

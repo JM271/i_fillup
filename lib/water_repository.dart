@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 
+import 'traveler_profile.dart';
 import 'water_place.dart';
 
 class RefillRequest {
@@ -10,6 +11,7 @@ class RefillRequest {
     required this.liters,
     required this.message,
     required this.status,
+    this.requester,
   });
 
   final String id;
@@ -18,6 +20,9 @@ class RefillRequest {
   final String message;
   final String status;
 
+  /// The water taker's profile as it was when the request was sent.
+  final TravelerProfile? requester;
+
   factory RefillRequest.fromFirestore(String id, Map<String, dynamic> data) =>
       RefillRequest(
         id: id,
@@ -25,6 +30,7 @@ class RefillRequest {
         liters: data['liters'] as int,
         message: data['message'] as String,
         status: data['status'] as String,
+        requester: TravelerProfile.fromMap(data['requester']),
       );
 }
 
@@ -36,6 +42,9 @@ abstract interface class WaterRepository {
   Stream<List<RefillRequest>> watchMyRequests();
   Stream<List<RefillRequest>> watchIncomingRequests();
 
+  Future<TravelerProfile?> loadMyProfile();
+  Future<void> saveMyProfile(TravelerProfile profile);
+
   Future<void> saveOffer(WaterPlace place);
   Future<void> deleteOffer(WaterPlace place);
 
@@ -45,6 +54,7 @@ abstract interface class WaterRepository {
     required WaterPlace place,
     required int liters,
     required String message,
+    required TravelerProfile requester,
   });
   Future<void> updateRequestStatus(RefillRequest request, String status);
 }
@@ -68,6 +78,13 @@ class DemoWaterRepository implements WaterRepository {
   Stream<List<RefillRequest>> watchIncomingRequests() => Stream.value(const []);
 
   @override
+  Future<TravelerProfile?> loadMyProfile() async =>
+      const TravelerProfile(name: 'Demo traveler', vehicle: 'Campervan');
+
+  @override
+  Future<void> saveMyProfile(TravelerProfile profile) async {}
+
+  @override
   Future<void> saveOffer(WaterPlace place) async {}
 
   @override
@@ -81,6 +98,7 @@ class DemoWaterRepository implements WaterRepository {
     required WaterPlace place,
     required int liters,
     required String message,
+    required TravelerProfile requester,
   }) async {}
 
   @override
@@ -156,6 +174,17 @@ class FirebaseWaterRepository implements WaterRepository {
             .toList(),
       );
 
+  @override
+  Future<TravelerProfile?> loadMyProfile() async => TravelerProfile.fromMap(
+    (await _firestore.collection('profiles').doc(_userId).get()).data(),
+  );
+
+  @override
+  Future<void> saveMyProfile(TravelerProfile profile) => _firestore
+      .collection('profiles')
+      .doc(_userId)
+      .set({...profile.toMap(), 'updatedAt': FieldValue.serverTimestamp()});
+
   Map<String, Object?> _placeFields(WaterPlace place) => {
     'name': place.name,
     'area': place.area,
@@ -209,6 +238,7 @@ class FirebaseWaterRepository implements WaterRepository {
     required WaterPlace place,
     required int liters,
     required String message,
+    required TravelerProfile requester,
   }) async {
     final placeId = place.id;
     final hostId = place.ownerId;
@@ -222,6 +252,7 @@ class FirebaseWaterRepository implements WaterRepository {
       'requesterUid': _userId,
       'liters': liters,
       'message': message,
+      'requester': requester.toMap(),
       'status': 'pending',
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),

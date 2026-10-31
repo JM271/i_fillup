@@ -5,6 +5,7 @@ import 'app_style.dart';
 import 'authentication.dart';
 import 'offer_water_home.dart';
 import 'take_water_home.dart';
+import 'traveler_profile.dart';
 import 'water_repository.dart';
 
 /// Keeps both sides mounted so switching home does not discard an offer draft.
@@ -29,7 +30,20 @@ class _FillupHomeState extends State<FillupHome> {
       Scaffold(
         appBar: AppBar(
           title: const Text('i fillup'),
-          actions: [AccountButton(auth: widget.auth)],
+          actions: [
+            AccountButton(
+              auth: widget.auth,
+              onEditProfile: () {
+                final repository =
+                    widget.repository ?? const DemoWaterRepository();
+                editProfile(
+                  context,
+                  load: repository.loadMyProfile,
+                  save: repository.saveMyProfile,
+                );
+              },
+            ),
+          ],
         ),
         body: SafeArea(
           child: Center(

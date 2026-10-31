@@ -9,6 +9,7 @@ import 'authentication.dart';
 import 'google_address_picker.dart';
 import 'location_picker.dart';
 import 'route_planner.dart';
+import 'traveler_profile.dart';
 import 'water_place.dart';
 import 'water_places_map.dart';
 import 'water_repository.dart';
@@ -156,6 +157,24 @@ class _RefillHomeState extends State<RefillHome> {
   }
 
   Future<void> requestWater(WaterPlace place) async {
+    TravelerProfile? profile;
+    try {
+      profile = await repository.loadMyProfile();
+    } catch (_) {
+      showMessage('Could not load your profile. Please try again.');
+      return;
+    }
+    if (!mounted) return;
+    profile ??= await Navigator.of(context).push<TravelerProfile>(
+      MaterialPageRoute(
+        builder: (_) => ProfilePage(
+          onSave: repository.saveMyProfile,
+          intro: 'Before your first request, tell hosts who is coming. They see this profile on the requests you send them.',
+        ),
+      ),
+    );
+    if (profile == null || !mounted) return;
+    final requester = profile;
     final form = GlobalKey<FormState>();
     final message = TextEditingController();
     final liters = TextEditingController(text: '80');
@@ -186,6 +205,10 @@ class _RefillHomeState extends State<RefillHome> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text('To ${place.host}'),
+                Text(
+                  'From ${requester.name} · ${requester.vehicle}',
+                  style: const TextStyle(color: Color(0xFF617575)),
+                ),
                 const SizedBox(height: 16),
                 Align(
                   alignment: Alignment.centerLeft,
@@ -321,6 +344,7 @@ class _RefillHomeState extends State<RefillHome> {
             place: place,
             liters: int.parse(liters.text),
             message: message.text.trim(),
+            requester: requester,
           );
         }
         if (mounted) setState(() => page = 1);
@@ -622,7 +646,14 @@ class _RefillHomeState extends State<RefillHome> {
                   icon: const Icon(Icons.swap_horiz),
                   label: const Text('Offer water'),
                 ),
-              AccountButton(auth: widget.auth),
+              AccountButton(
+                auth: widget.auth,
+                onEditProfile: () => editProfile(
+                  context,
+                  load: repository.loadMyProfile,
+                  save: repository.saveMyProfile,
+                ),
+              ),
             ],
           ),
           bottomNavigationBar: NavigationBar(

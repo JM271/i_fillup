@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:i_fillup/offer_water_home.dart';
+import 'package:i_fillup/traveler_profile.dart';
 import 'package:i_fillup/water_place.dart';
 import 'package:i_fillup/water_repository.dart';
 
@@ -35,6 +36,10 @@ class LegacyRepository implements WaterRepository {
   @override
   Stream<List<RefillRequest>> watchIncomingRequests() => Stream.value(const []);
   @override
+  Future<TravelerProfile?> loadMyProfile() async => null;
+  @override
+  Future<void> saveMyProfile(TravelerProfile profile) async {}
+  @override
   Future<void> saveOffer(WaterPlace place) async {}
   @override
   Future<void> deleteOffer(WaterPlace place) async {}
@@ -46,6 +51,7 @@ class LegacyRepository implements WaterRepository {
     required WaterPlace place,
     required int liters,
     required String message,
+    required TravelerProfile requester,
   }) async {}
   @override
   Future<void> updateRequestStatus(
