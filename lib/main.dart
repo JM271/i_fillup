@@ -1,3 +1,8 @@
+import 'fillup_home.dart';
+
+import 'package:firebase_auth/firebase_auth.dart';
+
+import 'authentication.dart';
 import 'app_switch_button.dart';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -16,10 +21,10 @@ import 'water_places_map.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
-    final repository = await FirebaseWaterRepository.connect(
-      taker_options.DefaultFirebaseOptions.currentPlatform,
+    final app = await Firebase.initializeApp(
+      options: taker_options.DefaultFirebaseOptions.currentPlatform,
     );
-    runApp(MyApp(repository: repository));
+    runApp(MyApp(auth: FirebaseAuth.instanceFor(app: app)));
   } on FirebaseException catch (error, stackTrace) {
     debugPrintStack(stackTrace: stackTrace);
     runApp(
@@ -29,12 +34,13 @@ Future<void> main() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key, this.repository});
+  const MyApp({super.key, this.repository, this.auth});
+  final FirebaseAuth? auth;
   final WaterRepository? repository;
 
   @override
   Widget build(BuildContext context) => MaterialApp(
-    title: 'i fillup · Take water',
+    title: 'i fillup',
     debugShowCheckedModeBanner: false,
     theme: ThemeData(
       useMaterial3: true,
@@ -50,12 +56,27 @@ class MyApp extends StatelessWidget {
         titleLarge: TextStyle(fontWeight: FontWeight.w700, color: ink),
       ),
     ),
-    home: RefillHome(repository: repository),
+    home: auth == null
+        ? FillupHome(repository: repository)
+        : AuthenticationGate(
+            auth: auth!,
+            builder: (repository) =>
+                FillupHome(repository: repository, auth: auth),
+          ),
   );
 }
 
 class RefillHome extends StatefulWidget {
-  const RefillHome({super.key, this.repository});
+  const RefillHome({
+    super.key,
+    this.repository,
+    this.auth,
+    this.onHome,
+    this.onOfferWater,
+  });
+  final VoidCallback? onHome;
+  final VoidCallback? onOfferWater;
+  final FirebaseAuth? auth;
   final WaterRepository? repository;
 
   @override
@@ -128,10 +149,26 @@ class _RefillHomeState extends State<RefillHome> {
     final form = GlobalKey<FormState>();
     final message = TextEditingController();
     final liters = TextEditingController(text: '80');
+    String? selectedTiming;
+    void selectTiming(String value) {
+      var existing = message.text.trim();
+      final previous = selectedTiming;
+      if (previous != null) {
+        if (existing == previous) {
+          existing = '';
+        } else if (existing.startsWith('$previous\n')) {
+          existing = existing.substring(previous.length).trimLeft();
+        }
+      }
+      selectedTiming = value;
+      message.text = existing.isEmpty ? value : '$value\n$existing';
+      message.selection = TextSelection.collapsed(offset: message.text.length);
+    }
+
     final submitted = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Plan your fill-up'),
+        title: const Text('Plan a fill-up'),
         content: SingleChildScrollView(
           child: Form(
             key: form,
@@ -139,6 +176,79 @@ class _RefillHomeState extends State<RefillHome> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text('To ${place.host}'),
+                const SizedBox(height: 16),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      ActionChip(
+                        avatar: const Icon(Icons.bolt, size: 20),
+                        label: const Text('ASAP'),
+                        tooltip: 'Request a fill-up as soon as possible',
+                        onPressed: () => selectTiming('ASAP'),
+                      ),
+                      ActionChip(
+                        label: const Text('Today'),
+                        onPressed: () => selectTiming('Today'),
+                      ),
+                      ActionChip(
+                        label: const Text('Tomorrow'),
+                        onPressed: () => selectTiming('Tomorrow'),
+                      ),
+                      ActionChip(
+                        avatar: const Icon(
+                          Icons.calendar_today_outlined,
+                          size: 20,
+                        ),
+                        label: const Text('Choose date & time'),
+                        onPressed: () async {
+                          final now = DateTime.now();
+                          final date = await showDatePicker(
+                            context: dialogContext,
+                            initialDate: now,
+                            firstDate: DateTime(now.year, now.month, now.day),
+                            lastDate: DateTime(
+                              now.year + 2,
+                              now.month,
+                              now.day,
+                            ),
+                          );
+                          if (date == null || !dialogContext.mounted) return;
+                          final time = await showTimePicker(
+                            context: dialogContext,
+                            initialTime: TimeOfDay.now(),
+                          );
+                          if (time == null || !dialogContext.mounted) return;
+                          final arrival = DateTime(
+                            date.year,
+                            date.month,
+                            date.day,
+                            time.hour,
+                            time.minute,
+                          );
+                          if (!arrival.isAfter(DateTime.now())) {
+                            ScaffoldMessenger.of(dialogContext).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Choose an arrival time in the future.',
+                                ),
+                              ),
+                            );
+                            return;
+                          }
+                          final labels = MaterialLocalizations.of(
+                            dialogContext,
+                          );
+                          selectTiming(
+                            '${labels.formatFullDate(date)} at ${labels.formatTimeOfDay(time)}',
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: liters,
@@ -251,17 +361,33 @@ class _RefillHomeState extends State<RefillHome> {
         return Scaffold(
           appBar: AppBar(
             backgroundColor: const Color(0xFFF6F8F4),
-            title: const Row(
-              children: [
-                Icon(Icons.water_drop, color: teal),
-                SizedBox(width: 8),
-                Text(
-                  'i fillup · Take',
-                  style: TextStyle(fontWeight: FontWeight.w800, color: ink),
-                ),
-              ],
+            title: const Text(
+              'i fillup · Take',
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontWeight: FontWeight.w800, color: ink),
             ),
-            actions: const [AppSwitchButton(toGiver: true)],
+            actions: [AccountButton(auth: widget.auth)],
+            bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(48),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  TextButton.icon(
+                    onPressed: widget.onHome ?? () => setState(() => page = 0),
+                    icon: const Icon(Icons.home_outlined),
+                    label: const Text('Home'),
+                  ),
+                  if (widget.onOfferWater != null)
+                    TextButton.icon(
+                      onPressed: widget.onOfferWater,
+                      icon: const Icon(Icons.swap_horiz),
+                      label: const Text('Offer water'),
+                    )
+                  else
+                    const AppSwitchButton(toGiver: true),
+                ],
+              ),
+            ),
           ),
           bottomNavigationBar: NavigationBar(
             selectedIndex: selectedPage,
@@ -348,8 +474,9 @@ class _RefillHomeState extends State<RefillHome> {
                             label: Text('Show ${visible.length} places on map'),
                           ),
                           const SizedBox(height: 26),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          Wrap(
+                            spacing: 16,
+                            runSpacing: 8,
                             children: [
                               Text(
                                 'Discover a refill',

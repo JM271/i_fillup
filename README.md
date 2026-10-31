@@ -1,6 +1,6 @@
-# i fillup — Take & Give
+# i fillup — Take water & Offer water
 
-Two Flutter app entry points share models, styling, maps and location services.
+i fillup opens on a shared home page with **Take water** and **Offer water**. Both sections run inside the same app and use the same account and repository. **Home** returns to the chooser without discarding an unfinished offer. The two existing Android entry points remain compatible and both open this home page.
 
 - **Take:** `lib/main_taker.dart` — discover refill places, filter and search, inspect details and prepare demo refill requests.
 - **Give:** `lib/main_giver.dart` — create water offers with an address, map pin, opening times and CHF price; review your places and the incoming-request placeholder.
@@ -29,9 +29,9 @@ Other Flutter platforms can run either Dart entry point without `--flavor`. Sepa
 
 ## Firebase setup
 
-The apps use Firebase project `i-fillup`, anonymous Firebase Authentication, and Cloud Firestore. Firebase app registrations and FlutterFire options are checked in for the two Android flavors and the Web app.
+The apps use Firebase project `i-fillup`, email/password Firebase Authentication, and Cloud Firestore. Firebase app registrations and FlutterFire options are checked in for the two Android flavors and the Web app.
 
-The default Firestore database still needs to be created in the Firebase project. The project currently reports the Cloud Firestore API as disabled. Enable the Cloud Firestore API in Google Cloud, then create the default Firestore database in `europe-west6` (Zurich), the region selected for the Swiss-first MVP.
+The default Firestore database still needs to be created in the Firebase project. Device logs on 2026-10-31 confirm that the default database does not exist. Enable the Cloud Firestore API if prompted, then create the default Firestore database in `europe-west6` (Zurich), the region selected for the Swiss-first MVP.
 
 Deploy the repository's Firestore security rules after the database is ready:
 
@@ -39,9 +39,11 @@ Deploy the repository's Firestore security rules after the database is ready:
 firebase deploy --only firestore:rules --project i-fillup
 ```
 
-Enable the **Anonymous** sign-in provider under Firebase Authentication before running either app. The apps sign users in anonymously and store offers in `waterPlaces` and refill requests in `refillRequests`. Active places are public to signed-in users; an offer is editable by its creator, and a request is visible only to its requester and the host. Hosts can accept or decline pending requests.
+Enable **Email/Password** under Firebase Console → i-fillup → Authentication → Sign-in method. Both apps now require login, with account creation and password reset on the login screen. The **Account** button shows the current email and provides **Sign out**. Firebase restores the session on restart; use the same credentials in Take and Give to access the same account.
 
-Anonymous IDs are local to each app installation. The Give app owns its offers, while the Take app creates requests addressed to the offer's host. Until account linking is added, clearing app data or uninstalling can lose the anonymous identity that owns an offer.
+When an existing anonymous user creates a new account, credentials are linked to that UID, preserving ownership of their offers and requests. Logging into an already existing account uses that account's UID; it does not merge data from a different anonymous identity. Existing anonymous identities are retained until registration or login.
+
+Offers are stored in `waterPlaces` and requests in `refillRequests`. Owners can manage their offers; requests are visible to their requester and host. Hosts can accept or decline pending requests.
 
 ## Connection status
 
@@ -60,7 +62,7 @@ flutter build web -t lib/main_giver.dart
 
 ## Switch apps on Android
 
-Use **Give water** in the taker app's top bar and **Take water** in the giver app's top bar. Both Android flavors must be installed. Each flavor handles its own link (`ifillup-taker://home` or `ifillup-giver://home`). Switching opens the companion app; it does not synchronize demo data. Web and desktop previews currently show an explanatory message instead.
+The shared home page opens either section inside the current app. The **Offer water** and **Take water** section buttons also switch internally; a second installation is not needed. Existing Android flavor IDs and deep links remain available for compatibility.
 
 ## Address selection
 
@@ -90,4 +92,8 @@ Without a configured key the button displays a configuration message; it does no
 
 If Firebase sign-in fails (including CONFIGURATION_NOT_FOUND), startup explains the missing Anonymous provider, offers a retry, and provides an explicit preview without cloud. Preview offers are labeled as session-only. Saving an offer disables repeat submission until completion; failed saves preserve all entered values for retry.
 
-The local refill-request rule now checks that the referenced place is active and the request's host UID matches its owner. The requester no longer has to own the host's place. This rules change still needs emulator verification and deployment before claiming live request delivery.
+The local refill-request rule now checks that the referenced place is active and the request's host UID matches its owner. The requester no longer has to own the host's place. The local rules passed 15 emulator checks on 2026-10-31 covering offer ownership, request creation, forged host rejection, request privacy and host-only status transitions. Deployment and a live request round trip remain pending until the database exists.
+
+## Local rules verification
+
+Start the Firestore emulator with project ID `demo-i-fillup`, port `8787` and `firestore.rules`, then run `python3 test/firestore_rules_test.py`. This test only contacts the local emulator and does not write production data.

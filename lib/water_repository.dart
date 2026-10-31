@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import 'water_place.dart';
@@ -90,23 +89,11 @@ class FirebaseWaterRepository implements WaterRepository {
   @override
   bool get isDemo => false;
 
-  static Future<FirebaseWaterRepository> connect(
-    FirebaseOptions options,
-  ) async {
-    final app = await Firebase.initializeApp(options: options);
-    final auth = FirebaseAuth.instanceFor(app: app);
-    final user = auth.currentUser ?? (await auth.signInAnonymously()).user;
-    if (user == null) {
-      throw FirebaseAuthException(
-        code: 'anonymous-sign-in-failed',
-        message: 'Firebase did not return an anonymous user.',
+  factory FirebaseWaterRepository.forUser(FirebaseApp app, String userId) =>
+      FirebaseWaterRepository._(
+        firestore: FirebaseFirestore.instanceFor(app: app),
+        userId: userId,
       );
-    }
-    return FirebaseWaterRepository._(
-      firestore: FirebaseFirestore.instanceFor(app: app),
-      userId: user.uid,
-    );
-  }
 
   @override
   Stream<List<WaterPlace>> watchPlaces() => _firestore

@@ -48,7 +48,10 @@ void main() {
           preview: const MyApp(),
         ),
       );
-      expect(find.textContaining('Anonymous sign-in provider'), findsOneWidget);
+      expect(
+        find.textContaining('Email/Password sign-in provider'),
+        findsOneWidget,
+      );
       await tester.tap(find.text('Retry cloud connection'));
       await tester.pumpAndSettle();
       expect(retries, 1);
@@ -213,6 +216,8 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(const MyApp());
+    await tester.tap(find.text('Take water'));
+    await tester.pumpAndSettle();
     final dynamic state = tester.state(find.byType(RefillHome));
     state.page = 2;
     tester.element(find.byType(RefillHome)).markNeedsBuild();
@@ -359,9 +364,16 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(const MyApp());
+    await tester.tap(find.text('Take water'));
+    await tester.pumpAndSettle();
     expect(find.text('Fresh water.\nOpen roads.'), findsOneWidget);
     await tester.tap(find.text('Refill stops'));
     await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('1 demo places'),
+      100,
+      scrollable: find.byType(Scrollable).first,
+    );
     expect(find.text('1 demo places'), findsOneWidget);
     expect(find.text('A little stop by the lake'), findsNothing);
     await tester.scrollUntilVisible(
@@ -394,6 +406,8 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(const MyApp());
+    await tester.tap(find.text('Take water'));
+    await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), 'unknown town');
     await tester.pumpAndSettle();
     await tester.scrollUntilVisible(
@@ -402,8 +416,9 @@ void main() {
       scrollable: find.byType(Scrollable).first,
     );
     expect(find.textContaining('No places match'), findsOneWidget);
-    expect(find.text('Offer water'), findsNothing);
+    expect(find.text('Offer water'), findsOneWidget);
     await tester.pumpWidget(const WaterGiverApp());
+    await tester.tap(find.text('Offer water'));
     await tester.pumpAndSettle();
     expect(find.text('Your water places'), findsOneWidget);
     await tester.tap(find.text('Offer water').last);
@@ -411,4 +426,72 @@ void main() {
     expect(find.text('Offer water.\nEarn cash.'), findsOneWidget);
     expect(find.text('Find water'), findsNothing);
   });
+  testWidgets('i fillup home opens both sides and preserves an offer draft', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(const MyApp());
+    await tester.pumpAndSettle();
+    expect(find.text('Welcome to i fillup'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await tester.tap(find.text('Take water'));
+    await tester.pumpAndSettle();
+    expect(find.text('Fresh water.\nOpen roads.'), findsOneWidget);
+    await tester.tap(find.text('Home'));
+    await tester.pumpAndSettle();
+    expect(find.text('Welcome to i fillup'), findsOneWidget);
+    await tester.tap(find.text('Offer water'));
+    await tester.pumpAndSettle();
+    expect(find.text('Your water places'), findsOneWidget);
+    await tester.tap(find.text('Offer water').last);
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextFormField).first, 'My draft refill');
+    FocusManager.instance.primaryFocus?.unfocus();
+    await tester.tap(find.text('Home'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Offer water'));
+    await tester.pumpAndSettle();
+    expect(find.text('My draft refill'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+  testWidgets(
+    'Fill-up timing choices preserve the message and submit the selected timing',
+    (tester) async {
+      await tester.pumpWidget(const MaterialApp(home: RefillHome()));
+      final dynamic state = tester.state(find.byType(RefillHome));
+      state.requestWater(places.first);
+      await tester.pumpAndSettle();
+      expect(find.text('Plan a fill-up'), findsOneWidget);
+      for (final label in ['ASAP', 'Today', 'Tomorrow', 'Choose date & time']) {
+        expect(find.widgetWithText(ActionChip, label), findsOneWidget);
+      }
+      await tester.enterText(
+        find.byType(TextFormField).last,
+        'Bringing my own hose',
+      );
+      await tester.tap(find.widgetWithText(ActionChip, 'Today'));
+      await tester.pump();
+      await tester.tap(find.widgetWithText(ActionChip, 'Tomorrow'));
+      await tester.pump();
+      expect(find.text('Tomorrow\nBringing my own hose'), findsOneWidget);
+      await tester.tap(find.widgetWithText(ActionChip, 'Choose date & time'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Cancel').last);
+      await tester.pumpAndSettle();
+      expect(find.text('Tomorrow\nBringing my own hose'), findsOneWidget);
+      await tester.tap(find.widgetWithText(ActionChip, 'ASAP'));
+      await tester.tap(find.widgetWithText(ActionChip, 'ASAP'));
+      await tester.pump();
+      expect(find.text('ASAP\nBringing my own hose'), findsOneWidget);
+      await tester.tap(find.text('Save demo request'));
+      await tester.pumpAndSettle();
+      expect(
+        find.textContaining('80 liters · ASAP\nBringing my own hose'),
+        findsOneWidget,
+      );
+    },
+  );
 }

@@ -3,15 +3,16 @@ import 'package:flutter/material.dart';
 
 import 'firebase_options_giver.dart' as giver_options;
 import 'giver_app.dart';
-import 'water_repository.dart';
+
+import 'package:firebase_auth/firebase_auth.dart';
 
 Future<void> startGiverApp() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
-    final repository = await FirebaseWaterRepository.connect(
-      giver_options.DefaultFirebaseOptions.currentPlatform,
+    final app = await Firebase.initializeApp(
+      options: giver_options.DefaultFirebaseOptions.currentPlatform,
     );
-    runApp(WaterGiverApp(repository: repository));
+    runApp(WaterGiverApp(auth: FirebaseAuth.instanceFor(app: app)));
   } on FirebaseException catch (error, stackTrace) {
     debugPrintStack(stackTrace: stackTrace);
     runApp(
@@ -69,7 +70,7 @@ class _FirebaseStartupErrorState extends State<FirebaseStartupError> {
                     const SizedBox(height: 16),
                     Text(
                       setupMissing
-                          ? 'Firebase sign-in is not configured for this project. In Firebase Console → i-fillup → Authentication, complete setup and enable the Anonymous sign-in provider.'
+                          ? 'Firebase sign-in is not configured for this project. In Firebase Console → i-fillup → Authentication, complete setup and enable the Email/Password sign-in provider.'
                           : 'Could not connect to Firebase. Check your connection and Firebase setup, then retry.',
                     ),
                     const SizedBox(height: 12),

@@ -1,4 +1,9 @@
-import 'package:firebase_core/firebase_core.dart';
+import 'fillup_home.dart';
+
+import 'package:firebase_auth/firebase_auth.dart';
+
+import 'authentication.dart';
+
 import 'package:flutter/material.dart';
 
 import 'app_switch_button.dart';
@@ -9,25 +14,41 @@ import 'water_places_map.dart';
 import 'water_repository.dart';
 
 class WaterGiverApp extends StatelessWidget {
-  const WaterGiverApp({super.key, this.repository});
+  const WaterGiverApp({super.key, this.repository, this.auth});
+  final FirebaseAuth? auth;
 
   final WaterRepository? repository;
 
   @override
   Widget build(BuildContext context) => MaterialApp(
-    title: 'i fillup · Give water',
+    title: 'i fillup',
     debugShowCheckedModeBanner: false,
     theme: ThemeData(
       useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(seedColor: teal),
       scaffoldBackgroundColor: const Color(0xFFF6F8F4),
     ),
-    home: GiverHome(repository: repository),
+    home: auth == null
+        ? FillupHome(repository: repository)
+        : AuthenticationGate(
+            auth: auth!,
+            builder: (repository) =>
+                FillupHome(repository: repository, auth: auth),
+          ),
   );
 }
 
 class GiverHome extends StatefulWidget {
-  const GiverHome({super.key, this.repository});
+  const GiverHome({
+    super.key,
+    this.repository,
+    this.auth,
+    this.onHome,
+    this.onTakeWater,
+  });
+  final VoidCallback? onHome;
+  final VoidCallback? onTakeWater;
+  final FirebaseAuth? auth;
 
   final WaterRepository? repository;
 
@@ -74,7 +95,28 @@ class _GiverHomeState extends State<GiverHome> {
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
       title: const Text('i fillup · Give'),
-      actions: const [AppSwitchButton(toGiver: false)],
+      actions: [AccountButton(auth: widget.auth)],
+      bottom: PreferredSize(
+        preferredSize: const Size.fromHeight(48),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            TextButton.icon(
+              onPressed: widget.onHome ?? () => setState(() => page = 0),
+              icon: const Icon(Icons.home_outlined),
+              label: const Text('Home'),
+            ),
+            if (widget.onTakeWater != null)
+              TextButton.icon(
+                onPressed: widget.onTakeWater,
+                icon: const Icon(Icons.swap_horiz),
+                label: const Text('Take water'),
+              )
+            else
+              const AppSwitchButton(toGiver: false),
+          ],
+        ),
+      ),
     ),
     bottomNavigationBar: NavigationBar(
       selectedIndex: page,

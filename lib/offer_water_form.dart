@@ -197,7 +197,7 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
           ),
           const SizedBox(height: 12),
           const Text(
-            'Payment is arranged directly with the traveler. This demo does not collect payments or pay out earnings.',
+            'Payment is arranged directly with the traveler. The app does not collect payments or pay out earnings.',
           ),
           const SizedBox(height: 24),
           FilledButton.icon(
