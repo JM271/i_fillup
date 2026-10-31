@@ -13,6 +13,7 @@ class RefillRequest {
     required this.message,
     required this.status,
     this.requester,
+    this.hostHidden = false,
   });
 
   final String id;
@@ -24,6 +25,9 @@ class RefillRequest {
   /// The water taker's profile as it was when the request was sent.
   final TravelerProfile? requester;
 
+  /// Whether the host deleted the request from their list.
+  final bool hostHidden;
+
   factory RefillRequest.fromFirestore(String id, Map<String, dynamic> data) =>
       RefillRequest(
         id: id,
@@ -32,6 +36,7 @@ class RefillRequest {
         message: data['message'] as String,
         status: data['status'] as String,
         requester: TravelerProfile.fromMap(data['requester']),
+        hostHidden: data['hostHidden'] == true,
       );
 }
 
@@ -58,6 +63,9 @@ abstract interface class WaterRepository {
     required TravelerProfile requester,
   });
   Future<void> updateRequestStatus(RefillRequest request, String status);
+
+  /// Removes a request from the host's list, declining it if still pending.
+  Future<void> deleteIncomingRequest(RefillRequest request);
 }
 
 class DemoWaterRepository implements WaterRepository {
@@ -107,6 +115,9 @@ class DemoWaterRepository implements WaterRepository {
     RefillRequest request,
     String status,
   ) async {}
+
+  @override
+  Future<void> deleteIncomingRequest(RefillRequest request) async {}
 }
 
 class FirebaseWaterRepository implements WaterRepository {
@@ -158,7 +169,9 @@ class FirebaseWaterRepository implements WaterRepository {
 
   @override
   Stream<List<RefillRequest>> watchIncomingRequests() =>
-      _requestStream('hostUid');
+      _requestStream('hostUid').map(
+        (requests) => requests.where((request) => !request.hostHidden).toList(),
+      );
 
   Stream<List<RefillRequest>> _requestStream(String ownerField) => _firestore
       .collection('refillRequests')
@@ -280,4 +293,12 @@ class FirebaseWaterRepository implements WaterRepository {
       'updatedAt': FieldValue.serverTimestamp(),
     });
   }
+
+  @override
+  Future<void> deleteIncomingRequest(RefillRequest request) =>
+      _firestore.collection('refillRequests').doc(request.id).update({
+        if (request.status == 'pending') 'status': 'declined',
+        'hostHidden': true,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
 }

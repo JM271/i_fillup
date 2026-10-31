@@ -27,6 +27,10 @@ def field(value):
         return {'integerValue': str(value)}
     if isinstance(value, float):
         return {'doubleValue': value}
+    if isinstance(value, list):
+        return {'arrayValue': {'values': [field(item) for item in value]}}
+    if isinstance(value, dict):
+        return {'mapValue': {'fields': {k: field(v) for k, v in value.items()}}}
     return {'stringValue': value}
 
 
@@ -54,8 +58,9 @@ place_id = host
 request_id = 'request-' + suffix
 place = dict(name='Test water', area='Zurich', host='Host', private=True,
              price='Free', description='Test', openingTimes='Always',
-             latitude=47.3, longitude=8.5, ownerUid=host, isActive=True,
-             createdAt='', updatedAt='')
+             latitude=47.3, longitude=8.5, photo='', vehicles=['campervan'],
+             services=['farmShop'], businessInfo='Eggs', website='https://hof.ch',
+             ownerUid=host, isActive=True, createdAt='', updatedAt='')
 request('PATCH', '/waterPlaces/second-' + suffix, host, place, 403)
 request('PATCH', '/waterPlaces/' + place_id, host, place)
 request('PATCH', '/waterPlaces/' + place_id, host, place, 403)
@@ -63,6 +68,7 @@ request('PATCH', '/waterPlaces/forged-' + suffix, 'stranger', place, 403)
 request('PATCH', '/waterPlaces/unsigned-' + suffix, None, place, 403)
 refill = dict(placeId=place_id, placeName='Test water', hostUid=host,
               requesterUid='traveler', liters=50, message='Hello', status='pending',
+              requester=dict(name='Lea', vehicle='Van', phone='', about='', photo=''),
               createdAt='', updatedAt='')
 request('PATCH', '/refillRequests/' + request_id, 'traveler', refill)
 request('PATCH', '/refillRequests/forged-' + suffix, 'traveler', dict(refill, hostUid='stranger'), 403)
@@ -75,6 +81,9 @@ status_path = '/refillRequests/' + request_id + '?updateMask.fieldPaths=status&u
 request('PATCH', status_path, 'traveler', dict(status='accepted', updatedAt=''), 403)
 request('PATCH', status_path, host, dict(status='accepted', updatedAt=''))
 request('PATCH', status_path, host, dict(status='declined', updatedAt=''), 403)
+hide_path = '/refillRequests/' + request_id + '?updateMask.fieldPaths=hostHidden&updateMask.fieldPaths=updatedAt'
+request('PATCH', hide_path, 'traveler', dict(hostHidden=True, updatedAt=''), 403)
+request('PATCH', hide_path, host, dict(hostHidden=True, updatedAt=''))
 request('DELETE', '/waterPlaces/' + place_id, 'stranger', expected=403)
 request('DELETE', '/waterPlaces/' + place_id, host)
-print('17 Firestore rules checks passed (local emulator only).')
+print('19 Firestore rules checks passed (local emulator only).')

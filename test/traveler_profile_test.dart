@@ -20,6 +20,7 @@ class ProfileRepository implements WaterRepository {
   TravelerProfile? profile;
   final List<RefillRequest> incoming;
   final sent = <TravelerProfile>[];
+  final deletedRequests = <String>[];
 
   @override
   bool get isDemo => false;
@@ -53,6 +54,9 @@ class ProfileRepository implements WaterRepository {
     RefillRequest request,
     String status,
   ) async {}
+  @override
+  Future<void> deleteIncomingRequest(RefillRequest request) async =>
+      deletedRequests.add(request.id);
 }
 
 void main() {
@@ -168,5 +172,71 @@ void main() {
     expect(find.text('Two kids and a dog, own hose'), findsOneWidget);
     expect(find.text('Call +41 79 123 45 67'), findsOneWidget);
     expect(find.textContaining('No traveler profile'), findsOneWidget);
+  });
+
+  testWidgets('Hosts can delete incoming requests', (tester) async {
+    tester.view.physicalSize = const Size(400, 1600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final repository = ProfileRepository(
+      incoming: const [
+        RefillRequest(
+          id: 'r1',
+          placeName: 'Garden tap',
+          liters: 80,
+          message: 'Tomorrow',
+          status: 'pending',
+          requester: lea,
+        ),
+        RefillRequest(
+          id: 'r2',
+          placeName: 'Garden tap',
+          liters: 40,
+          message: 'Last week',
+          status: 'accepted',
+        ),
+      ],
+    );
+    await tester.pumpWidget(
+      MaterialApp(home: GiverHome(repository: repository)),
+    );
+    await tester.tap(find.text('Requests'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('Delete request').first);
+    await tester.pumpAndSettle();
+    expect(
+      find.textContaining('Lea will see that it was declined'),
+      findsOneWidget,
+    );
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+    expect(repository.deletedRequests, isEmpty);
+
+    await tester.tap(find.byTooltip('Delete request').first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Decline and delete'));
+    await tester.pumpAndSettle();
+    expect(repository.deletedRequests, ['r1']);
+    expect(find.text('Request deleted'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Delete request').last);
+    await tester.pumpAndSettle();
+    expect(find.text('It is removed from your requests.'), findsOneWidget);
+    await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
+    await tester.pumpAndSettle();
+    expect(repository.deletedRequests, ['r1', 'r2']);
+  });
+
+  test('Hidden requests are flagged from storage', () {
+    final request = RefillRequest.fromFirestore('r', {
+      'placeName': 'Tap',
+      'liters': 10,
+      'message': 'Hi',
+      'status': 'declined',
+      'hostHidden': true,
+    });
+    expect(request.hostHidden, isTrue);
   });
 }

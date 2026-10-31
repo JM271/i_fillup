@@ -135,6 +135,46 @@ class _GiverHomeState extends State<GiverHome> {
     messenger.showSnackBar(SnackBar(content: Text('${place.name} deleted')));
   }
 
+  Future<void> deleteRequest(RefillRequest request) async {
+    final traveler = request.requester?.name ?? 'The traveler';
+    final pending = request.status == 'pending';
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Delete request?'),
+        content: Text(
+          pending
+              ? 'It is removed from your requests and declined. $traveler will see that it was declined.'
+              : 'It is removed from your requests.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(dialogContext).colorScheme.error,
+            ),
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: Text(pending ? 'Decline and delete' : 'Delete'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await repository.deleteIncomingRequest(request);
+    } on FirebaseException catch (error) {
+      messenger.showSnackBar(
+        SnackBar(content: Text('Could not delete request: ${error.message}')),
+      );
+      return;
+    }
+    messenger.showSnackBar(const SnackBar(content: Text('Request deleted')));
+  }
+
   Future<void> updateRequest(RefillRequest request, String status) async {
     try {
       await repository.updateRequestStatus(request, status);
@@ -412,11 +452,29 @@ class _GiverHomeState extends State<GiverHome> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      request.placeName,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleMedium,
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            request.placeName,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .titleMedium,
+                                          ),
+                                        ),
+                                        if (!repository.isDemo)
+                                          IconButton(
+                                            tooltip: 'Delete request',
+                                            onPressed: () =>
+                                                deleteRequest(request),
+                                            icon: Icon(
+                                              Icons.delete_outline,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .error,
+                                            ),
+                                          ),
+                                      ],
                                     ),
                                     const SizedBox(height: 8),
                                     RequesterSummary(

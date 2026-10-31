@@ -20,6 +20,7 @@ WaterPlace legacyPlace(String id, String name) => WaterPlace(
 
 class LegacyRepository implements WaterRepository {
   final kept = <(String, List<String>)>[];
+  final deletedRequests = <String>[];
   final myPlaces = [
     legacyPlace('old-1', 'Old tap'),
     legacyPlace('old-2', 'Old well'),
@@ -58,6 +59,9 @@ class LegacyRepository implements WaterRepository {
     RefillRequest request,
     String status,
   ) async {}
+  @override
+  Future<void> deleteIncomingRequest(RefillRequest request) async =>
+      deletedRequests.add(request.id);
 }
 
 void main() {

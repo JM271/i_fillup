@@ -131,12 +131,19 @@ service cloud.firestore {
       allow read: if signedIn()
         && (resource.data.requesterUid == request.auth.uid
           || resource.data.hostUid == request.auth.uid);
+      // Hosts answer pending requests and can delete requests from their
+      // list; a pending request is declined when deleted.
       allow update: if signedIn()
         && resource.data.hostUid == request.auth.uid
-        && resource.data.status == 'pending'
-        && request.resource.data.status in ['accepted', 'declined']
-        && request.resource.data.diff(resource.data).affectedKeys()
-          .hasOnly(['status', 'updatedAt']);
+        && request.resource.data.get('hostHidden', false) is bool
+        && ((resource.data.status == 'pending'
+            && request.resource.data.status in ['accepted', 'declined']
+            && request.resource.data.diff(resource.data).affectedKeys()
+              .hasOnly(['status', 'hostHidden', 'updatedAt']))
+          || (resource.data.status != 'pending'
+            && request.resource.data.hostHidden == true
+            && request.resource.data.diff(resource.data).affectedKeys()
+              .hasOnly(['hostHidden', 'updatedAt'])));
       allow delete: if false;
     }
   }
