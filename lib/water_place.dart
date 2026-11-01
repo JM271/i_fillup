@@ -4,14 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 
 import 'photo_field.dart';
-
-/// Vehicles a host can say fit their place, stored by key.
-const vehicleAccess = {
-  'campervan': 'Campervan up to 6 m',
-  'motorhome': 'Motorhome 6–8 m',
-  'large': 'Large motorhome over 8 m',
-  'trailer': 'Caravan or trailer',
-};
+import 'texts.dart';
 
 /// One place per owner for travelers: the place under the owner's UID, or an
 /// owner's only older place. Owners with several older places must choose.
@@ -31,18 +24,6 @@ List<WaterPlace> listedPlaces(Iterable<WaterPlace> all) {
 
 String vehicleSummary(List<String> vehicles) =>
     vehicles.map((key) => vehicleAccess[key]).nonNulls.join(' · ');
-
-/// What else a host offers besides water, stored by key.
-const placeServices = {
-  'farmShop': 'Farm shop',
-  'shop': 'Shop',
-  'food': 'Café or restaurant',
-  'fuel': 'Fuel',
-  'campsite': 'Campsite or overnight parking',
-  'dump': 'Waste water disposal',
-  'electricity': 'Electricity',
-  'repairs': 'Workshop or repairs',
-};
 
 const placeServiceIcons = {
   'farmShop': Icons.agriculture_outlined,

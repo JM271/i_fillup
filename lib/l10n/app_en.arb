@@ -1,0 +1,610 @@
+{
+  "@@locale": "en",
+  "appName": "i fillup",
+  "view": "View",
+  "welcome": "Welcome to i fillup",
+  "tagline": "Fresh water. Shared journeys.",
+  "takeWater": "Take water",
+  "takeWaterDescription": "Find a refill place, check the details and arrange your next fill-up.",
+  "offerWater": "Offer water",
+  "offerWaterDescription": "Share your water point, set your price and manage traveler requests.",
+  "switchToTake": "Take water",
+  "switchToOffer": "Offer water",
+  "homeFooter": "One app. Take water or offer water whenever you need.",
+  "home": "Home",
+  "newRefillRequest": "You have a new refill request.",
+  "account": "Account",
+  "yourAccount": "Your account",
+  "editProfile": "Edit profile",
+  "deleteAccount": "Delete account",
+  "close": "Close",
+  "signOutFailed": "Could not sign out. Please try again.",
+  "signOut": "Sign out",
+  "passwordIncorrect": "The password is incorrect.",
+  "deleteAccountFailed": "Could not delete your account. Please try again.",
+  "deleteAccountTitle": "Delete your account?",
+  "deleteAccountBody": "This permanently deletes your account, your water place, your profile and your refill requests. It cannot be undone.",
+  "password": "Password",
+  "keepAccount": "Keep account",
+  "deleting": "Deleting…",
+  "enterEmailFirst": "Enter your email address first.",
+  "resetSent": "If an account exists for this email, a password reset link has been sent.",
+  "emailInUse": "This email already has an account. Log in instead.",
+  "invalidEmail": "Enter a valid email address.",
+  "weakPassword": "Choose a stronger password with at least 6 characters.",
+  "wrongCredentials": "Email or password is incorrect.",
+  "tooManyRequests": "Too many attempts. Please try again later.",
+  "checkConnection": "Check your internet connection and try again.",
+  "signInDisabled": "Email/password sign-in must be enabled in Firebase Authentication.",
+  "authFailed": "Authentication failed. Please try again.",
+  "couldNotConnect": "Could not connect. Please try again.",
+  "loginTagline": "Fresh water for life on the road.",
+  "createYourAccount": "Create your account",
+  "logIn": "Log in",
+  "email": "Email",
+  "showPassword": "Show password",
+  "hidePassword": "Hide password",
+  "enterPassword": "Enter your password.",
+  "passwordTooShort": "Use at least 6 characters.",
+  "pleaseWait": "Please wait…",
+  "createAccount": "Create account",
+  "haveAccount": "Already have an account? Log in",
+  "createAnAccount": "Create an account",
+  "forgotPassword": "Forgot password?",
+  "photoOpenFailed": "Could not open the photo.",
+  "photoTooLarge": "This photo is too large. Choose another one.",
+  "takePhoto": "Take photo",
+  "choosePhoto": "Choose photo",
+  "remove": "Remove",
+  "fillInField": "Please fill in this field",
+  "profileSaveFailed": "Could not save your profile. Please try again.",
+  "yourProfile": "Your profile",
+  "profileIntro": "Hosts see your profile on the refill requests you send them.",
+  "name": "Name",
+  "nameHint": "First name or nickname",
+  "vehicle": "Vehicle",
+  "vehicleHint": "Campervan, 6 m",
+  "phoneOptional": "Phone (optional)",
+  "phoneHelper": "Only shared with hosts you send a request to.",
+  "aboutMe": "About me (optional)",
+  "aboutMeHint": "Travelling with two kids and a dog, own hose",
+  "vehiclePhoto": "Photo of your vehicle (optional)",
+  "saving": "Saving…",
+  "saveProfile": "Save profile",
+  "profileLoadFailed": "Could not load your profile.",
+  "noTravelerProfile": "No traveler profile (sent before profiles existed)",
+  "callPhone": "Call {phone}",
+  "@callPhone": {
+    "placeholders": {
+      "phone": {
+        "type": "String"
+      }
+    }
+  },
+  "locationServicesOff": "Turn on device location services, or choose a place manually.",
+  "locationBlocked": "Location access is blocked. Enable it in device or browser settings, or tap the map manually.",
+  "locationDenied": "Location permission was denied. You can still tap the map to choose a place.",
+  "locationTimeout": "Finding your location took too long. Retry or tap the map manually.",
+  "locationFailed": "Could not access your location. Retry or tap the map manually.",
+  "chooseYourPlace": "Choose your place",
+  "locationPickerIntro": "Start at your current location, then tap to adjust the refill pin. The address is entered separately.",
+  "myLocation": "My location",
+  "useThisLocation": "Use this location",
+  "addressSearchUnavailable": "Address search is unavailable. Please try again.",
+  "addressTooShort": "Enter at least 3 characters, including a town.",
+  "addressSearchFailed": "Could not search addresses. Check your internet connection and try again, or enter the address and choose its map pin manually.",
+  "chooseAnAddress": "Choose an address",
+  "addressFieldLabel": "Street, house number and town",
+  "searchAddresses": "Search addresses",
+  "addressSearchIntro": "Search, then choose a match below. Check the pin before saving your offer.",
+  "noAddressesFound": "No addresses found",
+  "noAddressesHint": "Try adding a postcode, town or country.",
+  "googleIncompleteAddress": "Google returned an incomplete address. Choose another result.",
+  "routeUnavailable": "Route planning is unavailable. Please try again.",
+  "noRouteFound": "No driving route found to this destination.",
+  "cloudUnavailable": "Cloud connection unavailable",
+  "firebaseAuthNotConfigured": "Firebase sign-in is not configured for this project. In Firebase Console → i-fillup → Authentication, complete setup and enable the Email/Password sign-in provider.",
+  "firebaseConnectFailed": "Could not connect to Firebase. Check your connection and Firebase setup, then retry.",
+  "connecting": "Connecting…",
+  "retryCloud": "Retry cloud connection",
+  "openPreview": "Open preview without cloud",
+  "previewNote": "Preview data stays on this screen session. Offers and requests are not shared with other users.",
+  "waterPlaces": "Water places",
+  "tapDrop": "Tap a water drop for details.",
+  "viewPlace": "View {name}",
+  "@viewPlace": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "mapLegend": "Teal: private host · Dark: refill stop\nDrag to explore · Pinch to zoom · Map requires internet",
+  "vehicleCampervan": "Campervan up to 6 m",
+  "vehicleMotorhome": "Motorhome 6–8 m",
+  "vehicleLarge": "Large motorhome over 8 m",
+  "vehicleTrailer": "Caravan or trailer",
+  "serviceFarmShop": "Farm shop",
+  "serviceShop": "Shop",
+  "serviceFood": "Café or restaurant",
+  "serviceFuel": "Fuel",
+  "serviceCampsite": "Campsite or overnight parking",
+  "serviceDump": "Waste water disposal",
+  "serviceElectricity": "Electricity",
+  "serviceRepairs": "Workshop or repairs",
+  "free": "Free",
+  "pricePerFill": "CHF {amount} / fill",
+  "@pricePerFill": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "distanceAway": "{distance} away",
+  "@distanceAway": {
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
+  "atYourLocation": "At your location",
+  "atYourStart": "At your start",
+  "afterDistance": "After {distance}",
+  "@afterDistance": {
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
+  "onRoute": "on route",
+  "offRoute": "{distance} off route",
+  "@offRoute": {
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
+  "areaPrice": "{area} · {price}",
+  "@areaPrice": {
+    "placeholders": {
+      "area": {
+        "type": "String"
+      },
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "openingTimesValue": "Opening times: {times}",
+  "@openingTimesValue": {
+    "placeholders": {
+      "times": {
+        "type": "String"
+      }
+    }
+  },
+  "suitableFor": "Suitable for: {vehicles}",
+  "@suitableFor": {
+    "placeholders": {
+      "vehicles": {
+        "type": "String"
+      }
+    }
+  },
+  "alsoHere": "Also here",
+  "alsoHereList": "Also here: {services}",
+  "@alsoHereList": {
+    "placeholders": {
+      "services": {
+        "type": "String"
+      }
+    }
+  },
+  "demoListingNote": "Demo listing. Water quality, availability and prices have not been verified. Confirm drinking-water suitability with the host.",
+  "confirmWithHost": "Confirm water suitability, access and availability with the host before arriving.",
+  "arrangeFillUp": "Arrange a fill-up with {host}",
+  "@arrangeFillUp": {
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "profileLoadRetry": "Could not load your profile. Please try again.",
+  "firstRequestIntro": "Before your first request, tell hosts who is coming. They see this profile on the requests you send them.",
+  "planFillUp": "Plan a fill-up",
+  "toHost": "To {host}",
+  "@toHost": {
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "fromRequester": "From {name} · {vehicle}",
+  "@fromRequester": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "vehicle": {
+        "type": "String"
+      }
+    }
+  },
+  "asap": "ASAP",
+  "asapTooltip": "Request a fill-up as soon as possible",
+  "today": "Today",
+  "tomorrow": "Tomorrow",
+  "chooseDateTime": "Choose date & time",
+  "arrivalInFuture": "Choose an arrival time in the future.",
+  "dateAtTime": "{date} at {time}",
+  "@dateAtTime": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "litersNeeded": "Water needed (liters)",
+  "positiveNumber": "Enter a positive number",
+  "arrivalMessage": "Arrival time & message",
+  "arrivalMessageHint": "Tomorrow at 10:00, with a 6 m campervan…",
+  "arrivalMessageMissing": "Add your arrival time and a message",
+  "demoNoMessage": "Demo only. No message is sent to a host.",
+  "cancel": "Cancel",
+  "saveDemoRequest": "Save demo request",
+  "sendRequest": "Send refill request",
+  "litersAndMessage": "{liters} liters · {message}",
+  "@litersAndMessage": {
+    "placeholders": {
+      "liters": {
+        "type": "int"
+      },
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "sendRequestFailed": "Could not send request: {error}",
+  "@sendRequestFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteRequest": "Delete request",
+  "deleteRequestTitle": "Delete request?",
+  "deleteSentPendingBody": "It is removed from your requests and cancelled. The host will see that you cancelled it.",
+  "deleteRequestBody": "It is removed from your requests.",
+  "keep": "Keep",
+  "cancelAndDelete": "Cancel and delete",
+  "delete": "Delete",
+  "deleteRequestFailed": "Could not delete request: {error}",
+  "@deleteRequestFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "requestDeleted": "Request deleted",
+  "locating": "Locating…",
+  "planning": "Planning…",
+  "useMyLocation": "Use my location",
+  "chooseDestination": "Choose a destination",
+  "nearYourLocation": "Near your location",
+  "toDestination": "To {destination}",
+  "@toDestination": {
+    "placeholders": {
+      "destination": {
+        "type": "String"
+      }
+    }
+  },
+  "drivingFromYou": "Driving distance from where you are",
+  "driveFromYou": "{distance} drive from your location",
+  "@driveFromYou": {
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
+  "updateMyLocation": "Update my location",
+  "changeDestination": "Change destination",
+  "clearRoute": "Clear route",
+  "within": "Within",
+  "findWater": "Find water",
+  "requests": "Requests",
+  "bannerTakeTitle": "Fresh water.\nOpen roads.",
+  "bannerTakeSubtitle": "Refill stops and private hosts for your campervan.",
+  "searchPlaceHint": "Search a town or place",
+  "allPlaces": "All places",
+  "privateHosts": "Private hosts",
+  "refillStops": "Refill stops",
+  "all": "All",
+  "nearMe": "Near me",
+  "onMyRoute": "On my route",
+  "discoverRefill": "Discover a refill",
+  "placesWithinYou": "{count, plural, =1{1 place within {km} km of you} other{{count} places within {km} km of you}}",
+  "@placesWithinYou": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "km": {
+        "type": "int"
+      }
+    }
+  },
+  "placesWithinRoute": "{count, plural, =1{1 place within {km} km of your route} other{{count} places within {km} km of your route}}",
+  "@placesWithinRoute": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "km": {
+        "type": "int"
+      }
+    }
+  },
+  "demoPlacesCount": "{count} demo places · Sample places in Switzerland",
+  "@demoPlacesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "livePlacesCount": "{count, plural, =1{1 place · Live community listings} other{{count} places · Live community listings}}",
+  "@livePlacesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "map": "Map",
+  "placesLoadFailed": "Could not load places: {error}",
+  "@placesLoadFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "noPlacesNearYou": "No places within {km} km of you. Try a wider distance.",
+  "@noPlacesNearYou": {
+    "placeholders": {
+      "km": {
+        "type": "int"
+      }
+    }
+  },
+  "noPlacesNearRoute": "No places within {km} km of your route. Try a wider distance.",
+  "@noPlacesNearRoute": {
+    "placeholders": {
+      "km": {
+        "type": "int"
+      }
+    }
+  },
+  "noPlacesMatch": "No places match. Try a different town or filter.",
+  "privateHost": "Private host",
+  "refillStop": "Refill stop",
+  "listFooter": "A small stop. A big help for your next adventure.",
+  "yourRequests": "Your requests",
+  "demoRequestsNote": "Demo previews only. Nothing is sent, and previews clear when the app restarts.",
+  "requestsIntro": "Your refill requests and their status appear here.",
+  "nextStopTitle": "Your next stop starts here",
+  "nextStopHint": "Choose a place and arrange a fill-up.",
+  "requestsLoadFailed": "Could not load requests: {error}",
+  "@requestsLoadFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "requestSummary": "{liters} liters · {message}\nStatus: {status}",
+  "@requestSummary": {
+    "placeholders": {
+      "liters": {
+        "type": "int"
+      },
+      "message": {
+        "type": "String"
+      },
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "demoPrefix": "Demo · {text}",
+  "@demoPrefix": {
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
+  },
+  "statusPending": "pending",
+  "statusAccepted": "accepted",
+  "statusDeclined": "declined",
+  "statusCancelled": "cancelled",
+  "onePlaceRule": "Each account can offer one water place, to keep listings trustworthy.",
+  "keepPlaceTitle": "Keep {name}?",
+  "@keepPlaceTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "keepPlaceOnly": "It becomes your one water place and is listed for travelers again.",
+  "keepPlaceOthers": "{count, plural, =1{It becomes your one water place. Your other place will be deleted. Requests you already received stay in Requests.} other{It becomes your one water place. Your other {count} places will be deleted. Requests you already received stay in Requests.}}",
+  "@keepPlaceOthers": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "keepThisOne": "Keep this one",
+  "placesUpdateFailed": "Could not update places: {error}",
+  "@placesUpdateFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "isYourPlace": "{name} is your water place",
+  "@isYourPlace": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deletePlaceTitle": "Delete {name}?",
+  "@deletePlaceTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deletePlaceBody": "Travelers will no longer see this place. Requests you already received stay in Requests.",
+  "placeDeleteFailed": "Could not delete place: {error}",
+  "@placeDeleteFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "placeDeleted": "{name} deleted",
+  "@placeDeleted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "theTraveler": "The traveler",
+  "deleteReceivedPendingBody": "It is removed from your requests and declined. {traveler} will see that it was declined.",
+  "@deleteReceivedPendingBody": {
+    "placeholders": {
+      "traveler": {
+        "type": "String"
+      }
+    }
+  },
+  "declineAndDelete": "Decline and delete",
+  "requestUpdateFailed": "Could not update request: {error}",
+  "@requestUpdateFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "myPlaces": "My places",
+  "yourWaterPlaces": "Your water places",
+  "yourWaterPlacesIntro": "Manage the places where travelers can refill.",
+  "noPlacesYet": "No places yet. Add your first water offer below.",
+  "chooseOnePlace": "Choose your one water place",
+  "chooseOnePlaceBody": "Places marked \"Not listed\" are hidden from travelers. Tap \"Keep this one\" on the place you want to offer; the others are deleted.",
+  "notListed": "Not listed",
+  "viewOnMap": "View on map",
+  "deletePlace": "Delete place",
+  "demoOffersNote": "Demo only. Offers are not shared with the water taker app.",
+  "activeOffersNote": "Your active offers are visible in Find water.",
+  "alreadyOffer": "You already offer a place",
+  "alreadyOfferBody": "Each account can offer one water place, to keep listings trustworthy. Delete your place in My places to offer a different one.",
+  "goToMyPlaces": "Go to My places",
+  "incomingRequests": "Incoming requests",
+  "incomingRequestsEmpty": "New traveler requests will appear here.",
+  "litersCount": "{liters} liters",
+  "@litersCount": {
+    "placeholders": {
+      "liters": {
+        "type": "int"
+      }
+    }
+  },
+  "statusLine": "Status: {status}",
+  "@statusLine": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "accept": "Accept",
+  "decline": "Decline",
+  "paymentsNote": "Payments are arranged directly with travelers. The app does not collect payments or record earnings.",
+  "bannerOfferTitle": "Offer water.\nEarn cash.",
+  "bannerOfferSubtitle": "Set your price for a campervan refill, add your place and choose your opening times.",
+  "placeName": "Place name",
+  "placeNameHint": "Water at our farm",
+  "addressPlace": "Address / place",
+  "addressPlaceHint": "Street, house number, postcode, town, country",
+  "googleSearchFailed": "Could not open Google address search.",
+  "chooseAddressGoogle": "Choose address with Google",
+  "chooseAddressList": "Choose address from list",
+  "choosePlaceOnMap": "Choose place on map",
+  "changeMapLocation": "Change map location",
+  "pinAt": "Pin: {latitude}, {longitude}",
+  "@pinAt": {
+    "placeholders": {
+      "latitude": {
+        "type": "String"
+      },
+      "longitude": {
+        "type": "String"
+      }
+    }
+  },
+  "chooseOnMapError": "Choose your place on the map.",
+  "openingTimes": "Opening times",
+  "openingTimesHint": "Mon–Fri: 08:00–18:00\nSat: 09:00–12:00\nSun: closed",
+  "openingTimesHelper": "Include days, local times and any appointment requirements.",
+  "pricePerFillUp": "Price per fill-up",
+  "priceHelper": "One price per refill. Enter 0 to offer water for free.",
+  "priceError": "Enter a price of 0 or more, with up to 2 decimals",
+  "paymentNoteForm": "Payment is arranged directly with the traveler. The app does not collect payments or pay out earnings.",
+  "whichVehicles": "Which vehicles can reach the water?",
+  "chooseVehicle": "Choose at least one vehicle type.",
+  "placePhoto": "Photo of the water place (optional)",
+  "promoteBusiness": "Promote your business (optional)",
+  "promoteBusinessIntro": "Travelers who stop for water see what else you offer.",
+  "aboutBusiness": "About your business",
+  "aboutBusinessHint": "Organic farm shop: eggs, cheese and bread. Sat 08:00–12:00.",
+  "website": "Website",
+  "websiteError": "Enter a full address starting with https://",
+  "localHost": "Local host",
+  "contactConfirm": "Contact and water suitability must be confirmed before visiting.",
+  "saveOfferFailedWith": "Could not save offer: {error}",
+  "@saveOfferFailedWith": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "saveOfferFailed": "Could not save offer. Please try again.",
+  "saveOffer": "Save offer",
+  "previewOfferNote": "Preview only: offers stay in this session and are not shared with travelers.",
+  "liveOfferNote": "Your place will appear in Find water so travelers can send you refill requests."
+}

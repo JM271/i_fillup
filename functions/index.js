@@ -14,6 +14,28 @@ const staleTokenErrors = new Set([
   'messaging/invalid-registration-token',
 ]);
 
+// The request notification in the language of the host's app.
+const messages = {
+  en: {
+    title: 'New refill request',
+    traveler: 'A traveler',
+    body: (traveler, liters, place) =>
+      `${traveler} would like ${liters} l at ${place}`,
+  },
+  de: {
+    title: 'Neue Wasseranfrage',
+    traveler: 'Eine reisende Person',
+    body: (traveler, liters, place) =>
+      `${traveler} möchte ${liters} l bei ${place}`,
+  },
+  fr: {
+    title: 'Nouvelle demande d’eau',
+    traveler: 'Un voyageur',
+    body: (traveler, liters, place) =>
+      `${traveler} souhaite ${liters} l à ${place}`,
+  },
+};
+
 // Tells the host about a new refill request on every device they registered.
 exports.notifyHostOfRequest = onDocumentCreated(
   {document: 'refillRequests/{requestId}', region},
@@ -22,15 +44,20 @@ exports.notifyHostOfRequest = onDocumentCreated(
     if (!request?.hostUid) return;
 
     const devices = getFirestore().doc(`devices/${request.hostUid}`);
-    const tokens = (await devices.get()).get('tokens') ?? [];
+    const snapshot = await devices.get();
+    const tokens = snapshot.get('tokens') ?? [];
     if (tokens.length === 0) return;
 
-    const traveler = request.requester?.name || 'A traveler';
+    const text = messages[snapshot.get('language')] ?? messages.en;
     const response = await getMessaging().sendEachForMulticast({
       tokens,
       notification: {
-        title: 'New refill request',
-        body: `${traveler} would like ${request.liters} l at ${request.placeName}`,
+        title: text.title,
+        body: text.body(
+          request.requester?.name || text.traveler,
+          request.liters,
+          request.placeName,
+        ),
       },
       data: {type: 'refillRequest', requestId: event.params.requestId},
       android: {priority: 'high'},

@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'app_style.dart';
 import 'water_place.dart';
+import 'texts.dart';
 
 /// The same filtered places as discovery, optionally with the planned route.
 class WaterPlacesMap extends StatelessWidget {
@@ -23,12 +24,12 @@ class WaterPlacesMap extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Water places')),
+    appBar: AppBar(title: Text(tr.waterPlaces)),
     body: Column(
       children: [
-        const Padding(
+        Padding(
           padding: EdgeInsets.fromLTRB(16, 8, 16, 12),
-          child: Text('Tap a water drop for details.'),
+          child: Text(tr.tapDrop),
         ),
         Expanded(
           child: FlutterMap(
@@ -67,10 +68,11 @@ class WaterPlacesMap extends StatelessWidget {
                         width: 56,
                         height: 56,
                         child: Tooltip(
-                          message: '${place.name} · ${place.price}',
+                          message:
+                              '${place.name} · ${displayPrice(place.price)}',
                           child: IconButton.filled(
                             key: ValueKey('map-${place.name}'),
-                            tooltip: 'View ${place.name}',
+                            tooltip: tr.viewPlace(place.name),
                             style: IconButton.styleFrom(
                               backgroundColor: place.private ? teal : ink,
                             ),
@@ -98,14 +100,11 @@ class WaterPlacesMap extends StatelessWidget {
             ],
           ),
         ),
-        const SafeArea(
+        SafeArea(
           top: false,
           child: Padding(
             padding: EdgeInsets.all(12),
-            child: Text(
-              'Teal: private host · Dark: refill stop\nDrag to explore · Pinch to zoom · Map requires internet',
-              textAlign: TextAlign.center,
-            ),
+            child: Text(tr.mapLegend, textAlign: TextAlign.center),
           ),
         ),
       ],

@@ -9,12 +9,10 @@ import 'traveler_profile.dart';
 import 'water_place.dart';
 import 'water_places_map.dart';
 import 'water_repository.dart';
+import 'texts.dart';
 
 /// Accounts from before the one-place rule may hold several places.
 bool mustChoosePlace(List<WaterPlace> offers) => offers.length > 1;
-
-const onePlaceRule =
-    'Each account can offer one water place, to keep listings trustworthy.';
 
 class GiverHome extends StatefulWidget {
   const GiverHome({
@@ -81,20 +79,18 @@ class _GiverHomeState extends State<GiverHome> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text('Keep ${keep.name}?'),
+        title: Text(tr.keepPlaceTitle(keep.name)),
         content: Text(
-          others.isEmpty
-              ? 'It becomes your one water place and is listed for travelers again.'
-              : 'It becomes your one water place. Your other ${others.length == 1 ? 'place' : '${others.length} places'} will be deleted. Requests you already received stay in Requests.',
+          others.isEmpty ? tr.keepPlaceOnly : tr.keepPlaceOthers(others.length),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Cancel'),
+            child: Text(tr.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('Keep this one'),
+            child: Text(tr.keepThisOne),
           ),
         ],
       ),
@@ -105,34 +101,30 @@ class _GiverHomeState extends State<GiverHome> {
       await repository.keepOnlyOffer(keep, others);
     } on FirebaseException catch (error) {
       messenger.showSnackBar(
-        SnackBar(content: Text('Could not update places: ${error.message}')),
+        SnackBar(content: Text(tr.placesUpdateFailed('${error.message}'))),
       );
       return;
     }
-    messenger.showSnackBar(
-      SnackBar(content: Text('${keep.name} is your water place')),
-    );
+    messenger.showSnackBar(SnackBar(content: Text(tr.isYourPlace(keep.name))));
   }
 
   Future<void> deleteOffer(WaterPlace place) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text('Delete ${place.name}?'),
-        content: const Text(
-          'Travelers will no longer see this place. Requests you already received stay in Requests.',
-        ),
+        title: Text(tr.deletePlaceTitle(place.name)),
+        content: Text(tr.deletePlaceBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Cancel'),
+            child: Text(tr.cancel),
           ),
           FilledButton(
             style: FilledButton.styleFrom(
               backgroundColor: Theme.of(dialogContext).colorScheme.error,
             ),
             onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('Delete'),
+            child: Text(tr.delete),
           ),
         ],
       ),
@@ -146,37 +138,39 @@ class _GiverHomeState extends State<GiverHome> {
         await repository.deleteOffer(place);
       } on FirebaseException catch (error) {
         messenger.showSnackBar(
-          SnackBar(content: Text('Could not delete place: ${error.message}')),
+          SnackBar(content: Text(tr.placeDeleteFailed('${error.message}'))),
         );
         return;
       }
     }
-    messenger.showSnackBar(SnackBar(content: Text('${place.name} deleted')));
+    messenger.showSnackBar(
+      SnackBar(content: Text(tr.placeDeleted(place.name))),
+    );
   }
 
   Future<void> deleteRequest(RefillRequest request) async {
-    final traveler = request.requester?.name ?? 'The traveler';
+    final traveler = request.requester?.name ?? tr.theTraveler;
     final pending = request.status == 'pending';
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Delete request?'),
+        title: Text(tr.deleteRequestTitle),
         content: Text(
           pending
-              ? 'It is removed from your requests and declined. $traveler will see that it was declined.'
-              : 'It is removed from your requests.',
+              ? tr.deleteReceivedPendingBody(traveler)
+              : tr.deleteRequestBody,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Cancel'),
+            child: Text(tr.cancel),
           ),
           FilledButton(
             style: FilledButton.styleFrom(
               backgroundColor: Theme.of(dialogContext).colorScheme.error,
             ),
             onPressed: () => Navigator.pop(dialogContext, true),
-            child: Text(pending ? 'Decline and delete' : 'Delete'),
+            child: Text(pending ? tr.declineAndDelete : tr.delete),
           ),
         ],
       ),
@@ -187,11 +181,11 @@ class _GiverHomeState extends State<GiverHome> {
       await repository.deleteIncomingRequest(request);
     } on FirebaseException catch (error) {
       messenger.showSnackBar(
-        SnackBar(content: Text('Could not delete request: ${error.message}')),
+        SnackBar(content: Text(tr.deleteRequestFailed('${error.message}'))),
       );
       return;
     }
-    messenger.showSnackBar(const SnackBar(content: Text('Request deleted')));
+    messenger.showSnackBar(SnackBar(content: Text(tr.requestDeleted)));
   }
 
   Future<void> updateRequest(RefillRequest request, String status) async {
@@ -200,7 +194,7 @@ class _GiverHomeState extends State<GiverHome> {
     } on FirebaseException catch (error) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Could not update request: ${error.message}')),
+          SnackBar(content: Text(tr.requestUpdateFailed('${error.message}'))),
         );
       }
     }
@@ -210,13 +204,13 @@ class _GiverHomeState extends State<GiverHome> {
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
       leading: IconButton(
-        tooltip: 'Home',
+        tooltip: tr.home,
         icon: const Icon(Icons.home_outlined),
         onPressed: widget.onHome ?? () => setState(() => page = 0),
       ),
       titleSpacing: 0,
-      title: const Text(
-        'Offer water',
+      title: Text(
+        tr.offerWater,
         overflow: TextOverflow.ellipsis,
         style: TextStyle(fontWeight: FontWeight.w800, color: ink),
       ),
@@ -225,7 +219,7 @@ class _GiverHomeState extends State<GiverHome> {
           TextButton.icon(
             onPressed: widget.onTakeWater,
             icon: const Icon(Icons.swap_horiz),
-            label: const Text('Take water'),
+            label: Text(tr.switchToTake),
           ),
         AccountButton(
           auth: widget.auth,
@@ -240,18 +234,18 @@ class _GiverHomeState extends State<GiverHome> {
     bottomNavigationBar: NavigationBar(
       selectedIndex: page,
       onDestinationSelected: (value) => setState(() => page = value),
-      destinations: const [
+      destinations: [
         NavigationDestination(
           icon: Icon(Icons.water_drop_outlined),
-          label: 'My places',
+          label: tr.myPlaces,
         ),
         NavigationDestination(
           icon: Icon(Icons.add_location_alt_outlined),
-          label: 'Offer water',
+          label: tr.offerWater,
         ),
         NavigationDestination(
           icon: Icon(Icons.inbox_outlined),
-          label: 'Requests',
+          label: tr.requests,
         ),
       ],
     ),
@@ -275,35 +269,28 @@ class _GiverHomeState extends State<GiverHome> {
                 children: [
                   if (snapshot.hasError)
                     Center(
-                      child: Text('Could not load places: ${snapshot.error}'),
+                      child: Text(tr.placesLoadFailed('${snapshot.error}')),
                     )
                   else
                     ListView(
                       padding: const EdgeInsets.all(16),
                       children: [
                         Text(
-                          'Your water places',
+                          tr.yourWaterPlaces,
                           style: Theme.of(context).textTheme.headlineSmall,
                         ),
                         const SizedBox(height: 4),
-                        const Text(
-                          'Manage the places where travelers can refill.',
-                        ),
+                        Text(tr.yourWaterPlacesIntro),
                         const SizedBox(height: 12),
-                        if (offers.isEmpty)
-                          const Text(
-                            'No places yet. Add your first water offer below.',
-                          ),
+                        if (offers.isEmpty) Text(tr.noPlacesYet),
                         if (mustChoosePlace(offers))
                           Card(
                             margin: const EdgeInsets.only(bottom: 8),
                             color: Theme.of(context).colorScheme.errorContainer,
-                            child: const ListTile(
+                            child: ListTile(
                               leading: Icon(Icons.warning_amber_rounded),
-                              title: Text('Choose your one water place'),
-                              subtitle: Text(
-                                'Places marked "Not listed" are hidden from travelers. Tap "Keep this one" on the place you want to offer; the others are deleted.',
-                              ),
+                              title: Text(tr.chooseOnePlace),
+                              subtitle: Text(tr.chooseOnePlaceBody),
                             ),
                           ),
                         ...offers.map(
@@ -324,7 +311,12 @@ class _GiverHomeState extends State<GiverHome> {
                                               .textTheme
                                               .titleMedium,
                                         ),
-                                        Text('${place.area} · ${place.price}'),
+                                        Text(
+                                          tr.areaPrice(
+                                            place.area,
+                                            displayPrice(place.price),
+                                          ),
+                                        ),
                                         if (place.vehicles.isNotEmpty)
                                           Text(
                                             vehicleSummary(place.vehicles),
@@ -334,7 +326,9 @@ class _GiverHomeState extends State<GiverHome> {
                                           ),
                                         if (place.services.isNotEmpty)
                                           Text(
-                                            'Also here: ${serviceSummary(place.services)}',
+                                            tr.alsoHereList(
+                                              serviceSummary(place.services),
+                                            ),
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .bodySmall,
@@ -348,7 +342,7 @@ class _GiverHomeState extends State<GiverHome> {
                                         if (mustChoosePlace(offers) &&
                                             !place.isAccountPlace)
                                           Text(
-                                            'Not listed',
+                                            tr.notListed,
                                             style: TextStyle(
                                               fontWeight: FontWeight.w700,
                                               color: Theme.of(context)
@@ -365,16 +359,14 @@ class _GiverHomeState extends State<GiverHome> {
                                               icon: const Icon(
                                                 Icons.check_circle_outline,
                                               ),
-                                              label: const Text(
-                                                'Keep this one',
-                                              ),
+                                              label: Text(tr.keepThisOne),
                                             ),
                                           ),
                                       ],
                                     ),
                                   ),
                                   IconButton(
-                                    tooltip: 'View on map',
+                                    tooltip: tr.viewOnMap,
                                     onPressed: () => Navigator.of(context)
                                         .push<WaterPlace>(
                                           MaterialPageRoute(
@@ -388,7 +380,7 @@ class _GiverHomeState extends State<GiverHome> {
                                     ),
                                   ),
                                   IconButton(
-                                    tooltip: 'Delete place',
+                                    tooltip: tr.deletePlace,
                                     onPressed: () => deleteOffer(place),
                                     icon: Icon(
                                       Icons.delete_outline,
@@ -407,16 +399,16 @@ class _GiverHomeState extends State<GiverHome> {
                           FilledButton.icon(
                             onPressed: () => setState(() => page = 1),
                             icon: const Icon(Icons.add),
-                            label: const Text('Offer water'),
+                            label: Text(tr.offerWater),
                           ),
                         const SizedBox(height: 16),
                         Text(
                           repository.isDemo
-                              ? 'Demo only. Offers are not shared with the water taker app.'
-                              : 'Your active offers are visible in Find water.',
+                              ? tr.demoOffersNote
+                              : tr.activeOffersNote,
                         ),
                         const SizedBox(height: 4),
-                        const Text(onePlaceRule),
+                        Text(tr.onePlaceRule),
                       ],
                     ),
                   if (snapshot.hasError || loading)
@@ -428,18 +420,16 @@ class _GiverHomeState extends State<GiverHome> {
                       padding: const EdgeInsets.all(16),
                       children: [
                         Text(
-                          'You already offer a place',
+                          tr.alreadyOffer,
                           style: Theme.of(context).textTheme.headlineSmall,
                         ),
                         const SizedBox(height: 4),
-                        const Text(
-                          '$onePlaceRule Delete your place in My places to offer a different one.',
-                        ),
+                        Text(tr.alreadyOfferBody),
                         const SizedBox(height: 12),
                         FilledButton.icon(
                           onPressed: () => setState(() => page = 0),
                           icon: const Icon(Icons.water_drop_outlined),
-                          label: const Text('Go to My places'),
+                          label: Text(tr.goToMyPlaces),
                         ),
                       ],
                     ),
@@ -450,7 +440,7 @@ class _GiverHomeState extends State<GiverHome> {
                       if (snapshot.hasError) {
                         return Center(
                           child: Text(
-                            'Could not load requests: ${snapshot.error}',
+                            tr.requestsLoadFailed('${snapshot.error}'),
                           ),
                         );
                       }
@@ -459,14 +449,11 @@ class _GiverHomeState extends State<GiverHome> {
                         padding: const EdgeInsets.all(16),
                         children: [
                           Text(
-                            'Incoming requests',
+                            tr.incomingRequests,
                             style: Theme.of(context).textTheme.headlineSmall,
                           ),
                           const SizedBox(height: 12),
-                          if (requests.isEmpty)
-                            const Text(
-                              'New traveler requests will appear here.',
-                            ),
+                          if (requests.isEmpty) Text(tr.incomingRequestsEmpty),
                           ...requests.map(
                             (request) => Card(
                               child: Padding(
@@ -486,7 +473,7 @@ class _GiverHomeState extends State<GiverHome> {
                                         ),
                                         if (!repository.isDemo)
                                           IconButton(
-                                            tooltip: 'Delete request',
+                                            tooltip: tr.deleteRequest,
                                             onPressed: () =>
                                                 deleteRequest(request),
                                             icon: Icon(
@@ -503,10 +490,14 @@ class _GiverHomeState extends State<GiverHome> {
                                       profile: request.requester,
                                     ),
                                     const SizedBox(height: 8),
-                                    Text('${request.liters} liters'),
+                                    Text(tr.litersCount(request.liters)),
                                     Text(request.message),
                                     const SizedBox(height: 8),
-                                    Text('Status: ${request.status}'),
+                                    Text(
+                                      tr.statusLine(
+                                        requestStatus(request.status),
+                                      ),
+                                    ),
                                     if (request.status == 'pending' &&
                                         !repository.isDemo)
                                       Wrap(
@@ -517,14 +508,14 @@ class _GiverHomeState extends State<GiverHome> {
                                               request,
                                               'accepted',
                                             ),
-                                            child: const Text('Accept'),
+                                            child: Text(tr.accept),
                                           ),
                                           TextButton(
                                             onPressed: () => updateRequest(
                                               request,
                                               'declined',
                                             ),
-                                            child: const Text('Decline'),
+                                            child: Text(tr.decline),
                                           ),
                                         ],
                                       ),
@@ -534,9 +525,7 @@ class _GiverHomeState extends State<GiverHome> {
                             ),
                           ),
                           const SizedBox(height: 12),
-                          const Text(
-                            'Payments are arranged directly with travelers. The app does not collect payments or record earnings.',
-                          ),
+                          Text(tr.paymentsNote),
                         ],
                       );
                     },

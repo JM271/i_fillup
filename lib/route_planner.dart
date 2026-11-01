@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 
 import 'water_place.dart';
+import 'texts.dart';
 
 class PlannedRoute {
   const PlannedRoute({
@@ -77,12 +78,12 @@ class OsrmRouteService implements RouteService {
         .get(Uri.parse(endpoint).resolve(path).replace(queryParameters: query))
         .timeout(const Duration(seconds: 20));
     if (response.statusCode != 200) {
-      throw Exception('Route planning is unavailable. Please try again.');
+      throw Exception(tr.routeUnavailable);
     }
     final data =
         jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
     if (data['code'] != 'Ok') {
-      throw Exception('No driving route found to this destination.');
+      throw Exception(tr.noRouteFound);
     }
     return data;
   }

@@ -14,6 +14,7 @@ import 'traveler_profile.dart';
 import 'water_place.dart';
 import 'water_places_map.dart';
 import 'water_repository.dart';
+import 'texts.dart';
 
 class RefillHome extends StatefulWidget {
   const RefillHome({
@@ -48,7 +49,8 @@ Future<AddressMatch?> chooseRouteDestination(BuildContext context) {
 }
 
 String formatKm(double meters) => meters < 10000
-    ? '${(meters / 1000).toStringAsFixed(1)} km'
+    // German and French write 2,5 km.
+    ? '${(meters / 1000).toStringAsFixed(1).replaceAll('.', tr.localeName == 'en' ? '.' : ',')} km'
     : '${(meters / 1000).round()} km';
 
 const routeRadiiKm = [1, 2, 5, 10, 25];
@@ -56,12 +58,12 @@ const routeRadiiKm = [1, 2, 5, 10, 25];
 String routeStopLabel(PlannedRoute route, RouteStop stop) {
   if (route.aroundStart) {
     return stop.along < 100
-        ? 'At your location'
-        : '${formatKm(stop.along)} away';
+        ? tr.atYourLocation
+        : tr.distanceAway(formatKm(stop.along));
   }
   return [
-    stop.along < 100 ? 'At your start' : 'After ${formatKm(stop.along)}',
-    stop.offRoute < 100 ? 'on route' : '${formatKm(stop.offRoute)} off route',
+    stop.along < 100 ? tr.atYourStart : tr.afterDistance(formatKm(stop.along)),
+    stop.offRoute < 100 ? tr.onRoute : tr.offRoute(formatKm(stop.offRoute)),
   ].join(' · ');
 }
 
@@ -81,7 +83,9 @@ class DistanceFilter {
 
 class _RefillHomeState extends State<RefillHome> {
   String query = '';
-  String filter = 'All places';
+
+  /// 0: all places, 1: private hosts, 2: refill stops.
+  int filter = 0;
   int page = 0;
   final List<String> demoRequests = [];
   DistanceMode mode = DistanceMode.all;
@@ -134,17 +138,17 @@ class _RefillHomeState extends State<RefillHome> {
                 place.name,
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
-              Text('${place.area} · ${place.price}'),
+              Text(tr.areaPrice(place.area, displayPrice(place.price))),
               const SizedBox(height: 12),
-              Text('Opening times: ${place.openingTimes}'),
+              Text(tr.openingTimesValue(place.openingTimes)),
               if (place.vehicles.isNotEmpty) ...[
                 const SizedBox(height: 8),
-                Text('Suitable for: ${vehicleSummary(place.vehicles)}'),
+                Text(tr.suitableFor(vehicleSummary(place.vehicles))),
               ],
               if (place.promotesBusiness) ...[
                 const SizedBox(height: 20),
                 Text(
-                  'Also here',
+                  tr.alsoHere,
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: 8),
@@ -184,11 +188,7 @@ class _RefillHomeState extends State<RefillHome> {
                 style: const TextStyle(fontSize: 16, height: 1.5),
               ),
               const SizedBox(height: 16),
-              Text(
-                repository.isDemo
-                    ? 'Demo listing. Water quality, availability and prices have not been verified. Confirm drinking-water suitability with the host.'
-                    : 'Confirm water suitability, access and availability with the host before arriving.',
-              ),
+              Text(repository.isDemo ? tr.demoListingNote : tr.confirmWithHost),
               const SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
@@ -197,7 +197,7 @@ class _RefillHomeState extends State<RefillHome> {
                     Navigator.pop(sheetContext);
                     requestWater(place);
                   },
-                  child: Text('Arrange a fill-up with ${place.host}'),
+                  child: Text(tr.arrangeFillUp(place.host)),
                 ),
               ),
             ],
@@ -212,7 +212,7 @@ class _RefillHomeState extends State<RefillHome> {
     try {
       profile = await repository.loadMyProfile();
     } catch (_) {
-      showMessage('Could not load your profile. Please try again.');
+      showMessage(tr.profileLoadRetry);
       return;
     }
     if (!mounted) return;
@@ -220,7 +220,7 @@ class _RefillHomeState extends State<RefillHome> {
       MaterialPageRoute(
         builder: (_) => ProfilePage(
           onSave: repository.saveMyProfile,
-          intro: 'Before your first request, tell hosts who is coming. They see this profile on the requests you send them.',
+          intro: tr.firstRequestIntro,
         ),
       ),
     );
@@ -248,16 +248,16 @@ class _RefillHomeState extends State<RefillHome> {
     final submitted = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Plan a fill-up'),
+        title: Text(tr.planFillUp),
         content: SingleChildScrollView(
           child: Form(
             key: form,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text('To ${place.host}'),
+                Text(tr.toHost(place.host)),
                 Text(
-                  'From ${requester.name} · ${requester.vehicle}',
+                  tr.fromRequester(requester.name, requester.vehicle),
                   style: const TextStyle(color: muted),
                 ),
                 const SizedBox(height: 16),
@@ -269,24 +269,24 @@ class _RefillHomeState extends State<RefillHome> {
                     children: [
                       ActionChip(
                         avatar: const Icon(Icons.bolt, size: 20),
-                        label: const Text('ASAP'),
-                        tooltip: 'Request a fill-up as soon as possible',
-                        onPressed: () => selectTiming('ASAP'),
+                        label: Text(tr.asap),
+                        tooltip: tr.asapTooltip,
+                        onPressed: () => selectTiming(tr.asap),
                       ),
                       ActionChip(
-                        label: const Text('Today'),
-                        onPressed: () => selectTiming('Today'),
+                        label: Text(tr.today),
+                        onPressed: () => selectTiming(tr.today),
                       ),
                       ActionChip(
-                        label: const Text('Tomorrow'),
-                        onPressed: () => selectTiming('Tomorrow'),
+                        label: Text(tr.tomorrow),
+                        onPressed: () => selectTiming(tr.tomorrow),
                       ),
                       ActionChip(
                         avatar: const Icon(
                           Icons.calendar_today_outlined,
                           size: 20,
                         ),
-                        label: const Text('Choose date & time'),
+                        label: Text(tr.chooseDateTime),
                         onPressed: () async {
                           final now = DateTime.now();
                           final date = await showDatePicker(
@@ -314,11 +314,7 @@ class _RefillHomeState extends State<RefillHome> {
                           );
                           if (!arrival.isAfter(DateTime.now())) {
                             ScaffoldMessenger.of(dialogContext).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  'Choose an arrival time in the future.',
-                                ),
-                              ),
+                              SnackBar(content: Text(tr.arrivalInFuture)),
                             );
                             return;
                           }
@@ -326,7 +322,10 @@ class _RefillHomeState extends State<RefillHome> {
                             dialogContext,
                           );
                           selectTiming(
-                            '${labels.formatFullDate(date)} at ${labels.formatTimeOfDay(time)}',
+                            tr.dateAtTime(
+                              labels.formatFullDate(date),
+                              labels.formatTimeOfDay(time),
+                            ),
                           );
                         },
                       ),
@@ -337,29 +336,26 @@ class _RefillHomeState extends State<RefillHome> {
                 TextFormField(
                   controller: liters,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    labelText: 'Water needed (liters)',
-                  ),
+                  decoration: InputDecoration(labelText: tr.litersNeeded),
                   validator: (value) => (int.tryParse(value ?? '') ?? 0) > 0
                       ? null
-                      : 'Enter a positive number',
+                      : tr.positiveNumber,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: message,
                   maxLines: 3,
                   maxLength: 1000,
-                  decoration: const InputDecoration(
-                    labelText: 'Arrival time & message',
-                    hintText: 'Tomorrow at 10:00, with a 6 m campervan…',
+                  decoration: InputDecoration(
+                    labelText: tr.arrivalMessage,
+                    hintText: tr.arrivalMessageHint,
                   ),
                   validator: (value) => value == null || value.trim().isEmpty
-                      ? 'Add your arrival time and a message'
+                      ? tr.arrivalMessageMissing
                       : null,
                 ),
                 const SizedBox(height: 12),
-                if (repository.isDemo)
-                  const Text('Demo only. No message is sent to a host.'),
+                if (repository.isDemo) Text(tr.demoNoMessage),
               ],
             ),
           ),
@@ -367,7 +363,7 @@ class _RefillHomeState extends State<RefillHome> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Cancel'),
+            child: Text(tr.cancel),
           ),
           FilledButton(
             onPressed: () {
@@ -376,7 +372,7 @@ class _RefillHomeState extends State<RefillHome> {
               }
             },
             child: Text(
-              repository.isDemo ? 'Save demo request' : 'Send refill request',
+              repository.isDemo ? tr.saveDemoRequest : tr.sendRequest,
             ),
           ),
         ],
@@ -386,7 +382,7 @@ class _RefillHomeState extends State<RefillHome> {
       try {
         if (repository.isDemo) {
           demoRequests.add(
-            '${place.name}\n${liters.text} liters · ${message.text.trim()}',
+            '${place.name}\n${tr.litersAndMessage(int.parse(liters.text), message.text.trim())}',
           );
         } else {
           await repository.createRequest(
@@ -400,7 +396,7 @@ class _RefillHomeState extends State<RefillHome> {
       } on FirebaseException catch (error) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Could not send request: ${error.message}')),
+            SnackBar(content: Text(tr.sendRequestFailed('${error.message}'))),
           );
         }
       }
@@ -415,7 +411,7 @@ class _RefillHomeState extends State<RefillHome> {
     required bool pending,
     required Future<void> Function() onDelete,
   }) => IconButton(
-    tooltip: 'Delete request',
+    tooltip: tr.deleteRequest,
     icon: Icon(
       Icons.delete_outline,
       color: Theme.of(context).colorScheme.error,
@@ -424,23 +420,21 @@ class _RefillHomeState extends State<RefillHome> {
       final confirmed = await showDialog<bool>(
         context: context,
         builder: (dialogContext) => AlertDialog(
-          title: const Text('Delete request?'),
+          title: Text(tr.deleteRequestTitle),
           content: Text(
-            pending
-                ? 'It is removed from your requests and cancelled. The host will see that you cancelled it.'
-                : 'It is removed from your requests.',
+            pending ? tr.deleteSentPendingBody : tr.deleteRequestBody,
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext, false),
-              child: const Text('Keep'),
+              child: Text(tr.keep),
             ),
             FilledButton(
               style: FilledButton.styleFrom(
                 backgroundColor: Theme.of(dialogContext).colorScheme.error,
               ),
               onPressed: () => Navigator.pop(dialogContext, true),
-              child: Text(pending ? 'Cancel and delete' : 'Delete'),
+              child: Text(pending ? tr.cancelAndDelete : tr.delete),
             ),
           ],
         ),
@@ -449,10 +443,10 @@ class _RefillHomeState extends State<RefillHome> {
       try {
         await onDelete();
       } on FirebaseException catch (error) {
-        showMessage('Could not delete request: ${error.message}');
+        showMessage(tr.deleteRequestFailed('${error.message}'));
         return;
       }
-      showMessage('Request deleted');
+      showMessage(tr.requestDeleted);
     },
   );
 
@@ -497,7 +491,7 @@ class _RefillHomeState extends State<RefillHome> {
   Future<void> findNearby(List<WaterPlace> allPlaces) => applyRoute(
     nearMe,
     allPlaces,
-    'Locating…',
+    tr.locating,
     () async => PlannedRoute.around(await locate()),
   );
 
@@ -513,7 +507,7 @@ class _RefillHomeState extends State<RefillHome> {
     await applyRoute(
       onRoute,
       allPlaces,
-      'Planning…',
+      tr.planning,
       () async => routeService.route(
         await locate(),
         destination!.location,
@@ -567,12 +561,12 @@ class _RefillHomeState extends State<RefillHome> {
               icon: busy == null
                   ? const Icon(Icons.my_location)
                   : busyIndicator(),
-              label: Text(busy ?? 'Use my location'),
+              label: Text(busy ?? tr.useMyLocation),
             )
           : OutlinedButton.icon(
               onPressed: busy == null ? () => planRoute(allPlaces) : null,
               icon: busy == null ? const Icon(Icons.search) : busyIndicator(),
-              label: Text(busy ?? 'Choose a destination'),
+              label: Text(busy ?? tr.chooseDestination),
             );
     }
     final aroundMe = planned.aroundStart;
@@ -598,8 +592,8 @@ class _RefillHomeState extends State<RefillHome> {
                     children: [
                       Text(
                         aroundMe
-                            ? 'Near your location'
-                            : 'To ${planned.destination}',
+                            ? tr.nearYourLocation
+                            : tr.toDestination(planned.destination),
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           fontWeight: FontWeight.w700,
@@ -608,8 +602,8 @@ class _RefillHomeState extends State<RefillHome> {
                       ),
                       Text(
                         aroundMe
-                            ? 'Driving distance from where you are'
-                            : '${formatKm(planned.meters)} drive from your location',
+                            ? tr.drivingFromYou
+                            : tr.driveFromYou(formatKm(planned.meters)),
                         style: const TextStyle(fontSize: 12, color: muted),
                       ),
                     ],
@@ -622,18 +616,18 @@ class _RefillHomeState extends State<RefillHome> {
                   )
                 else if (aroundMe)
                   IconButton(
-                    tooltip: 'Update my location',
+                    tooltip: tr.updateMyLocation,
                     onPressed: () => findNearby(allPlaces),
                     icon: const Icon(Icons.my_location),
                   )
                 else ...[
                   IconButton(
-                    tooltip: 'Change destination',
+                    tooltip: tr.changeDestination,
                     onPressed: () => planRoute(allPlaces),
                     icon: const Icon(Icons.edit_location_alt_outlined),
                   ),
                   IconButton(
-                    tooltip: 'Clear route',
+                    tooltip: tr.clearRoute,
                     onPressed: () => setState(() {
                       onRoute
                         ..route = null
@@ -649,7 +643,7 @@ class _RefillHomeState extends State<RefillHome> {
               padding: const EdgeInsets.only(right: 8),
               child: Row(
                 children: [
-                  const Text('Within'),
+                  Text(tr.within),
                   const SizedBox(width: 8),
                   Expanded(
                     child: SegmentedButton<int>(
@@ -676,15 +670,15 @@ class _RefillHomeState extends State<RefillHome> {
 
   @override
   Widget build(BuildContext context) {
-    const destinations = [
+    final destinations = [
       NavigationDestination(
         icon: Icon(Icons.explore_outlined),
         selectedIcon: Icon(Icons.explore),
-        label: 'Find water',
+        label: tr.findWater,
       ),
       NavigationDestination(
         icon: Icon(Icons.chat_bubble_outline),
-        label: 'Requests',
+        label: tr.requests,
       ),
     ];
     // Hot reload can retain the removed third tab from the combined app.
@@ -705,8 +699,7 @@ class _RefillHomeState extends State<RefillHome> {
             '${p.name} ${p.area} ${p.host}'.toLowerCase().contains(
               query.toLowerCase(),
             ) &&
-            (filter == 'All places' ||
-                (filter == 'Private hosts' ? p.private : !p.private));
+            (filter == 0 || (filter == 1 ? p.private : !p.private));
         final routeStops = {
           for (final stop in stops ?? const <RouteStop>[])
             if (filterDistance(route!, stop) <= radiusKm * 1000 &&
@@ -719,13 +712,13 @@ class _RefillHomeState extends State<RefillHome> {
         return Scaffold(
           appBar: AppBar(
             leading: IconButton(
-              tooltip: 'Home',
+              tooltip: tr.home,
               icon: const Icon(Icons.home_outlined),
               onPressed: widget.onHome ?? () => setState(() => page = 0),
             ),
             titleSpacing: 0,
-            title: const Text(
-              'Take water',
+            title: Text(
+              tr.takeWater,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(fontWeight: FontWeight.w800, color: ink),
             ),
@@ -734,7 +727,7 @@ class _RefillHomeState extends State<RefillHome> {
                 TextButton.icon(
                   onPressed: widget.onOfferWater,
                   icon: const Icon(Icons.swap_horiz),
-                  label: const Text('Offer water'),
+                  label: Text(tr.switchToOffer),
                 ),
               AccountButton(
                 auth: widget.auth,
@@ -759,15 +752,15 @@ class _RefillHomeState extends State<RefillHome> {
                     ? ListView(
                         padding: const EdgeInsets.all(16),
                         children: [
-                          const WaterBanner(
-                            title: 'Fresh water.\nOpen roads.',
-                            subtitle: 'Refill stops and private hosts for your campervan.',
+                          WaterBanner(
+                            title: tr.bannerTakeTitle,
+                            subtitle: tr.bannerTakeSubtitle,
                           ),
                           const SizedBox(height: 12),
                           TextField(
                             onChanged: (value) => setState(() => query = value),
                             decoration: InputDecoration(
-                              hintText: 'Search a town or place',
+                              hintText: tr.searchPlaceHint,
                               prefixIcon: const Icon(Icons.search),
                               isDense: true,
                               filled: true,
@@ -784,20 +777,21 @@ class _RefillHomeState extends State<RefillHome> {
                             child: Row(
                               children:
                                   [
-                                        'All places',
-                                        'Private hosts',
-                                        'Refill stops',
-                                      ]
+                                        tr.allPlaces,
+                                        tr.privateHosts,
+                                        tr.refillStops,
+                                      ].indexed
                                       .map(
-                                        (label) => Padding(
+                                        (entry) => Padding(
                                           padding: const EdgeInsets.only(
                                             right: 8,
                                           ),
                                           child: ChoiceChip(
-                                            label: Text(label),
-                                            selected: filter == label,
-                                            onSelected: (_) =>
-                                                setState(() => filter = label),
+                                            label: Text(entry.$2),
+                                            selected: filter == entry.$1,
+                                            onSelected: (_) => setState(
+                                              () => filter = entry.$1,
+                                            ),
                                           ),
                                         ),
                                       )
@@ -807,18 +801,18 @@ class _RefillHomeState extends State<RefillHome> {
                           const SizedBox(height: 8),
                           SegmentedButton<DistanceMode>(
                             showSelectedIcon: false,
-                            segments: const [
+                            segments: [
                               ButtonSegment(
                                 value: DistanceMode.all,
-                                label: Text('All'),
+                                label: Text(tr.all),
                               ),
                               ButtonSegment(
                                 value: DistanceMode.nearMe,
-                                label: Text('Near me'),
+                                label: Text(tr.nearMe),
                               ),
                               ButtonSegment(
                                 value: DistanceMode.onRoute,
-                                label: Text('On my route'),
+                                label: Text(tr.onMyRoute),
                               ),
                             ],
                             selected: {mode},
@@ -837,15 +831,25 @@ class _RefillHomeState extends State<RefillHome> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'Discover a refill',
+                                      tr.discoverRefill,
                                       style: Theme.of(context)
                                           .textTheme
                                           .titleLarge,
                                     ),
                                     Text(
                                       route != null
-                                          ? '${visible.length} ${visible.length == 1 ? 'place' : 'places'} within $radiusKm km of ${route!.aroundStart ? 'you' : 'your route'}'
-                                          : '${visible.length} ${repository.isDemo ? 'demo ' : ''}places · ${repository.isDemo ? 'Sample places in Switzerland' : 'Live community listings'}',
+                                          ? route!.aroundStart
+                                                ? tr.placesWithinYou(
+                                                    visible.length,
+                                                    radiusKm,
+                                                  )
+                                                : tr.placesWithinRoute(
+                                                    visible.length,
+                                                    radiusKm,
+                                                  )
+                                          : repository.isDemo
+                                          ? tr.demoPlacesCount(visible.length)
+                                          : tr.livePlacesCount(visible.length),
                                       style: const TextStyle(
                                         fontSize: 12,
                                         color: muted,
@@ -878,7 +882,7 @@ class _RefillHomeState extends State<RefillHome> {
                                         }
                                       },
                                 icon: const Icon(Icons.map_outlined),
-                                label: const Text('Map'),
+                                label: Text(tr.map),
                               ),
                             ],
                           ),
@@ -887,7 +891,7 @@ class _RefillHomeState extends State<RefillHome> {
                             Padding(
                               padding: const EdgeInsets.all(24),
                               child: Text(
-                                'Could not load places: ${placesSnapshot.error}',
+                                tr.placesLoadFailed('${placesSnapshot.error}'),
                               ),
                             )
                           else if (!placesSnapshot.hasData &&
@@ -901,8 +905,10 @@ class _RefillHomeState extends State<RefillHome> {
                               padding: const EdgeInsets.all(24),
                               child: Text(
                                 route != null
-                                    ? 'No places within $radiusKm km of ${route!.aroundStart ? 'you' : 'your route'}. Try a wider distance.'
-                                    : 'No places match. Try a different town or filter.',
+                                    ? route!.aroundStart
+                                          ? tr.noPlacesNearYou(radiusKm)
+                                          : tr.noPlacesNearRoute(radiusKm)
+                                    : tr.noPlacesMatch,
                               ),
                             ),
                           ...visible.map(
@@ -954,7 +960,7 @@ class _RefillHomeState extends State<RefillHome> {
                                                 ),
                                               ),
                                               Text(
-                                                '${place.area} · ${place.private ? 'Private host' : 'Refill stop'}',
+                                                '${place.area} · ${place.private ? tr.privateHost : tr.refillStop}',
                                                 overflow: TextOverflow.ellipsis,
                                                 style: const TextStyle(
                                                   fontSize: 13,
@@ -963,7 +969,11 @@ class _RefillHomeState extends State<RefillHome> {
                                               ),
                                               if (place.services.isNotEmpty)
                                                 Text(
-                                                  'Also here: ${serviceSummary(place.services)}',
+                                                  tr.alsoHereList(
+                                                    serviceSummary(
+                                                      place.services,
+                                                    ),
+                                                  ),
                                                   overflow:
                                                       TextOverflow.ellipsis,
                                                   style: const TextStyle(
@@ -972,7 +982,7 @@ class _RefillHomeState extends State<RefillHome> {
                                                   ),
                                                 ),
                                               Text(
-                                                place.price,
+                                                displayPrice(place.price),
                                                 style: const TextStyle(
                                                   fontWeight: FontWeight.w700,
                                                   color: ink,
@@ -1002,10 +1012,10 @@ class _RefillHomeState extends State<RefillHome> {
                               ),
                             ),
                           ),
-                          const Padding(
+                          Padding(
                             padding: EdgeInsets.symmetric(vertical: 8),
                             child: Text(
-                              'A small stop. A big help for your next adventure.',
+                              tr.listFooter,
                               textAlign: TextAlign.center,
                               style: TextStyle(color: teal),
                             ),
@@ -1016,24 +1026,22 @@ class _RefillHomeState extends State<RefillHome> {
                         padding: const EdgeInsets.all(16),
                         children: [
                           Text(
-                            'Your requests',
+                            tr.yourRequests,
                             style: Theme.of(context).textTheme.headlineSmall,
                           ),
                           const SizedBox(height: 4),
                           Text(
                             repository.isDemo
-                                ? 'Demo previews only. Nothing is sent, and previews clear when the app restarts.'
-                                : 'Your refill requests and their status appear here.',
+                                ? tr.demoRequestsNote
+                                : tr.requestsIntro,
                           ),
                           const SizedBox(height: 12),
                           if (repository.isDemo && demoRequests.isEmpty)
-                            const ListTile(
+                            ListTile(
                               contentPadding: EdgeInsets.zero,
                               leading: Icon(Icons.chat_bubble_outline),
-                              title: Text('Your next stop starts here'),
-                              subtitle: Text(
-                                'Choose a place and arrange a fill-up.',
-                              ),
+                              title: Text(tr.nextStopTitle),
+                              subtitle: Text(tr.nextStopHint),
                             ),
                           if (!repository.isDemo)
                             StreamBuilder<List<RefillRequest>>(
@@ -1042,20 +1050,20 @@ class _RefillHomeState extends State<RefillHome> {
                                 if (requestSnapshot.hasError) {
                                   return ListTile(
                                     title: Text(
-                                      'Could not load requests: ${requestSnapshot.error}',
+                                      tr.requestsLoadFailed(
+                                        '${requestSnapshot.error}',
+                                      ),
                                     ),
                                   );
                                 }
                                 final savedRequests =
                                     requestSnapshot.data ?? const [];
                                 if (savedRequests.isEmpty) {
-                                  return const ListTile(
+                                  return ListTile(
                                     contentPadding: EdgeInsets.zero,
                                     leading: Icon(Icons.chat_bubble_outline),
-                                    title: Text('Your next stop starts here'),
-                                    subtitle: Text(
-                                      'Choose a place and arrange a fill-up.',
-                                    ),
+                                    title: Text(tr.nextStopTitle),
+                                    subtitle: Text(tr.nextStopHint),
                                   );
                                 }
                                 return Column(
@@ -1070,7 +1078,11 @@ class _RefillHomeState extends State<RefillHome> {
                                             ),
                                             title: Text(request.placeName),
                                             subtitle: Text(
-                                              '${request.liters} liters · ${request.message}\nStatus: ${request.status}',
+                                              tr.requestSummary(
+                                                request.liters,
+                                                request.message,
+                                                requestStatus(request.status),
+                                              ),
                                             ),
                                             trailing: deleteRequestButton(
                                               pending:
@@ -1095,7 +1107,9 @@ class _RefillHomeState extends State<RefillHome> {
                                 ),
                                 title: Text(request.split('\n').first),
                                 subtitle: Text(
-                                  'Demo · ${request.split('\n').skip(1).join('\n')}',
+                                  tr.demoPrefix(
+                                    request.split('\n').skip(1).join('\n'),
+                                  ),
                                 ),
                                 trailing: deleteRequestButton(
                                   pending: true,

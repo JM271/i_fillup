@@ -1,6 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
+import 'texts.dart';
+
 class FirebaseStartupError extends StatefulWidget {
   const FirebaseStartupError({
     super.key,
@@ -36,8 +38,8 @@ class _FirebaseStartupErrorState extends State<FirebaseStartupError> {
                   children: [
                     const Icon(Icons.cloud_off_outlined, size: 56),
                     const SizedBox(height: 20),
-                    const Text(
-                      'Cloud connection unavailable',
+                    Text(
+                      tr.cloudUnavailable,
                       style: TextStyle(
                         fontSize: 26,
                         fontWeight: FontWeight.bold,
@@ -46,8 +48,8 @@ class _FirebaseStartupErrorState extends State<FirebaseStartupError> {
                     const SizedBox(height: 16),
                     Text(
                       setupMissing
-                          ? 'Firebase sign-in is not configured for this project. In Firebase Console → i-fillup → Authentication, complete setup and enable the Email/Password sign-in provider.'
-                          : 'Could not connect to Firebase. Check your connection and Firebase setup, then retry.',
+                          ? tr.firebaseAuthNotConfigured
+                          : tr.firebaseConnectFailed,
                     ),
                     const SizedBox(height: 12),
                     Text('Firebase: ${widget.error.code}'),
@@ -63,19 +65,15 @@ class _FirebaseStartupErrorState extends State<FirebaseStartupError> {
                                 if (mounted) setState(() => retrying = false);
                               }
                             },
-                      child: Text(
-                        retrying ? 'Connecting…' : 'Retry cloud connection',
-                      ),
+                      child: Text(retrying ? tr.connecting : tr.retryCloud),
                     ),
                     const SizedBox(height: 8),
                     OutlinedButton(
                       onPressed: () => runApp(widget.preview),
-                      child: const Text('Open preview without cloud'),
+                      child: Text(tr.openPreview),
                     ),
                     const SizedBox(height: 12),
-                    const Text(
-                      'Preview data stays on this screen session. Offers and requests are not shared with other users.',
-                    ),
+                    Text(tr.previewNote),
                   ],
                 ),
               ),

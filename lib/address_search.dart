@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 
+import 'texts.dart';
+
 class AddressMatch {
   const AddressMatch(this.label, this.location);
   final String label;
@@ -27,7 +29,7 @@ Future<List<AddressMatch>> searchAddresses(String query) async {
       )
       .timeout(const Duration(seconds: 15));
   if (response.statusCode != 200) {
-    throw Exception('Address search is unavailable. Please try again.');
+    throw Exception(tr.addressSearchUnavailable);
   }
   final results = parseAddressMatches(
     jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>,
@@ -109,7 +111,7 @@ class _AddressSearchPageState extends State<AddressSearchPage> {
   Future<void> search() async {
     if (busy) return;
     if (query.text.trim().length < 3) {
-      setState(() => error = 'Enter at least 3 characters, including a town.');
+      setState(() => error = tr.addressTooShort);
       return;
     }
     final request = ++revision;
@@ -129,9 +131,7 @@ class _AddressSearchPageState extends State<AddressSearchPage> {
       });
     } catch (_) {
       if (mounted && revision == request) {
-        setState(
-          () => error = 'Could not search addresses. Check your internet connection and try again, or enter the address and choose its map pin manually.',
-        );
+        setState(() => error = tr.addressSearchFailed);
       }
     } finally {
       if (mounted && revision == request) setState(() => busy = false);
@@ -140,7 +140,7 @@ class _AddressSearchPageState extends State<AddressSearchPage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Choose an address')),
+    appBar: AppBar(title: Text(tr.chooseAnAddress)),
     body: SafeArea(
       child: Column(
         children: [
@@ -152,9 +152,7 @@ class _AddressSearchPageState extends State<AddressSearchPage> {
                 TextField(
                   controller: query,
                   textInputAction: TextInputAction.search,
-                  decoration: const InputDecoration(
-                    labelText: 'Street, house number and town',
-                  ),
+                  decoration: InputDecoration(labelText: tr.addressFieldLabel),
                   onSubmitted: (_) => search(),
                   onChanged: (_) => setState(() {
                     revision++;
@@ -168,12 +166,10 @@ class _AddressSearchPageState extends State<AddressSearchPage> {
                 FilledButton.icon(
                   onPressed: busy ? null : search,
                   icon: const Icon(Icons.search),
-                  label: const Text('Search addresses'),
+                  label: Text(tr.searchAddresses),
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  'Search, then choose a match below. Check the pin before saving your offer.',
-                ),
+                Text(tr.addressSearchIntro),
                 if (busy)
                   const Padding(
                     padding: EdgeInsets.only(top: 12),
@@ -193,9 +189,9 @@ class _AddressSearchPageState extends State<AddressSearchPage> {
             child: ListView(
               children: [
                 if (searched && matches.isEmpty)
-                  const ListTile(
-                    title: Text('No addresses found'),
-                    subtitle: Text('Try adding a postcode, town or country.'),
+                  ListTile(
+                    title: Text(tr.noAddressesFound),
+                    subtitle: Text(tr.noAddressesHint),
                   ),
                 ...matches.map(
                   (match) => ListTile(

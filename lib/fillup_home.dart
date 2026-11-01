@@ -12,6 +12,7 @@ import 'push_notifications.dart';
 import 'take_water_home.dart';
 import 'traveler_profile.dart';
 import 'water_repository.dart';
+import 'texts.dart';
 
 /// Keeps both sides mounted so switching home does not discard an offer draft.
 class FillupHome extends StatefulWidget {
@@ -43,7 +44,7 @@ class _FillupHomeState extends State<FillupHome> {
       onRequest: (text) => ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(text),
-          action: SnackBarAction(label: 'View', onPressed: openRequests),
+          action: SnackBarAction(label: tr.view, onPressed: openRequests),
         ),
       ),
       onOpen: openRequests,
@@ -106,14 +107,14 @@ class _FillupHomeState extends State<FillupHome> {
                         const DropBadge(size: 80),
                         const SizedBox(height: 16),
                         Text(
-                          'Welcome to i fillup',
+                          tr.welcome,
                           textAlign: TextAlign.center,
                           style: Theme.of(context).textTheme.headlineLarge
                               ?.copyWith(color: Colors.white),
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          'Fresh water. Shared journeys.',
+                          tr.tagline,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 16,
@@ -133,21 +134,21 @@ class _FillupHomeState extends State<FillupHome> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           _HomeChoice(
-                            title: 'Take water',
-                            description: 'Find a refill place, check the details and arrange your next fill-up.',
+                            title: tr.takeWater,
+                            description: tr.takeWaterDescription,
                             icon: Icons.water_drop_outlined,
                             onTap: () => open(1),
                           ),
                           const SizedBox(height: 12),
                           _HomeChoice(
-                            title: 'Offer water',
-                            description: 'Share your water point, set your price and manage traveler requests.',
+                            title: tr.offerWater,
+                            description: tr.offerWaterDescription,
                             icon: Icons.add_location_alt_outlined,
                             onTap: () => open(2),
                           ),
                           const SizedBox(height: 20),
-                          const Text(
-                            'One app. Take water or offer water whenever you need.',
+                          Text(
+                            tr.homeFooter,
                             textAlign: TextAlign.center,
                             style: TextStyle(color: muted),
                           ),

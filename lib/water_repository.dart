@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'photo_field.dart';
 import 'traveler_profile.dart';
 import 'water_place.dart';
+import 'texts.dart';
 
 class RefillRequest {
   const RefillRequest({
@@ -226,6 +227,8 @@ class FirebaseWaterRepository implements WaterRepository {
   Future<void> savePushToken(String token) =>
       _firestore.collection('devices').doc(_userId).set({
         'tokens': FieldValue.arrayUnion([token]),
+        // The notify function writes the push message in this language.
+        'language': tr.localeName,
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
 

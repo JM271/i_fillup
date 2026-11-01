@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'app_style.dart';
 import 'push_notifications.dart';
 import 'water_repository.dart';
+import 'texts.dart';
 
 class AuthenticationGate extends StatelessWidget {
   const AuthenticationGate({
@@ -39,11 +40,11 @@ class AccountButton extends StatelessWidget {
     if (auth == null) return const SizedBox.shrink();
     return IconButton(
       icon: const Icon(Icons.account_circle_outlined),
-      tooltip: 'Account',
+      tooltip: tr.account,
       onPressed: () => showDialog<void>(
         context: context,
         builder: (dialogContext) => AlertDialog(
-          title: const Text('Your account'),
+          title: Text(tr.yourAccount),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -57,7 +58,7 @@ class AccountButton extends StatelessWidget {
                     edit();
                   },
                   icon: const Icon(Icons.badge_outlined),
-                  label: const Text('Edit profile'),
+                  label: Text(tr.editProfile),
                 ),
               TextButton.icon(
                 style: TextButton.styleFrom(
@@ -72,14 +73,14 @@ class AccountButton extends StatelessWidget {
                   );
                 },
                 icon: const Icon(Icons.person_remove_outlined),
-                label: const Text('Delete account'),
+                label: Text(tr.deleteAccount),
               ),
             ],
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('Close'),
+              child: Text(tr.close),
             ),
             FilledButton(
               onPressed: () async {
@@ -89,15 +90,13 @@ class AccountButton extends StatelessWidget {
                   await auth!.signOut();
                 } catch (_) {
                   if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Could not sign out. Please try again.'),
-                      ),
-                    );
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text(tr.signOutFailed)));
                   }
                 }
               },
-              child: const Text('Sign out'),
+              child: Text(tr.signOut),
             ),
           ],
         ),
@@ -152,29 +151,27 @@ class _DeleteAccountDialogState extends State<DeleteAccountDialog> {
               'wrong-password',
               'invalid-credential',
             }.contains(exception.code)
-            ? 'The password is incorrect.'
-            : 'Could not delete your account. Please try again.';
+            ? tr.passwordIncorrect
+            : tr.deleteAccountFailed;
       });
     }
   }
 
   @override
   Widget build(BuildContext context) => AlertDialog(
-    title: const Text('Delete your account?'),
+    title: Text(tr.deleteAccountTitle),
     content: Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'This permanently deletes your account, your water place, your profile and your refill requests. It cannot be undone.',
-        ),
+        Text(tr.deleteAccountBody),
         const SizedBox(height: 16),
         TextField(
           controller: password,
           obscureText: true,
           enabled: !busy,
           decoration: InputDecoration(
-            labelText: 'Password',
+            labelText: tr.password,
             errorText: error,
             border: const OutlineInputBorder(),
           ),
@@ -184,14 +181,14 @@ class _DeleteAccountDialogState extends State<DeleteAccountDialog> {
     actions: [
       TextButton(
         onPressed: busy ? null : () => Navigator.pop(context),
-        child: const Text('Keep account'),
+        child: Text(tr.keepAccount),
       ),
       FilledButton(
         style: FilledButton.styleFrom(
           backgroundColor: Theme.of(context).colorScheme.error,
         ),
         onPressed: busy ? null : delete,
-        child: Text(busy ? 'Deleting…' : 'Delete account'),
+        child: Text(busy ? tr.deleting : tr.deleteAccount),
       ),
     ],
   );
@@ -224,7 +221,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (busy) return;
     if (reset) {
       if (!email.text.trim().contains('@')) {
-        setState(() => message = 'Enter your email address first.');
+        setState(() => message = tr.enterEmailFirst);
         return;
       }
     } else if (!form.currentState!.validate()) {
@@ -239,9 +236,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (reset) {
         await widget.auth.sendPasswordResetEmail(email: address);
         if (mounted) {
-          setState(
-            () => message = 'If an account exists for this email, a password reset link has been sent.',
-          );
+          setState(() => message = tr.resetSent);
         }
       } else if (registering) {
         final current = widget.auth.currentUser;
@@ -268,25 +263,24 @@ class _LoginScreenState extends State<LoginScreen> {
       if (mounted) {
         setState(
           () => message = switch (error.code) {
-            'email-already-in-use' || 'credential-already-in-use' =>
-              'This email already has an account. Log in instead.',
-            'invalid-email' => 'Enter a valid email address.',
-            'weak-password' =>
-              'Choose a stronger password with at least 6 characters.',
+            'email-already-in-use' ||
+            'credential-already-in-use' => tr.emailInUse,
+            'invalid-email' => tr.invalidEmail,
+            'weak-password' => tr.weakPassword,
             'invalid-credential' ||
             'wrong-password' ||
-            'user-not-found' => 'Email or password is incorrect.',
-            'too-many-requests' => 'Too many attempts. Please try again later.',
-            'network-request-failed' =>
-              'Check your internet connection and try again.',
-            'operation-not-allowed' || 'configuration-not-found' => 'Email/password sign-in must be enabled in Firebase Authentication.',
-            _ => 'Authentication failed. Please try again.',
+            'user-not-found' => tr.wrongCredentials,
+            'too-many-requests' => tr.tooManyRequests,
+            'network-request-failed' => tr.checkConnection,
+            'operation-not-allowed' ||
+            'configuration-not-found' => tr.signInDisabled,
+            _ => tr.authFailed,
           },
         );
       }
     } catch (_) {
       if (mounted) {
-        setState(() => message = 'Could not connect. Please try again.');
+        setState(() => message = tr.couldNotConnect);
       }
     } finally {
       if (mounted) setState(() => busy = false);
@@ -316,14 +310,14 @@ class _LoginScreenState extends State<LoginScreen> {
                       style: Theme.of(context).textTheme.headlineLarge,
                     ),
                     const SizedBox(height: 4),
-                    const Text(
-                      'Fresh water for life on the road.',
+                    Text(
+                      tr.loginTagline,
                       textAlign: TextAlign.center,
                       style: TextStyle(color: muted),
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      registering ? 'Create your account' : 'Log in',
+                      registering ? tr.createYourAccount : tr.logIn,
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.headlineSmall,
                     ),
@@ -331,8 +325,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     TextFormField(
                       controller: email,
                       enabled: !busy,
-                      decoration: const InputDecoration(
-                        labelText: 'Email',
+                      decoration: InputDecoration(
+                        labelText: tr.email,
                         prefixIcon: Icon(Icons.mail_outline),
                       ),
                       keyboardType: TextInputType.emailAddress,
@@ -343,7 +337,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           value == null ||
                               !RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$')
                                   .hasMatch(value.trim())
-                          ? 'Enter a valid email address.'
+                          ? tr.invalidEmail
                           : null,
                     ),
                     const SizedBox(height: 16),
@@ -359,12 +353,12 @@ class _LoginScreenState extends State<LoginScreen> {
                             : AutofillHints.password,
                       ],
                       decoration: InputDecoration(
-                        labelText: 'Password',
+                        labelText: tr.password,
                         prefixIcon: const Icon(Icons.lock_outline),
                         suffixIcon: IconButton(
                           tooltip: hidePassword
-                              ? 'Show password'
-                              : 'Hide password',
+                              ? tr.showPassword
+                              : tr.hidePassword,
                           onPressed: () =>
                               setState(() => hidePassword = !hidePassword),
                           icon: Icon(
@@ -375,9 +369,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       validator: (value) => value == null || value.isEmpty
-                          ? 'Enter your password.'
+                          ? tr.enterPassword
                           : registering && value.length < 6
-                          ? 'Use at least 6 characters.'
+                          ? tr.passwordTooShort
                           : null,
                       onFieldSubmitted: (_) => submit(),
                     ),
@@ -391,10 +385,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       onPressed: busy ? null : () => submit(),
                       child: Text(
                         busy
-                            ? 'Please wait…'
+                            ? tr.pleaseWait
                             : registering
-                            ? 'Create account'
-                            : 'Log in',
+                            ? tr.createAccount
+                            : tr.logIn,
                       ),
                     ),
                     TextButton(
@@ -405,14 +399,12 @@ class _LoginScreenState extends State<LoginScreen> {
                               message = null;
                             }),
                       child: Text(
-                        registering
-                            ? 'Already have an account? Log in'
-                            : 'Create an account',
+                        registering ? tr.haveAccount : tr.createAnAccount,
                       ),
                     ),
                     TextButton(
                       onPressed: busy ? null : () => submit(reset: true),
-                      child: const Text('Forgot password?'),
+                      child: Text(tr.forgotPassword),
                     ),
                   ],
                 ),

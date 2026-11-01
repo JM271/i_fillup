@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'app_style.dart';
+import 'texts.dart';
 
 /// Photos are stored inside Firestore documents, so they are kept small.
 const maxPhotoBytes = 200 * 1024;
@@ -53,20 +54,16 @@ class PhotoField extends StatelessWidget {
       bytes = await pick(source);
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not open the photo.')),
-        );
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(tr.photoOpenFailed)));
       }
       return;
     }
     if (bytes == null) return;
     if (bytes.length > maxPhotoBytes) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('This photo is too large. Choose another one.'),
-          ),
-        );
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(tr.photoTooLarge)));
       }
       return;
     }
@@ -103,18 +100,18 @@ class PhotoField extends StatelessWidget {
             TextButton.icon(
               onPressed: () => choose(context, ImageSource.camera),
               icon: const Icon(Icons.photo_camera_outlined),
-              label: const Text('Take photo'),
+              label: Text(tr.takePhoto),
             ),
             TextButton.icon(
               onPressed: () => choose(context, ImageSource.gallery),
               icon: const Icon(Icons.photo_library_outlined),
-              label: const Text('Choose photo'),
+              label: Text(tr.choosePhoto),
             ),
             if (image != null)
               TextButton.icon(
                 onPressed: () => onChanged(null),
                 icon: const Icon(Icons.delete_outline),
-                label: const Text('Remove'),
+                label: Text(tr.remove),
               ),
           ],
         ),

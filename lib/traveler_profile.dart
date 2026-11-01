@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'photo_field.dart';
+import 'texts.dart';
 
 /// What a water taker shares with the hosts they send requests to.
 class TravelerProfile {
@@ -77,9 +78,8 @@ class _ProfilePageState extends State<ProfilePage> {
     super.dispose();
   }
 
-  String? required(String? value) => value == null || value.trim().isEmpty
-      ? 'Please fill in this field'
-      : null;
+  String? required(String? value) =>
+      value == null || value.trim().isEmpty ? tr.fillInField : null;
 
   Future<void> save() async {
     if (!form.currentState!.validate()) return;
@@ -96,11 +96,8 @@ class _ProfilePageState extends State<ProfilePage> {
       if (mounted) Navigator.pop(context, profile);
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Could not save your profile. Please try again.'),
-          ),
-        );
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(tr.profileSaveFailed)));
       }
     } finally {
       if (mounted) setState(() => saving = false);
@@ -109,7 +106,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Your profile')),
+    appBar: AppBar(title: Text(tr.yourProfile)),
     body: Form(
       key: form,
       child: SingleChildScrollView(
@@ -117,17 +114,15 @@ class _ProfilePageState extends State<ProfilePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
-              widget.intro ?? 'Hosts see your profile on the refill requests you send them.',
-            ),
+            Text(widget.intro ?? tr.profileIntro),
             const SizedBox(height: 16),
             TextFormField(
               controller: name,
               maxLength: 60,
               textCapitalization: TextCapitalization.words,
-              decoration: const InputDecoration(
-                labelText: 'Name',
-                hintText: 'First name or nickname',
+              decoration: InputDecoration(
+                labelText: tr.name,
+                hintText: tr.nameHint,
               ),
               validator: required,
             ),
@@ -135,9 +130,9 @@ class _ProfilePageState extends State<ProfilePage> {
             TextFormField(
               controller: vehicle,
               maxLength: 80,
-              decoration: const InputDecoration(
-                labelText: 'Vehicle',
-                hintText: 'Campervan, 6 m',
+              decoration: InputDecoration(
+                labelText: tr.vehicle,
+                hintText: tr.vehicleHint,
               ),
               validator: required,
             ),
@@ -146,10 +141,10 @@ class _ProfilePageState extends State<ProfilePage> {
               controller: phone,
               maxLength: 30,
               keyboardType: TextInputType.phone,
-              decoration: const InputDecoration(
-                labelText: 'Phone (optional)',
+              decoration: InputDecoration(
+                labelText: tr.phoneOptional,
                 hintText: '+41 79 123 45 67',
-                helperText: 'Only shared with hosts you send a request to.',
+                helperText: tr.phoneHelper,
                 helperMaxLines: 2,
               ),
             ),
@@ -158,21 +153,21 @@ class _ProfilePageState extends State<ProfilePage> {
               controller: about,
               maxLength: 300,
               maxLines: 3,
-              decoration: const InputDecoration(
-                labelText: 'About me (optional)',
-                hintText: 'Travelling with two kids and a dog, own hose',
+              decoration: InputDecoration(
+                labelText: tr.aboutMe,
+                hintText: tr.aboutMeHint,
               ),
             ),
             const SizedBox(height: 8),
             PhotoField(
-              label: 'Photo of your vehicle (optional)',
+              label: tr.vehiclePhoto,
               photo: photo,
               onChanged: (value) => setState(() => photo = value),
             ),
             const SizedBox(height: 16),
             FilledButton(
               onPressed: saving ? null : save,
-              child: Text(saving ? 'Saving…' : 'Save profile'),
+              child: Text(saving ? tr.saving : tr.saveProfile),
             ),
           ],
         ),
@@ -193,9 +188,8 @@ Future<TravelerProfile?> editProfile(
     current = await load();
   } catch (_) {
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not load your profile.')),
-      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(tr.profileLoadFailed)));
     }
     return null;
   }
@@ -217,10 +211,7 @@ class RequesterSummary extends StatelessWidget {
     final traveler = profile;
     final muted = Theme.of(context).textTheme.bodySmall;
     if (traveler == null) {
-      return Text(
-        'No traveler profile (sent before profiles existed)',
-        style: muted,
-      );
+      return Text(tr.noTravelerProfile, style: muted);
     }
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -257,7 +248,7 @@ class RequesterSummary extends StatelessWidget {
                       ),
                     ),
                     icon: const Icon(Icons.call_outlined),
-                    label: Text('Call ${traveler.phone}'),
+                    label: Text(tr.callPhone(traveler.phone)),
                   ),
                 ),
             ],

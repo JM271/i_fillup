@@ -6,26 +6,21 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 
 import 'app_style.dart';
+import 'texts.dart';
 
 Future<LatLng> currentRefillLocation() async {
   if (!await Geolocator.isLocationServiceEnabled()) {
-    throw Exception(
-      'Turn on device location services, or choose a place manually.',
-    );
+    throw Exception(tr.locationServicesOff);
   }
   var permission = await Geolocator.checkPermission();
   if (permission == LocationPermission.denied) {
     permission = await Geolocator.requestPermission();
   }
   if (permission == LocationPermission.deniedForever) {
-    throw Exception(
-      'Location access is blocked. Enable it in device or browser settings, or tap the map manually.',
-    );
+    throw Exception(tr.locationBlocked);
   }
   if (permission == LocationPermission.denied) {
-    throw Exception(
-      'Location permission was denied. You can still tap the map to choose a place.',
-    );
+    throw Exception(tr.locationDenied);
   }
   final position = await Geolocator.getCurrentPosition(
     locationSettings: const LocationSettings(
@@ -78,11 +73,11 @@ class _LocationPickerState extends State<LocationPicker> {
       if (!mounted || revision != requestRevision) return;
       setState(
         () => error = failure is TimeoutException
-            ? 'Finding your location took too long. Retry or tap the map manually.'
+            ? tr.locationTimeout
             : failure is Exception &&
                   failure.toString().startsWith('Exception: ')
             ? failure.toString().substring(11)
-            : 'Could not access your location. Retry or tap the map manually.',
+            : tr.locationFailed,
       );
     } finally {
       if (mounted && revision == requestRevision) {
@@ -93,14 +88,12 @@ class _LocationPickerState extends State<LocationPicker> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Choose your place')),
+    appBar: AppBar(title: Text(tr.chooseYourPlace)),
     body: Column(
       children: [
-        const Padding(
+        Padding(
           padding: EdgeInsets.all(16),
-          child: Text(
-            'Start at your current location, then tap to adjust the refill pin. The address is entered separately.',
-          ),
+          child: Text(tr.locationPickerIntro),
         ),
         if (locating) const LinearProgressIndicator(),
         if (error != null)
@@ -162,14 +155,14 @@ class _LocationPickerState extends State<LocationPicker> {
                 OutlinedButton.icon(
                   onPressed: locating ? null : locate,
                   icon: const Icon(Icons.my_location),
-                  label: const Text('My location'),
+                  label: Text(tr.myLocation),
                 ),
                 const SizedBox(height: 8),
                 FilledButton(
                   onPressed: selected == null || locating
                       ? null
                       : () => Navigator.pop(context, selected),
-                  child: const Text('Use this location'),
+                  child: Text(tr.useThisLocation),
                 ),
               ],
             ),

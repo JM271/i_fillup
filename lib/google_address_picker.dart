@@ -2,6 +2,7 @@ import 'package:flutter/services.dart';
 import 'package:latlong2/latlong.dart';
 
 import 'address_search.dart';
+import 'texts.dart';
 
 const googlePlacesChannel = MethodChannel('i_fillup/google_places');
 
@@ -24,7 +25,7 @@ Future<AddressMatch?> chooseGoogleAddress(String query) async {
       lon.abs() > 180) {
     throw PlatformException(
       code: 'invalid_address',
-      message: 'Google returned an incomplete address. Choose another result.',
+      message: tr.googleIncompleteAddress,
     );
   }
   return AddressMatch(label, LatLng(lat.toDouble(), lon.toDouble()));

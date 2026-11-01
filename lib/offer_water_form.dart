@@ -14,6 +14,7 @@ import 'photo_field.dart';
 import 'package:latlong2/latlong.dart';
 
 import 'water_place.dart';
+import 'texts.dart';
 
 class OfferWaterForm extends StatefulWidget {
   const OfferWaterForm({
@@ -68,16 +69,16 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const WaterBanner(
-            title: 'Offer water.\nEarn cash.',
-            subtitle: 'Set your price for a campervan refill, add your place and choose your opening times.',
+          WaterBanner(
+            title: tr.bannerOfferTitle,
+            subtitle: tr.bannerOfferSubtitle,
           ),
           const SizedBox(height: 16),
           TextFormField(
             controller: name,
-            decoration: const InputDecoration(
-              labelText: 'Place name',
-              hintText: 'Water at our farm',
+            decoration: InputDecoration(
+              labelText: tr.placeName,
+              hintText: tr.placeNameHint,
             ),
             validator: requiredText,
           ),
@@ -86,9 +87,9 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
             controller: address,
             onChanged: (_) => setState(() => location = null),
             maxLines: 2,
-            decoration: const InputDecoration(
-              labelText: 'Address / place',
-              hintText: 'Street, house number, postcode, town, country',
+            decoration: InputDecoration(
+              labelText: tr.addressPlace,
+              hintText: tr.addressPlaceHint,
             ),
             validator: requiredText,
           ),
@@ -113,10 +114,7 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text(
-                        error.message ??
-                            'Could not open Google address search.',
-                      ),
+                      content: Text(error.message ?? tr.googleSearchFailed),
                     ),
                   );
                 }
@@ -133,9 +131,7 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
             },
             icon: const Icon(Icons.search),
             label: Text(
-              useGoogle
-                  ? 'Choose address with Google'
-                  : 'Choose address from list',
+              useGoogle ? tr.chooseAddressGoogle : tr.chooseAddressList,
             ),
           ),
           const SizedBox(height: 12),
@@ -155,28 +151,30 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
             },
             icon: const Icon(Icons.pin_drop_outlined),
             label: Text(
-              location == null ? 'Choose place on map' : 'Change map location',
+              location == null ? tr.choosePlaceOnMap : tr.changeMapLocation,
             ),
           ),
           if (location != null)
             Text(
-              'Pin: ${location!.latitude.toStringAsFixed(5)}, ${location!.longitude.toStringAsFixed(5)}',
+              tr.pinAt(
+                location!.latitude.toStringAsFixed(5),
+                location!.longitude.toStringAsFixed(5),
+              ),
             ),
           if (missingLocation)
             Text(
-              'Choose your place on the map.',
+              tr.chooseOnMapError,
               style: TextStyle(color: Theme.of(context).colorScheme.error),
             ),
           const SizedBox(height: 16),
           TextFormField(
             controller: hours,
             maxLines: 4,
-            decoration: const InputDecoration(
-              labelText: 'Opening times',
+            decoration: InputDecoration(
+              labelText: tr.openingTimes,
               alignLabelWithHint: true,
-              hintText: 'Mon–Fri: 08:00–18:00\nSat: 09:00–12:00\nSun: closed',
-              helperText:
-                  'Include days, local times and any appointment requirements.',
+              hintText: tr.openingTimesHint,
+              helperText: tr.openingTimesHelper,
               helperMaxLines: 2,
             ),
             validator: requiredText,
@@ -186,28 +184,24 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
             key: const ValueKey('offer-price'),
             controller: price,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(
-              labelText: 'Price per fill-up',
+            decoration: InputDecoration(
+              labelText: tr.pricePerFillUp,
               prefixText: 'CHF ',
-              helperText:
-                  'One price per refill. Enter 0 to offer water for free.',
+              helperText: tr.priceHelper,
               helperMaxLines: 2,
             ),
-            validator: (value) => refillPriceLabel(value ?? '') == null
-                ? 'Enter a price of 0 or more, with up to 2 decimals'
-                : null,
+            validator: (value) =>
+                refillPriceLabel(value ?? '') == null ? tr.priceError : null,
           ),
           const SizedBox(height: 12),
-          const Text(
-            'Payment is arranged directly with the traveler. The app does not collect payments or pay out earnings.',
-          ),
+          Text(tr.paymentNoteForm),
           const SizedBox(height: 16),
           // One child, so the error line cannot shift the fields around it.
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Which vehicles can reach the water?',
+                tr.whichVehicles,
                 style: Theme.of(context).textTheme.titleSmall,
               ),
               const SizedBox(height: 4),
@@ -227,23 +221,23 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
               ),
               if (missingVehicles)
                 Text(
-                  'Choose at least one vehicle type.',
+                  tr.chooseVehicle,
                   style: TextStyle(color: Theme.of(context).colorScheme.error),
                 ),
             ],
           ),
           const SizedBox(height: 16),
           PhotoField(
-            label: 'Photo of the water place (optional)',
+            label: tr.placePhoto,
             photo: photo,
             onChanged: (value) => setState(() => photo = value),
           ),
           const SizedBox(height: 16),
           Text(
-            'Promote your business (optional)',
+            tr.promoteBusiness,
             style: Theme.of(context).textTheme.titleMedium,
           ),
-          const Text('Travelers who stop for water see what else you offer.'),
+          Text(tr.promoteBusinessIntro),
           const SizedBox(height: 8),
           Wrap(
             spacing: 8,
@@ -270,11 +264,10 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
             controller: businessInfo,
             maxLines: 3,
             maxLength: 500,
-            decoration: const InputDecoration(
-              labelText: 'About your business',
+            decoration: InputDecoration(
+              labelText: tr.aboutBusiness,
               alignLabelWithHint: true,
-              hintText:
-                  'Organic farm shop: eggs, cheese and bread. Sat 08:00–12:00.',
+              hintText: tr.aboutBusinessHint,
             ),
           ),
           const SizedBox(height: 8),
@@ -282,13 +275,12 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
             controller: website,
             keyboardType: TextInputType.url,
             maxLength: 200,
-            decoration: const InputDecoration(
-              labelText: 'Website',
+            decoration: InputDecoration(
+              labelText: tr.website,
               hintText: 'https://www.example.ch',
             ),
-            validator: (value) => validWebsite(value?.trim() ?? '')
-                ? null
-                : 'Enter a full address starting with https://',
+            validator: (value) =>
+                validWebsite(value?.trim() ?? '') ? null : tr.websiteError,
           ),
           const SizedBox(height: 16),
           FilledButton.icon(
@@ -309,10 +301,10 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
                         WaterPlace(
                           name.text.trim(),
                           address.text.trim(),
-                          'Local host',
+                          tr.localHost,
                           true,
                           refillPriceLabel(price.text)!,
-                          'Contact and water suitability must be confirmed before visiting.',
+                          tr.contactConfirm,
                           Icons.cottage_outlined,
                           location!,
                           openingTimes: hours.text.trim(),
@@ -335,8 +327,8 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
                           SnackBar(
                             content: Text(
                               error is FirebaseException
-                                  ? 'Could not save offer: ${error.message}'
-                                  : 'Could not save offer. Please try again.',
+                                  ? tr.saveOfferFailedWith('${error.message}')
+                                  : tr.saveOfferFailed,
                             ),
                           ),
                         );
@@ -360,22 +352,17 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
                     });
                   },
             icon: const Icon(Icons.save_outlined),
-            label: Text(saving ? 'Saving…' : 'Save offer'),
+            label: Text(saving ? tr.saving : tr.saveOffer),
           ),
           const SizedBox(height: 12),
-          Text(
-            widget.isDemo
-                ? 'Preview only: offers stay in this session and are not shared with travelers.'
-                : 'Your place will appear in Find water so travelers can send you refill requests.',
-          ),
+          Text(widget.isDemo ? tr.previewOfferNote : tr.liveOfferNote),
         ],
       ),
     ),
   );
 
-  String? requiredText(String? value) => value == null || value.trim().isEmpty
-      ? 'Please fill in this field'
-      : null;
+  String? requiredText(String? value) =>
+      value == null || value.trim().isEmpty ? tr.fillInField : null;
 }
 
 /// Formats the entered CHF amount without accepting negative or non-finite values.

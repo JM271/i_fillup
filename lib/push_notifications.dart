@@ -5,6 +5,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 
 import 'water_repository.dart';
+import 'texts.dart';
 
 /// Push notifications tell hosts about new refill requests. The message is
 /// sent by the notifyHostOfRequest Cloud Function in functions/index.js.
@@ -66,9 +67,8 @@ class PushNotifications {
     });
     return [
       FirebaseMessaging.onMessage.listen(
-        (message) => onRequest(
-          message.notification?.body ?? 'You have a new refill request.',
-        ),
+        (message) =>
+            onRequest(message.notification?.body ?? tr.newRefillRequest),
       ),
       FirebaseMessaging.onMessageOpenedApp.listen((_) => onOpen()),
     ];
