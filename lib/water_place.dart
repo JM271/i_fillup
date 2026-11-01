@@ -66,6 +66,8 @@ class WaterPlace {
     this.services = const [],
     this.businessInfo = '',
     this.website = '',
+    this.hose,
+    this.selfService,
   });
   final String name, area, host, price, description;
   final bool private;
@@ -84,6 +86,10 @@ class WaterPlace {
 
   /// The host's pitch for their business, and its website.
   final String businessInfo, website;
+
+  /// Whether a hose is there to use, and whether travelers can fill up
+  /// without the host; null for places saved before these questions.
+  final bool? hose, selfService;
 
   bool get promotesBusiness =>
       services.isNotEmpty || businessInfo.isNotEmpty || website.isNotEmpty;
@@ -123,6 +129,8 @@ class WaterPlace {
       ],
       businessInfo: data['businessInfo'] as String? ?? '',
       website: data['website'] as String? ?? '',
+      hose: data['hose'] as bool?,
+      selfService: data['selfService'] as bool?,
     );
   }
 }
@@ -138,6 +146,8 @@ const places = [
     Icons.cottage_outlined,
     LatLng(46.758, 7.628),
     vehicles: ['campervan'],
+    hose: false,
+    selfService: false,
   ),
   WaterPlace(
     'Riverside camper stop',
@@ -149,6 +159,8 @@ const places = [
     Icons.local_parking_outlined,
     LatLng(46.686, 7.863),
     vehicles: ['campervan', 'motorhome', 'large', 'trailer'],
+    hose: true,
+    selfService: true,
   ),
   WaterPlace(
     'Fresh water on the farm',
@@ -160,6 +172,8 @@ const places = [
     Icons.agriculture_outlined,
     LatLng(46.687, 7.680),
     vehicles: ['campervan', 'motorhome'],
+    hose: true,
+    selfService: false,
     services: ['farmShop', 'dump'],
     businessInfo:
         'Our farm shop sells eggs, cheese and bread. Open Saturday mornings.',

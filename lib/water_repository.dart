@@ -258,6 +258,8 @@ class FirebaseWaterRepository implements WaterRepository {
     'services': place.services,
     'businessInfo': place.businessInfo,
     'website': place.website,
+    'hose': place.hose ?? false,
+    'selfService': place.selfService ?? false,
     'isActive': true,
     'updatedAt': FieldValue.serverTimestamp(),
   };

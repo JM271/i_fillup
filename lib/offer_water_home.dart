@@ -352,6 +352,24 @@ class _GiverHomeState extends State<GiverHome> {
                                                 .textTheme
                                                 .bodySmall,
                                           ),
+                                        if (place.hose != null ||
+                                            place.selfService != null)
+                                          Text(
+                                            [
+                                              if (place.hose case final hose?)
+                                                hose
+                                                    ? tr.hoseAvailable
+                                                    : tr.bringOwnHose,
+                                              if (place.selfService
+                                                  case final selfService?)
+                                                selfService
+                                                    ? tr.selfService
+                                                    : tr.hostPresent,
+                                            ].join(' · '),
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodySmall,
+                                          ),
                                         if (place.services.isNotEmpty)
                                           Text(
                                             tr.alsoHereList(

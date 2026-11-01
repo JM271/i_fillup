@@ -56,7 +56,10 @@ service cloud.firestore {
                                    'campsite', 'dump', 'electricity', 'repairs'])
         && place.businessInfo is string && place.businessInfo.size() <= 500
         && place.website is string && place.website.size() <= 200
-        && (place.website == '' || place.website.matches('https?://.+'));
+        && (place.website == '' || place.website.matches('https?://.+'))
+        // Optional, as places saved by older app versions lack them.
+        && (!('hose' in place) || place.hose is bool)
+        && (!('selfService' in place) || place.selfService is bool);
     }
 
     function activePlace(placeId) {
@@ -73,7 +76,7 @@ service cloud.firestore {
         && request.resource.data.keys().hasOnly([
           'name', 'area', 'host', 'private', 'price', 'description',
           'openingTimes', 'latitude', 'longitude', 'photo', 'vehicles',
-          'services', 'businessInfo', 'website',
+          'services', 'businessInfo', 'website', 'hose', 'selfService',
           'ownerUid', 'isActive', 'createdAt', 'updatedAt'
         ])
         && request.resource.data.keys().hasAll([
@@ -109,7 +112,7 @@ service cloud.firestore {
           .hasOnly(['name', 'area', 'host', 'private', 'price', 'description',
                     'openingTimes', 'latitude', 'longitude', 'photo',
                     'vehicles', 'services', 'businessInfo', 'website',
-                    'isActive', 'updatedAt']);
+                    'hose', 'selfService', 'isActive', 'updatedAt']);
       allow delete: if signedIn() && resource.data.ownerUid == request.auth.uid;
     }
 

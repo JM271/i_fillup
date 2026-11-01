@@ -63,9 +63,18 @@ place = dict(name='Test water', area='Zurich', host='Host', private=True,
              ownerUid=host, isActive=True, createdAt='', updatedAt='')
 request('PATCH', '/waterPlaces/second-' + suffix, host, place, 403)
 request('PATCH', '/waterPlaces/' + place_id, host, place)
-request('PATCH', '/waterPlaces/' + place_id, host, place, 403)
+# Writing it again is an update by its owner, which editing needs.
+request('PATCH', '/waterPlaces/' + place_id, host, place)
 request('PATCH', '/waterPlaces/forged-' + suffix, 'stranger', place, 403)
 request('PATCH', '/waterPlaces/unsigned-' + suffix, None, place, 403)
+# Hose and self-service are optional booleans.
+tap_host = 'tap-' + suffix
+tap = dict(place, ownerUid=tap_host, hose=True, selfService=False)
+request('PATCH', '/waterPlaces/' + tap_host, tap_host, dict(tap, hose='yes'), 403)
+request('PATCH', '/waterPlaces/' + tap_host, tap_host, tap)
+tap_path = '/waterPlaces/' + tap_host + '?updateMask.fieldPaths=selfService&updateMask.fieldPaths=updatedAt'
+request('PATCH', tap_path, tap_host, dict(selfService=True, updatedAt=''))
+request('PATCH', tap_path, 'stranger', dict(selfService=True, updatedAt=''), 403)
 refill = dict(placeId=place_id, placeName='Test water', hostUid=host,
               requesterUid='traveler', liters=50, message='Hello', status='pending',
               requester=dict(name='Lea', vehicle='Van', phone='', about='', photo=''),
@@ -89,4 +98,4 @@ request('PATCH', mine_path, host, dict(requesterHidden=True, updatedAt=''), 403)
 request('PATCH', mine_path, 'traveler', dict(requesterHidden=True, updatedAt=''))
 request('DELETE', '/waterPlaces/' + place_id, 'stranger', expected=403)
 request('DELETE', '/waterPlaces/' + place_id, host)
-print('21 Firestore rules checks passed (local emulator only).')
+print('25 Firestore rules checks passed (local emulator only).')

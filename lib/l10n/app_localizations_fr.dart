@@ -1064,6 +1064,28 @@ class AppLocalizationsFr extends AppLocalizations {
   String get chooseVehicle => 'Choisissez au moins un type de véhicule.';
 
   @override
+  String get atTheTap => 'Au robinet';
+
+  @override
+  String get hoseAvailable => 'Tuyau disponible';
+
+  @override
+  String get hoseAvailableHelp => 'Les voyageurs peuvent utiliser votre tuyau.';
+
+  @override
+  String get bringOwnHose => 'Apportez votre tuyau';
+
+  @override
+  String get selfService => 'Libre-service';
+
+  @override
+  String get selfServiceHelp =>
+      'Les voyageurs peuvent faire le plein sans votre présence.';
+
+  @override
+  String get hostPresent => 'L’hôte est présent pour le plein';
+
+  @override
   String get placePhoto => 'Photo du point d’eau (facultatif)';
 
   @override

@@ -1858,6 +1858,48 @@ abstract class AppLocalizations {
   /// **'Choose at least one vehicle type.'**
   String get chooseVehicle;
 
+  /// No description provided for @atTheTap.
+  ///
+  /// In en, this message translates to:
+  /// **'At the tap'**
+  String get atTheTap;
+
+  /// No description provided for @hoseAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Hose available'**
+  String get hoseAvailable;
+
+  /// No description provided for @hoseAvailableHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Travelers can use your hose to fill up.'**
+  String get hoseAvailableHelp;
+
+  /// No description provided for @bringOwnHose.
+  ///
+  /// In en, this message translates to:
+  /// **'Bring your own hose'**
+  String get bringOwnHose;
+
+  /// No description provided for @selfService.
+  ///
+  /// In en, this message translates to:
+  /// **'Self-service'**
+  String get selfService;
+
+  /// No description provided for @selfServiceHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Travelers can fill up without you being there.'**
+  String get selfServiceHelp;
+
+  /// No description provided for @hostPresent.
+  ///
+  /// In en, this message translates to:
+  /// **'Host lets you fill up'**
+  String get hostPresent;
+
   /// No description provided for @placePhoto.
   ///
   /// In en, this message translates to:

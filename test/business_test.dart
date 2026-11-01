@@ -17,7 +17,7 @@ void main() {
   });
 
   test('Business details survive storage and ignore unknown services', () {
-    final place = WaterPlace.fromFirestore('me', {
+    final data = {
       'name': 'Tap',
       'area': 'Spiez',
       'host': 'Lukas',
@@ -31,11 +31,21 @@ void main() {
       'services': ['farmShop', 'casino', 'fuel'],
       'businessInfo': 'Eggs and cheese',
       'website': 'https://hof.ch',
-    });
+    };
+    final place = WaterPlace.fromFirestore('me', data);
     expect(place.services, ['farmShop', 'fuel']);
     expect(place.businessInfo, 'Eggs and cheese');
     expect(place.website, 'https://hof.ch');
     expect(place.promotesBusiness, isTrue);
+    expect(place.hose, isNull, reason: 'older places did not say');
+    expect(
+      WaterPlace.fromFirestore('me', {
+        ...data,
+        'hose': true,
+        'selfService': true,
+      }).selfService,
+      isTrue,
+    );
     expect(places.first.promotesBusiness, isFalse);
   });
 
@@ -57,6 +67,8 @@ void main() {
     expect(find.widgetWithText(Chip, 'Farm shop'), findsOneWidget);
     expect(find.widgetWithText(Chip, 'Waste water disposal'), findsOneWidget);
     expect(find.textContaining('eggs, cheese and bread'), findsOneWidget);
+    expect(find.widgetWithText(Chip, 'Hose available'), findsOneWidget);
+    expect(find.widgetWithText(Chip, 'Host lets you fill up'), findsOneWidget);
   });
 
   testWidgets('Hosts can promote their business with an offer', (tester) async {
@@ -86,6 +98,7 @@ void main() {
     await tester.tap(find.text('Main street 1, Thun'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Campervan up to 6 m'));
+    await tester.tap(find.text('Hose available'));
     await tester.tap(find.text('Farm shop'));
     await tester.tap(find.text('Fuel'));
     await tester.enterText(find.byType(TextFormField).at(3), 'Eggs, cheese');
@@ -104,5 +117,7 @@ void main() {
     expect(saved!.services, ['farmShop', 'fuel']);
     expect(saved!.businessInfo, 'Eggs, cheese');
     expect(saved!.website, 'https://hof.ch');
+    expect(saved!.hose, isTrue);
+    expect(saved!.selfService, isFalse);
   });
 }

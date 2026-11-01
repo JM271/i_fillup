@@ -48,6 +48,8 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
   LatLng? location;
   Uint8List? photo;
   final vehicles = <String>{};
+  bool hose = false;
+  bool selfService = false;
   bool missingLocation = false;
   bool missingVehicles = false;
   bool saving = false;
@@ -71,6 +73,8 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
     photo = place.photo;
     vehicles.addAll(place.vehicles);
     services.addAll(place.services);
+    hose = place.hose ?? false;
+    selfService = place.selfService ?? false;
   }
 
   @override
@@ -254,6 +258,24 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
             ],
           ),
           const SizedBox(height: 16),
+          Text(tr.atTheTap, style: Theme.of(context).textTheme.titleSmall),
+          SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            secondary: const Icon(Icons.water_outlined, color: teal),
+            title: Text(tr.hoseAvailable),
+            subtitle: Text(tr.hoseAvailableHelp),
+            value: hose,
+            onChanged: (value) => setState(() => hose = value),
+          ),
+          SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            secondary: const Icon(Icons.self_improvement_outlined, color: teal),
+            title: Text(tr.selfService),
+            subtitle: Text(tr.selfServiceHelp),
+            value: selfService,
+            onChanged: (value) => setState(() => selfService = value),
+          ),
+          const SizedBox(height: 16),
           PhotoField(
             label: tr.placePhoto,
             photo: photo,
@@ -352,6 +374,8 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
                           ],
                           businessInfo: businessInfo.text.trim(),
                           website: website.text.trim(),
+                          hose: hose,
+                          selfService: selfService,
                         ),
                       );
                     } catch (error) {
@@ -382,6 +406,8 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
                       photo = null;
                       vehicles.clear();
                       services.clear();
+                      hose = false;
+                      selfService = false;
                     });
                   },
             icon: const Icon(Icons.save_outlined),

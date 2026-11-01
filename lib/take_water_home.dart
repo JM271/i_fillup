@@ -148,6 +148,37 @@ class _RefillHomeState extends State<RefillHome> {
                 const SizedBox(height: 8),
                 Text(tr.suitableFor(vehicleSummary(place.vehicles))),
               ],
+              if (place.hose != null || place.selfService != null) ...[
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    if (place.hose case final hose?)
+                      Chip(
+                        avatar: Icon(
+                          hose ? Icons.water_outlined : Icons.info_outline,
+                          size: 18,
+                          color: teal,
+                        ),
+                        label: Text(hose ? tr.hoseAvailable : tr.bringOwnHose),
+                      ),
+                    if (place.selfService case final selfService?)
+                      Chip(
+                        avatar: Icon(
+                          selfService
+                              ? Icons.self_improvement_outlined
+                              : Icons.waving_hand_outlined,
+                          size: 18,
+                          color: teal,
+                        ),
+                        label: Text(
+                          selfService ? tr.selfService : tr.hostPresent,
+                        ),
+                      ),
+                  ],
+                ),
+              ],
               if (place.promotesBusiness) ...[
                 const SizedBox(height: 20),
                 Text(

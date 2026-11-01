@@ -1049,6 +1049,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chooseVehicle => 'Choose at least one vehicle type.';
 
   @override
+  String get atTheTap => 'At the tap';
+
+  @override
+  String get hoseAvailable => 'Hose available';
+
+  @override
+  String get hoseAvailableHelp => 'Travelers can use your hose to fill up.';
+
+  @override
+  String get bringOwnHose => 'Bring your own hose';
+
+  @override
+  String get selfService => 'Self-service';
+
+  @override
+  String get selfServiceHelp =>
+      'Travelers can fill up without you being there.';
+
+  @override
+  String get hostPresent => 'Host lets you fill up';
+
+  @override
   String get placePhoto => 'Photo of the water place (optional)';
 
   @override

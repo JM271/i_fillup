@@ -1061,6 +1061,29 @@ class AppLocalizationsDe extends AppLocalizations {
   String get chooseVehicle => 'Wähle mindestens einen Fahrzeugtyp.';
 
   @override
+  String get atTheTap => 'Am Wasserhahn';
+
+  @override
+  String get hoseAvailable => 'Schlauch vorhanden';
+
+  @override
+  String get hoseAvailableHelp =>
+      'Reisende können deinen Schlauch zum Auffüllen benutzen.';
+
+  @override
+  String get bringOwnHose => 'Eigenen Schlauch mitbringen';
+
+  @override
+  String get selfService => 'Selbstbedienung';
+
+  @override
+  String get selfServiceHelp =>
+      'Reisende können auffüllen, ohne dass du da bist.';
+
+  @override
+  String get hostPresent => 'Gastgeber ist beim Auffüllen da';
+
+  @override
   String get placePhoto => 'Foto der Wasserstelle (optional)';
 
   @override
