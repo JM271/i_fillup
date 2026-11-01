@@ -28,13 +28,20 @@ class FillupHome extends StatefulWidget {
 class _FillupHomeState extends State<FillupHome> {
   int section = 0;
   final showRequests = ValueNotifier(0);
+  final showMyRequests = ValueNotifier(0);
   var pushSubscriptions = const <StreamSubscription<RemoteMessage>>[];
 
   void open(int value) => setState(() => section = value);
 
-  void openRequests() {
-    open(2);
-    showRequests.value++;
+  /// Hosts see incoming requests; travelers see the answers to theirs.
+  void openRequests(bool answer) {
+    if (answer) {
+      open(1);
+      showMyRequests.value++;
+    } else {
+      open(2);
+      showRequests.value++;
+    }
   }
 
   @override
@@ -42,10 +49,13 @@ class _FillupHomeState extends State<FillupHome> {
     super.initState();
     if (widget.auth == null) return;
     pushSubscriptions = PushNotifications.listen(
-      onRequest: (text) => ScaffoldMessenger.of(context).showSnackBar(
+      onMessage: (text, answer) => ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(text),
-          action: SnackBarAction(label: tr.view, onPressed: openRequests),
+          action: SnackBarAction(
+            label: tr.view,
+            onPressed: () => openRequests(answer),
+          ),
         ),
       ),
       onOpen: openRequests,
@@ -58,6 +68,7 @@ class _FillupHomeState extends State<FillupHome> {
       subscription.cancel();
     }
     showRequests.dispose();
+    showMyRequests.dispose();
     super.dispose();
   }
 
@@ -169,6 +180,7 @@ class _FillupHomeState extends State<FillupHome> {
         auth: widget.auth,
         onHome: () => open(0),
         onOfferWater: () => open(2),
+        showRequests: showMyRequests,
       ),
       GiverHome(
         repository: widget.repository,

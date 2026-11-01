@@ -7,8 +7,9 @@ import 'package:flutter/foundation.dart';
 import 'water_repository.dart';
 import 'texts.dart';
 
-/// Push notifications tell hosts about new refill requests. The message is
-/// sent by the notifyHostOfRequest Cloud Function in functions/index.js.
+/// Push notifications tell hosts about new refill requests and travelers
+/// about the host's answer. The messages are sent by the notifyHostOfRequest
+/// and notifyTravelerOfAnswer Cloud Functions in functions/index.js.
 ///
 /// Uses FCM registration tokens, which the function sends to with
 /// sendEachForMulticast; the newer installation-ID API needs a matching
@@ -68,22 +69,32 @@ class PushNotifications {
     }
   }
 
-  /// [onRequest] runs with the notification text while the app is open;
+  /// Whether a message tells a traveler about the host's answer, rather
+  /// than a host about a new request.
+  static bool isAnswer(RemoteMessage message) =>
+      message.data['type'] == answerType;
+  static const answerType = 'requestAnswer';
+
+  /// [onMessage] runs with the notification while the app is open;
   /// [onOpen] runs when the user taps a notification.
   static List<StreamSubscription<RemoteMessage>> listen({
-    required void Function(String text) onRequest,
-    required VoidCallback onOpen,
+    required void Function(String text, bool answer) onMessage,
+    required void Function(bool answer) onOpen,
   }) {
     if (!supported) return const [];
     FirebaseMessaging.instance.getInitialMessage().then((message) {
-      if (message != null) onOpen();
+      if (message != null) onOpen(isAnswer(message));
     });
     return [
       FirebaseMessaging.onMessage.listen(
-        (message) =>
-            onRequest(message.notification?.body ?? tr.newRefillRequest),
+        (message) => onMessage(
+          message.notification?.body ?? tr.newRefillRequest,
+          isAnswer(message),
+        ),
       ),
-      FirebaseMessaging.onMessageOpenedApp.listen((_) => onOpen()),
+      FirebaseMessaging.onMessageOpenedApp.listen(
+        (message) => onOpen(isAnswer(message)),
+      ),
     ];
   }
 }

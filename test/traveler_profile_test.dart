@@ -320,4 +320,18 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byTooltip('Delete request'), findsNothing);
   });
+
+  testWidgets('A tapped answer notification opens My requests', (
+    tester,
+  ) async {
+    final showRequests = ValueNotifier(0);
+    addTearDown(showRequests.dispose);
+    await tester.pumpWidget(
+      MaterialApp(home: RefillHome(showRequests: showRequests)),
+    );
+    expect(find.text('Your next stop starts here'), findsNothing);
+    showRequests.value++;
+    await tester.pumpAndSettle();
+    expect(find.text('Your next stop starts here'), findsOneWidget);
+  });
 }

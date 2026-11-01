@@ -9,6 +9,7 @@ import 'app_style.dart';
 import 'authentication.dart';
 import 'google_address_picker.dart';
 import 'location_picker.dart';
+import 'push_notifications.dart';
 import 'route_planner.dart';
 import 'traveler_profile.dart';
 import 'water_place.dart';
@@ -24,12 +25,16 @@ class RefillHome extends StatefulWidget {
     this.auth,
     this.onHome,
     this.onOfferWater,
+    this.showRequests,
     this.routeService,
     this.locate = currentRefillLocation,
     this.chooseDestination = chooseRouteDestination,
   });
   final VoidCallback? onHome;
   final VoidCallback? onOfferWater;
+
+  /// Opens My requests whenever it notifies, e.g. for a tapped answer.
+  final Listenable? showRequests;
   final FirebaseAuth? auth;
   final WaterRepository? repository;
   final RouteService? routeService;
@@ -102,6 +107,20 @@ class _RefillHomeState extends State<RefillHome> {
   PlannedRoute? get route => active?.route;
   List<RouteStop>? get stops => active?.stops;
   int get radiusKm => active?.radiusKm ?? 5;
+
+  void openRequests() => setState(() => page = 1);
+
+  @override
+  void initState() {
+    super.initState();
+    widget.showRequests?.addListener(openRequests);
+  }
+
+  @override
+  void dispose() {
+    widget.showRequests?.removeListener(openRequests);
+    super.dispose();
+  }
 
   late final RouteService routeService =
       widget.routeService ?? OsrmRouteService();
@@ -425,6 +444,9 @@ class _RefillHomeState extends State<RefillHome> {
             message: message.text.trim(),
             requester: requester,
           );
+          // Travelers are asked for notification permission once they send
+          // a request, so they hear the host's answer.
+          PushNotifications.enable(repository);
         }
         if (mounted) setState(() => page = 1);
       } on FirebaseException catch (error) {
@@ -1092,6 +1114,9 @@ class _RefillHomeState extends State<RefillHome> {
                                 }
                                 final savedRequests =
                                     requestSnapshot.data ?? const [];
+                                if (savedRequests.isNotEmpty) {
+                                  PushNotifications.enable(repository);
+                                }
                                 if (savedRequests.isEmpty) {
                                   return ListTile(
                                     contentPadding: EdgeInsets.zero,
