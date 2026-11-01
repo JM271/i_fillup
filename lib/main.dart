@@ -8,17 +8,20 @@ import 'authentication.dart';
 import 'fillup_home.dart';
 import 'firebase_options.dart';
 import 'firebase_startup.dart';
+import 'language.dart';
 import 'texts.dart';
 import 'water_repository.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Texts for anything shown before MaterialApp picks the locale.
+  await loadAppLanguage();
   tr = lookupAppLocalizations(
-    basicLocaleListResolution(
-      WidgetsBinding.instance.platformDispatcher.locales,
-      appLocales,
-    ),
+    appLanguage.value ??
+        basicLocaleListResolution(
+          WidgetsBinding.instance.platformDispatcher.locales,
+          appLocales,
+        ),
   );
   try {
     final app = await Firebase.initializeApp(
@@ -43,7 +46,12 @@ class FillupApp extends StatelessWidget {
   final WaterRepository? repository;
 
   @override
-  Widget build(BuildContext context) => MaterialApp(
+  Widget build(BuildContext context) => ValueListenableBuilder(
+    valueListenable: appLanguage,
+    builder: (context, language, _) => _app(language),
+  );
+
+  Widget _app(Locale? language) => MaterialApp(
     title: 'i fillup',
     debugShowCheckedModeBanner: false,
     theme: waterTheme,
@@ -54,6 +62,7 @@ class FillupApp extends StatelessWidget {
       GlobalCupertinoLocalizations.delegate,
     ],
     supportedLocales: appLocales,
+    locale: language,
     builder: (context, child) {
       tr = AppLocalizations.of(context);
       // Rebuilds every screen with the new texts when the language changes.

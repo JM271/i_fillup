@@ -172,6 +172,18 @@ abstract class AppLocalizations {
   /// **'Home'**
   String get home;
 
+  /// No description provided for @language.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get language;
+
+  /// No description provided for @languageAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Device language'**
+  String get languageAuto;
+
   /// No description provided for @newRefillRequest.
   ///
   /// In en, this message translates to:

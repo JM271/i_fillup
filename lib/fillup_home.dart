@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 
 import 'app_style.dart';
 import 'authentication.dart';
+import 'language.dart';
 import 'offer_water_home.dart';
 import 'push_notifications.dart';
 import 'take_water_home.dart';
@@ -88,6 +89,7 @@ class _FillupHomeState extends State<FillupHome> {
                                 ),
                               ),
                             ),
+                            const LanguageButton(),
                             AccountButton(
                               auth: widget.auth,
                               onEditProfile: () {

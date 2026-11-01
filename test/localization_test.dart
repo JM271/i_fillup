@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:i_fillup/language.dart';
 import 'package:i_fillup/main.dart';
 import 'package:i_fillup/texts.dart';
 import 'package:i_fillup/water_place.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  tearDown(() => tr = lookupAppLocalizations(const Locale('en')));
+  setUp(() => SharedPreferences.setMockInitialValues({}));
+  tearDown(() {
+    tr = lookupAppLocalizations(const Locale('en'));
+    appLanguage.value = null;
+  });
 
   Future<void> openIn(WidgetTester tester, Locale locale) async {
     tester.platformDispatcher.localesTestValue = [locale];
@@ -47,5 +53,30 @@ void main() {
     expect(displayPrice('10 EUR'), '10 EUR');
     expect(requestStatus('accepted'), 'acceptée');
     expect(vehicleSummary(['campervan']), 'Fourgon jusqu’à 6 m');
+  });
+
+  testWidgets('A chosen language overrides the device and is remembered', (
+    tester,
+  ) async {
+    await openIn(tester, const Locale('en', 'US'));
+    await tester.tap(find.byTooltip('Language'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Français'));
+    await tester.pumpAndSettle();
+    expect(find.text('Bienvenue sur i fillup'), findsOneWidget);
+    final preferences = await SharedPreferences.getInstance();
+    expect(preferences.getString('language'), 'fr');
+
+    await tester.tap(find.byTooltip('Langue'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Langue de l\u2019appareil'));
+    await tester.pumpAndSettle();
+    expect(find.text('Welcome to i fillup'), findsOneWidget);
+    expect(preferences.getString('language'), isNull);
+
+    appLanguage.value = null;
+    preferences.setString('language', 'de');
+    await loadAppLanguage();
+    expect(appLanguage.value, const Locale('de'));
   });
 }

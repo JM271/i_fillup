@@ -49,6 +49,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get home => 'Accueil';
 
   @override
+  String get language => 'Langue';
+
+  @override
+  String get languageAuto => 'Langue de l’appareil';
+
+  @override
   String get newRefillRequest => 'Vous avez une nouvelle demande d’eau.';
 
   @override

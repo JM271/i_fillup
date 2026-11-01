@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'app_style.dart';
+import 'language.dart';
 import 'push_notifications.dart';
 import 'water_repository.dart';
 import 'texts.dart';
@@ -289,6 +290,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
+    // Floats top right so the form keeps the whole height.
+    floatingActionButton: const SafeArea(child: LanguageButton()),
+    floatingActionButtonLocation: FloatingActionButtonLocation.endTop,
     body: SafeArea(
       child: Center(
         child: SingleChildScrollView(

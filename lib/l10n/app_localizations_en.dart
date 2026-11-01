@@ -49,6 +49,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get home => 'Home';
 
   @override
+  String get language => 'Language';
+
+  @override
+  String get languageAuto => 'Device language';
+
+  @override
   String get newRefillRequest => 'You have a new refill request.';
 
   @override

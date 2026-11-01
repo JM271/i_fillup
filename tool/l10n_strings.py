@@ -19,6 +19,8 @@ S = {
  'switchToOffer': ('Offer water', 'Wasser anbieten', 'Offrir'),
  'homeFooter': ('One app. Take water or offer water whenever you need.', 'Eine App. Wasser holen oder anbieten, wann immer du willst.', 'Une seule app. Trouvez ou proposez de l’eau quand vous le souhaitez.'),
  'home': ('Home', 'Start', 'Accueil'),
+ 'language': ('Language', 'Sprache', 'Langue'),
+ 'languageAuto': ('Device language', 'Sprache des Geräts', 'Langue de l\u2019appareil'),
  'newRefillRequest': ('You have a new refill request.', 'Du hast eine neue Wasseranfrage.', 'Vous avez une nouvelle demande d’eau.'),
  # Account
  'account': ('Account', 'Konto', 'Compte'),

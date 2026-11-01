@@ -40,6 +40,19 @@ class PushNotifications {
     }
   }
 
+  /// Stores the app's current language with this device's push address, so
+  /// new request messages use it.
+  static Future<void> refreshLanguage() async {
+    final repository = _registered;
+    if (repository == null || !supported) return;
+    try {
+      final token = await FirebaseMessaging.instance.getToken();
+      if (token != null) await repository.savePushToken(token);
+    } catch (error) {
+      debugPrint('Could not update push language: $error');
+    }
+  }
+
   /// Stops notifications to this device; call before signing out.
   static Future<void> disable() async {
     final repository = _registered;
