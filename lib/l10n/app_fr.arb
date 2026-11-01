@@ -143,8 +143,6 @@
   "fromRequester": "De {name} · {vehicle}",
   "asap": "Dès que possible",
   "asapTooltip": "Demander un plein dès que possible",
-  "today": "Aujourd’hui",
-  "tomorrow": "Demain",
   "chooseDateTime": "Choisir la date et l’heure",
   "arrivalInFuture": "Choisissez une heure d’arrivée future.",
   "dateAtTime": "{date} à {time}",

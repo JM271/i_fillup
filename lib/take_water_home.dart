@@ -327,14 +327,6 @@ class _RefillHomeState extends State<RefillHome> {
                         onPressed: () => selectTiming(tr.asap),
                       ),
                       ActionChip(
-                        label: Text(tr.today),
-                        onPressed: () => selectTiming(tr.today),
-                      ),
-                      ActionChip(
-                        label: Text(tr.tomorrow),
-                        onPressed: () => selectTiming(tr.tomorrow),
-                      ),
-                      ActionChip(
                         avatar: const Icon(
                           Icons.calendar_today_outlined,
                           size: 20,

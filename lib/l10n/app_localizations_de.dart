@@ -502,12 +502,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get asapTooltip => 'So bald wie möglich auffüllen';
 
   @override
-  String get today => 'Heute';
-
-  @override
-  String get tomorrow => 'Morgen';
-
-  @override
   String get chooseDateTime => 'Datum & Zeit wählen';
 
   @override

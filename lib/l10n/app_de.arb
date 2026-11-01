@@ -143,8 +143,6 @@
   "fromRequester": "Von {name} · {vehicle}",
   "asap": "So bald wie möglich",
   "asapTooltip": "So bald wie möglich auffüllen",
-  "today": "Heute",
-  "tomorrow": "Morgen",
   "chooseDateTime": "Datum & Zeit wählen",
   "arrivalInFuture": "Wähle eine Ankunftszeit in der Zukunft.",
   "dateAtTime": "{date} um {time}",

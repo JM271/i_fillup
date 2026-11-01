@@ -240,8 +240,6 @@
   },
   "asap": "ASAP",
   "asapTooltip": "Request a fill-up as soon as possible",
-  "today": "Today",
-  "tomorrow": "Tomorrow",
   "chooseDateTime": "Choose date & time",
   "arrivalInFuture": "Choose an arrival time in the future.",
   "dateAtTime": "{date} at {time}",

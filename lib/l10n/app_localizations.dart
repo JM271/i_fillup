@@ -958,18 +958,6 @@ abstract class AppLocalizations {
   /// **'Request a fill-up as soon as possible'**
   String get asapTooltip;
 
-  /// No description provided for @today.
-  ///
-  /// In en, this message translates to:
-  /// **'Today'**
-  String get today;
-
-  /// No description provided for @tomorrow.
-  ///
-  /// In en, this message translates to:
-  /// **'Tomorrow'**
-  String get tomorrow;
-
   /// No description provided for @chooseDateTime.
   ///
   /// In en, this message translates to:

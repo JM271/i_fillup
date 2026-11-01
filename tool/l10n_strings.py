@@ -160,8 +160,6 @@ S = {
  'fromRequester': ('From {name} · {vehicle}', 'Von {name} · {vehicle}', 'De {name} · {vehicle}'),
  'asap': ('ASAP', 'So bald wie möglich', 'Dès que possible'),
  'asapTooltip': ('Request a fill-up as soon as possible', 'So bald wie möglich auffüllen', 'Demander un plein dès que possible'),
- 'today': ('Today', 'Heute', 'Aujourd’hui'),
- 'tomorrow': ('Tomorrow', 'Morgen', 'Demain'),
  'chooseDateTime': ('Choose date & time', 'Datum & Zeit wählen', 'Choisir la date et l’heure'),
  'arrivalInFuture': ('Choose an arrival time in the future.', 'Wähle eine Ankunftszeit in der Zukunft.', 'Choisissez une heure d’arrivée future.'),
  'dateAtTime': ('{date} at {time}', '{date} um {time}', '{date} à {time}'),

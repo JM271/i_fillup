@@ -469,23 +469,18 @@ void main() {
       state.requestWater(places.first);
       await tester.pumpAndSettle();
       expect(find.text('Plan a fill-up'), findsOneWidget);
-      for (final label in ['ASAP', 'Today', 'Tomorrow', 'Choose date & time']) {
+      for (final label in ['ASAP', 'Choose date & time']) {
         expect(find.widgetWithText(ActionChip, label), findsOneWidget);
       }
       await tester.enterText(
         find.byType(TextFormField).last,
         'Bringing my own hose',
       );
-      await tester.tap(find.widgetWithText(ActionChip, 'Today'));
-      await tester.pump();
-      await tester.tap(find.widgetWithText(ActionChip, 'Tomorrow'));
-      await tester.pump();
-      expect(find.text('Tomorrow\nBringing my own hose'), findsOneWidget);
       await tester.tap(find.widgetWithText(ActionChip, 'Choose date & time'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Cancel').last);
       await tester.pumpAndSettle();
-      expect(find.text('Tomorrow\nBringing my own hose'), findsOneWidget);
+      expect(find.text('Bringing my own hose'), findsOneWidget);
       await tester.tap(find.widgetWithText(ActionChip, 'ASAP'));
       await tester.tap(find.widgetWithText(ActionChip, 'ASAP'));
       await tester.pump();
