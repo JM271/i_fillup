@@ -233,11 +233,13 @@ class _RefillHomeState extends State<RefillHome> {
                     label: Text(Uri.parse(place.website).host),
                   ),
               ],
-              const SizedBox(height: 20),
-              Text(
-                place.description,
-                style: const TextStyle(fontSize: 16, height: 1.5),
-              ),
+              if (place.description.isNotEmpty) ...[
+                const SizedBox(height: 20),
+                Text(
+                  place.description,
+                  style: const TextStyle(fontSize: 16, height: 1.5),
+                ),
+              ],
               const SizedBox(height: 16),
               Text(repository.isDemo ? tr.demoListingNote : tr.confirmWithHost),
               const SizedBox(height: 24),

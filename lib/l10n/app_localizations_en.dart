@@ -1170,10 +1170,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get localHost => 'Local host';
 
   @override
-  String get contactConfirm =>
-      'Contact and water suitability must be confirmed before visiting.';
-
-  @override
   String saveOfferFailedWith(String error) {
     return 'Could not save offer: $error';
   }

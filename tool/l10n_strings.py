@@ -349,7 +349,6 @@ S = {
  'website': ('Website', 'Website', 'Site web'),
  'websiteError': ('Enter a full address starting with https://', 'Gib eine vollständige Adresse ein, die mit https:// beginnt', 'Saisissez une adresse complète commençant par https://'),
  'localHost': ('Local host', 'Lokaler Gastgeber', 'Hôte local'),
- 'contactConfirm': ('Contact and water suitability must be confirmed before visiting.', 'Kontakt und Wasserqualität müssen vor dem Besuch geklärt werden.', 'Le contact et la qualité de l’eau doivent être confirmés avant la visite.'),
  'saveOfferFailedWith': ('Could not save offer: {error}', 'Angebot konnte nicht gespeichert werden: {error}', 'Impossible d’enregistrer l’offre : {error}'),
  'saveOfferFailed': ('Could not save offer. Please try again.', 'Angebot konnte nicht gespeichert werden. Bitte versuche es erneut.', 'Impossible d’enregistrer l’offre. Veuillez réessayer.'),
  'saveOffer': ('Save offer', 'Angebot speichern', 'Enregistrer l’offre'),

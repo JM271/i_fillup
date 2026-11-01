@@ -119,5 +119,26 @@ void main() {
     expect(saved!.website, 'https://hof.ch');
     expect(saved!.hose, isTrue);
     expect(saved!.selfService, isFalse);
+    expect(saved!.description, isEmpty);
+  });
+
+  test('The old default note is not shown as a description', () {
+    WaterPlace stored(String description) => WaterPlace.fromFirestore('me', {
+      'name': 'Tap',
+      'area': 'Thun',
+      'host': 'Anna',
+      'private': true,
+      'price': 'Free',
+      'description': description,
+      'openingTimes': 'on-request',
+      'latitude': 46.7,
+      'longitude': 7.6,
+    });
+    expect(
+      stored('Kontakt und Wasserqualität müssen vor dem Besuch geklärt werden.')
+          .description,
+      isEmpty,
+    );
+    expect(stored('Own description').description, 'Own description');
   });
 }

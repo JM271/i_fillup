@@ -1184,10 +1184,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get localHost => 'Lokaler Gastgeber';
 
   @override
-  String get contactConfirm =>
-      'Kontakt und Wasserqualität müssen vor dem Besuch geklärt werden.';
-
-  @override
   String saveOfferFailedWith(String error) {
     return 'Angebot konnte nicht gespeichert werden: $error';
   }

@@ -102,6 +102,16 @@ class WaterPlace {
   /// UID. Places created before the one-place rule have other IDs.
   bool get isAccountPlace => id == null || id == ownerId;
 
+  /// Older app versions saved this note as every new place's description.
+  static const _oldDefaults = {
+    'Contact and water suitability must be confirmed before visiting.',
+    'Kontakt und Wasserqualität müssen vor dem Besuch geklärt werden.',
+    'Le contact et la qualité de l’eau doivent être confirmés avant la visite.',
+  };
+
+  static String withoutOldDefault(String description) =>
+      _oldDefaults.contains(description) ? '' : description;
+
   factory WaterPlace.fromFirestore(String id, Map<String, dynamic> data) {
     final latitude = data['latitude'];
     final longitude = data['longitude'];
@@ -116,7 +126,7 @@ class WaterPlace {
       data['host'] as String,
       isPrivate,
       data['price'] as String,
-      data['description'] as String,
+      withoutOldDefault(data['description'] as String),
       isPrivate ? Icons.cottage_outlined : Icons.local_parking_outlined,
       LatLng(latitude.toDouble(), longitude.toDouble()),
       openingTimes: data['openingTimes'] as String,

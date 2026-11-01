@@ -690,7 +690,6 @@
   "website": "Website",
   "websiteError": "Enter a full address starting with https://",
   "localHost": "Local host",
-  "contactConfirm": "Contact and water suitability must be confirmed before visiting.",
   "saveOfferFailedWith": "Could not save offer: {error}",
   "@saveOfferFailedWith": {
     "placeholders": {

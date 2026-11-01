@@ -444,7 +444,7 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
                           widget.initial?.host ?? tr.localHost,
                           widget.initial?.private ?? true,
                           refillPriceLabel(price.text)!,
-                          widget.initial?.description ?? tr.contactConfirm,
+                          widget.initial?.description ?? '',
                           widget.initial?.icon ?? Icons.cottage_outlined,
                           location!,
                           id: widget.initial?.id,

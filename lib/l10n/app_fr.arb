@@ -327,7 +327,6 @@
   "website": "Site web",
   "websiteError": "Saisissez une adresse complète commençant par https://",
   "localHost": "Hôte local",
-  "contactConfirm": "Le contact et la qualité de l’eau doivent être confirmés avant la visite.",
   "saveOfferFailedWith": "Impossible d’enregistrer l’offre : {error}",
   "saveOfferFailed": "Impossible d’enregistrer l’offre. Veuillez réessayer.",
   "saveOffer": "Enregistrer l’offre",

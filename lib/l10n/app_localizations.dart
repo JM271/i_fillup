@@ -2062,12 +2062,6 @@ abstract class AppLocalizations {
   /// **'Local host'**
   String get localHost;
 
-  /// No description provided for @contactConfirm.
-  ///
-  /// In en, this message translates to:
-  /// **'Contact and water suitability must be confirmed before visiting.'**
-  String get contactConfirm;
-
   /// No description provided for @saveOfferFailedWith.
   ///
   /// In en, this message translates to:
