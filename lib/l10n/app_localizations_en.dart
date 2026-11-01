@@ -843,17 +843,17 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get myPlaces => 'My places';
+  String get myPlaces => 'My place';
 
   @override
-  String get yourWaterPlaces => 'Your water places';
+  String get yourWaterPlaces => 'Your water place';
 
   @override
   String get yourWaterPlacesIntro =>
-      'Manage the places where travelers can refill.';
+      'Manage the place where travelers can refill.';
 
   @override
-  String get noPlacesYet => 'No places yet. Add your first water offer below.';
+  String get noPlacesYet => 'No water place yet. Add yours below.';
 
   @override
   String get chooseOnePlace => 'Choose your one water place';
@@ -873,21 +873,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get demoOffersNote =>
-      'Demo only. Offers are not shared with the water taker app.';
+      'Demo only. Your offer is not shared with travelers.';
 
   @override
-  String get activeOffersNote =>
-      'Your active offers are visible in Find water.';
+  String get activeOffersNote => 'Your water place is visible in Find water.';
 
   @override
   String get alreadyOffer => 'You already offer a place';
 
   @override
   String get alreadyOfferBody =>
-      'Each account can offer one water place, to keep listings trustworthy. Delete your place in My places to offer a different one.';
+      'Each account can offer one water place, to keep listings trustworthy. Delete your place in My place to offer a different one.';
 
   @override
-  String get goToMyPlaces => 'Go to My places';
+  String get goToMyPlaces => 'Go to My place';
 
   @override
   String get incomingRequests => 'Incoming requests';
@@ -1032,7 +1031,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get previewOfferNote =>
-      'Preview only: offers stay in this session and are not shared with travelers.';
+      'Preview only: your offer stays in this session and is not shared with travelers.';
 
   @override
   String get liveOfferNote =>

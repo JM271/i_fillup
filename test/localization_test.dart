@@ -38,7 +38,7 @@ void main() {
     expect(find.text('Bienvenue sur i fillup'), findsOneWidget);
     await tester.tap(find.text('Offrir de l’eau'));
     await tester.pumpAndSettle();
-    expect(find.text('Mes lieux'), findsOneWidget);
+    expect(find.text('Mon lieu'), findsOneWidget);
   });
 
   testWidgets('Other languages fall back to English', (tester) async {

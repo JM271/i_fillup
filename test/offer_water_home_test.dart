@@ -72,7 +72,7 @@ class LegacyRepository implements WaterRepository {
 }
 
 void main() {
-  testWidgets('Your water places can be deleted after confirmation', (
+  testWidgets('Your water place can be deleted after confirmation', (
     tester,
   ) async {
     await tester.pumpWidget(const MaterialApp(home: GiverHome()));
@@ -94,7 +94,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text(places.first.name), findsNothing);
     expect(find.text('${places.first.name} deleted'), findsOneWidget);
-    expect(find.textContaining('No places yet'), findsOneWidget);
+    expect(find.textContaining('No water place yet'), findsOneWidget);
   });
 
   testWidgets('Each account can offer only one water place', (tester) async {
@@ -114,7 +114,7 @@ void main() {
     expect(find.text('You already offer a place'), findsOneWidget);
     expect(find.text('Offer water.\nEarn cash.'), findsNothing);
 
-    await tester.tap(find.text('Go to My places'));
+    await tester.tap(find.text('Go to My place'));
     await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('Delete place'));
     await tester.pumpAndSettle();
@@ -185,7 +185,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(home: GiverHome(showRequests: showRequests)),
     );
-    expect(find.text('Your water places'), findsOneWidget);
+    expect(find.text('Your water place'), findsOneWidget);
     showRequests.value++;
     await tester.pumpAndSettle();
     expect(find.text('Incoming requests'), findsOneWidget);

@@ -853,18 +853,18 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get myPlaces => 'Mes lieux';
+  String get myPlaces => 'Mon lieu';
 
   @override
-  String get yourWaterPlaces => 'Vos points d’eau';
+  String get yourWaterPlaces => 'Votre point d’eau';
 
   @override
   String get yourWaterPlacesIntro =>
-      'Gérez les lieux où les voyageurs peuvent faire le plein.';
+      'Gérez le lieu où les voyageurs peuvent faire le plein.';
 
   @override
   String get noPlacesYet =>
-      'Aucun lieu pour l’instant. Ajoutez votre première offre ci-dessous.';
+      'Pas encore de point d’eau. Ajoutez le vôtre ci-dessous.';
 
   @override
   String get chooseOnePlace => 'Choisissez votre point d’eau';
@@ -884,21 +884,21 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get demoOffersNote =>
-      'Démo uniquement. Les offres ne sont pas partagées avec les voyageurs.';
+      'Démo uniquement. Votre offre n’est pas partagée avec les voyageurs.';
 
   @override
   String get activeOffersNote =>
-      'Vos offres actives sont visibles dans « Trouver de l’eau ».';
+      'Votre point d’eau est visible dans « Trouver de l’eau ».';
 
   @override
   String get alreadyOffer => 'Vous proposez déjà un lieu';
 
   @override
   String get alreadyOfferBody =>
-      'Chaque compte peut proposer un seul point d’eau, pour des annonces fiables. Supprimez votre lieu dans « Mes lieux » pour en proposer un autre.';
+      'Chaque compte peut proposer un seul point d’eau, pour des annonces fiables. Supprimez votre lieu dans « Mon lieu » pour en proposer un autre.';
 
   @override
-  String get goToMyPlaces => 'Aller à « Mes lieux »';
+  String get goToMyPlaces => 'Aller à « Mon lieu »';
 
   @override
   String get incomingRequests => 'Demandes reçues';
@@ -1047,7 +1047,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get previewOfferNote =>
-      'Aperçu uniquement : les offres restent dans cette session et ne sont pas partagées.';
+      'Aperçu uniquement : votre offre reste dans cette session et n’est pas partagée.';
 
   @override
   String get liveOfferNote =>

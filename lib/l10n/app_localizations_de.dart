@@ -851,18 +851,17 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get myPlaces => 'Meine Orte';
+  String get myPlaces => 'Mein Ort';
 
   @override
-  String get yourWaterPlaces => 'Deine Wasserstellen';
+  String get yourWaterPlaces => 'Deine Wasserstelle';
 
   @override
   String get yourWaterPlacesIntro =>
-      'Verwalte die Orte, an denen Reisende Wasser holen können.';
+      'Verwalte den Ort, an dem Reisende Wasser holen können.';
 
   @override
-  String get noPlacesYet =>
-      'Noch keine Orte. Füge unten dein erstes Angebot hinzu.';
+  String get noPlacesYet => 'Noch keine Wasserstelle. Füge deine unten hinzu.';
 
   @override
   String get chooseOnePlace => 'Wähle deine eine Wasserstelle';
@@ -882,21 +881,21 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get demoOffersNote =>
-      'Nur Demo. Angebote werden nicht mit Reisenden geteilt.';
+      'Nur Demo. Dein Angebot wird nicht mit Reisenden geteilt.';
 
   @override
   String get activeOffersNote =>
-      'Deine aktiven Angebote sind unter „Wasser finden“ sichtbar.';
+      'Deine Wasserstelle ist unter „Wasser finden“ sichtbar.';
 
   @override
   String get alreadyOffer => 'Du bietest schon einen Ort an';
 
   @override
   String get alreadyOfferBody =>
-      'Jedes Konto kann eine Wasserstelle anbieten, damit die Einträge vertrauenswürdig bleiben. Lösche deinen Ort unter „Meine Orte“, um einen anderen anzubieten.';
+      'Jedes Konto kann eine Wasserstelle anbieten, damit die Einträge vertrauenswürdig bleiben. Lösche deine Wasserstelle unter „Mein Ort“, um eine andere anzubieten.';
 
   @override
-  String get goToMyPlaces => 'Zu „Meine Orte“';
+  String get goToMyPlaces => 'Zu „Mein Ort“';
 
   @override
   String get incomingRequests => 'Eingehende Anfragen';
@@ -1045,7 +1044,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get previewOfferNote =>
-      'Nur Vorschau: Angebote bleiben in dieser Sitzung und werden nicht mit Reisenden geteilt.';
+      'Nur Vorschau: Dein Angebot bleibt in dieser Sitzung und wird nicht mit Reisenden geteilt.';
 
   @override
   String get liveOfferNote =>

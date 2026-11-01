@@ -1489,25 +1489,25 @@ abstract class AppLocalizations {
   /// No description provided for @myPlaces.
   ///
   /// In en, this message translates to:
-  /// **'My places'**
+  /// **'My place'**
   String get myPlaces;
 
   /// No description provided for @yourWaterPlaces.
   ///
   /// In en, this message translates to:
-  /// **'Your water places'**
+  /// **'Your water place'**
   String get yourWaterPlaces;
 
   /// No description provided for @yourWaterPlacesIntro.
   ///
   /// In en, this message translates to:
-  /// **'Manage the places where travelers can refill.'**
+  /// **'Manage the place where travelers can refill.'**
   String get yourWaterPlacesIntro;
 
   /// No description provided for @noPlacesYet.
   ///
   /// In en, this message translates to:
-  /// **'No places yet. Add your first water offer below.'**
+  /// **'No water place yet. Add yours below.'**
   String get noPlacesYet;
 
   /// No description provided for @chooseOnePlace.
@@ -1543,13 +1543,13 @@ abstract class AppLocalizations {
   /// No description provided for @demoOffersNote.
   ///
   /// In en, this message translates to:
-  /// **'Demo only. Offers are not shared with the water taker app.'**
+  /// **'Demo only. Your offer is not shared with travelers.'**
   String get demoOffersNote;
 
   /// No description provided for @activeOffersNote.
   ///
   /// In en, this message translates to:
-  /// **'Your active offers are visible in Find water.'**
+  /// **'Your water place is visible in Find water.'**
   String get activeOffersNote;
 
   /// No description provided for @alreadyOffer.
@@ -1561,13 +1561,13 @@ abstract class AppLocalizations {
   /// No description provided for @alreadyOfferBody.
   ///
   /// In en, this message translates to:
-  /// **'Each account can offer one water place, to keep listings trustworthy. Delete your place in My places to offer a different one.'**
+  /// **'Each account can offer one water place, to keep listings trustworthy. Delete your place in My place to offer a different one.'**
   String get alreadyOfferBody;
 
   /// No description provided for @goToMyPlaces.
   ///
   /// In en, this message translates to:
-  /// **'Go to My places'**
+  /// **'Go to My place'**
   String get goToMyPlaces;
 
   /// No description provided for @incomingRequests.
@@ -1819,7 +1819,7 @@ abstract class AppLocalizations {
   /// No description provided for @previewOfferNote.
   ///
   /// In en, this message translates to:
-  /// **'Preview only: offers stay in this session and are not shared with travelers.'**
+  /// **'Preview only: your offer stays in this session and is not shared with travelers.'**
   String get previewOfferNote;
 
   /// No description provided for @liveOfferNote.

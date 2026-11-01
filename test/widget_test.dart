@@ -429,7 +429,7 @@ void main() {
     await tester.pumpWidget(const FillupApp());
     await tester.tap(find.text('Offer water'));
     await tester.pumpAndSettle();
-    expect(find.text('Your water places'), findsOneWidget);
+    expect(find.text('Your water place'), findsOneWidget);
     await tester.tap(find.text('Offer water').last);
     await tester.pumpAndSettle();
     expect(find.text('Offer water.\nEarn cash.'), findsOneWidget);
@@ -454,7 +454,7 @@ void main() {
     expect(find.text('Welcome to i fillup'), findsOneWidget);
     await tester.tap(find.text('Offer water'));
     await tester.pumpAndSettle();
-    expect(find.text('Your water places'), findsOneWidget);
+    expect(find.text('Your water place'), findsOneWidget);
     await tester.tap(find.text('Offer water').last);
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField).first, 'My draft refill');
