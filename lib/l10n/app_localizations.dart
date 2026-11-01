@@ -1612,6 +1612,36 @@ abstract class AppLocalizations {
   /// **'Payments are arranged directly with travelers. The app does not collect payments or record earnings.'**
   String get paymentsNote;
 
+  /// No description provided for @editPlace.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit water place'**
+  String get editPlace;
+
+  /// No description provided for @editPlaceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit your\nwater place'**
+  String get editPlaceTitle;
+
+  /// No description provided for @editPlaceSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change any detail and save. Travelers see the update right away.'**
+  String get editPlaceSubtitle;
+
+  /// No description provided for @saveChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes'**
+  String get saveChanges;
+
+  /// No description provided for @changesSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes saved'**
+  String get changesSaved;
+
   /// No description provided for @bannerOfferTitle.
   ///
   /// In en, this message translates to:

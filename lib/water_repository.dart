@@ -62,6 +62,7 @@ abstract interface class WaterRepository {
   Future<void> removePushToken(String token);
 
   Future<void> saveOffer(WaterPlace place);
+  Future<void> updateOffer(WaterPlace place);
   Future<void> deleteOffer(WaterPlace place);
 
   /// Makes [keep] the account's one place and deletes all [others].
@@ -115,6 +116,9 @@ class DemoWaterRepository implements WaterRepository {
 
   @override
   Future<void> saveOffer(WaterPlace place) async {}
+
+  @override
+  Future<void> updateOffer(WaterPlace place) async {}
 
   @override
   Future<void> deleteOffer(WaterPlace place) async {}
@@ -267,6 +271,12 @@ class FirebaseWaterRepository implements WaterRepository {
       'createdAt': FieldValue.serverTimestamp(),
     });
   }
+
+  @override
+  Future<void> updateOffer(WaterPlace place) => _firestore
+      .collection('waterPlaces')
+      .doc(_userId)
+      .update(_placeFields(place));
 
   @override
   Future<void> keepOnlyOffer(WaterPlace keep, List<WaterPlace> others) async {

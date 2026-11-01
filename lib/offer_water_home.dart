@@ -74,6 +74,33 @@ class _GiverHomeState extends State<GiverHome> {
     if (mounted) setState(() => page = 0);
   }
 
+  Future<void> editOffer(WaterPlace place) async {
+    final saved = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (pageContext) => Scaffold(
+          appBar: AppBar(title: Text(tr.editPlace)),
+          body: OfferWaterForm(
+            initial: place,
+            isDemo: repository.isDemo,
+            onSave: (updated) async {
+              if (repository.isDemo) {
+                final index = demoOffers.indexOf(place);
+                if (index >= 0) setState(() => demoOffers[index] = updated);
+              } else {
+                await repository.updateOffer(updated);
+              }
+              if (pageContext.mounted) Navigator.pop(pageContext, true);
+            },
+          ),
+        ),
+      ),
+    );
+    if (saved == true && mounted) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(tr.changesSaved)));
+    }
+  }
+
   Future<void> keepOnlyOffer(WaterPlace keep, List<WaterPlace> offers) async {
     final others = offers.where((place) => place != keep).toList();
     final confirmed = await showDialog<bool>(
@@ -365,6 +392,15 @@ class _GiverHomeState extends State<GiverHome> {
                                       ],
                                     ),
                                   ),
+                                  if (!mustChoosePlace(offers))
+                                    IconButton(
+                                      tooltip: tr.editPlace,
+                                      onPressed: () => editOffer(place),
+                                      icon: const Icon(
+                                        Icons.edit_outlined,
+                                        color: teal,
+                                      ),
+                                    ),
                                   IconButton(
                                     tooltip: tr.viewOnMap,
                                     onPressed: () => Navigator.of(context)
@@ -426,7 +462,14 @@ class _GiverHomeState extends State<GiverHome> {
                         const SizedBox(height: 4),
                         Text(tr.alreadyOfferBody),
                         const SizedBox(height: 12),
-                        FilledButton.icon(
+                        if (!mustChoosePlace(offers))
+                          FilledButton.icon(
+                            onPressed: () => editOffer(offers.single),
+                            icon: const Icon(Icons.edit_outlined),
+                            label: Text(tr.editPlace),
+                          ),
+                        const SizedBox(height: 8),
+                        OutlinedButton.icon(
                           onPressed: () => setState(() => page = 0),
                           icon: const Icon(Icons.water_drop_outlined),
                           label: Text(tr.goToMyPlaces),

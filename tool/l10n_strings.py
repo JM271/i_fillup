@@ -271,6 +271,11 @@ S = {
  'decline': ('Decline', 'Ablehnen', 'Refuser'),
  'paymentsNote': ('Payments are arranged directly with travelers. The app does not collect payments or record earnings.', 'Zahlungen vereinbarst du direkt mit den Reisenden. Die App wickelt keine Zahlungen ab und erfasst keine Einnahmen.', 'Les paiements se règlent directement avec les voyageurs. L’app n’encaisse aucun paiement et n’enregistre aucun revenu.'),
  # Offer form
+ 'editPlace': ('Edit water place', 'Wasserstelle bearbeiten', 'Modifier le point d\u2019eau'),
+ 'editPlaceTitle': ('Edit your\nwater place', 'Deine Wasserstelle\nbearbeiten', 'Modifier votre\npoint d\u2019eau'),
+ 'editPlaceSubtitle': ('Change any detail and save. Travelers see the update right away.', 'Ändere, was du willst, und speichere. Reisende sehen die Änderung sofort.', 'Modifiez ce que vous voulez et enregistrez. Les voyageurs voient la mise à jour immédiatement.'),
+ 'saveChanges': ('Save changes', 'Änderungen speichern', 'Enregistrer les modifications'),
+ 'changesSaved': ('Changes saved', 'Änderungen gespeichert', 'Modifications enregistrées'),
  'bannerOfferTitle': ('Offer water.\nEarn cash.', 'Wasser anbieten.\nGeld verdienen.', 'Proposez de l’eau.\nGagnez de l’argent.'),
  'bannerOfferSubtitle': ('Set your price for a campervan refill, add your place and choose your opening times.', 'Lege deinen Preis für eine Füllung fest, trag deinen Ort ein und wähle deine Öffnungszeiten.', 'Fixez votre prix pour un plein, ajoutez votre lieu et choisissez vos horaires.'),
  'placeName': ('Place name', 'Name des Ortes', 'Nom du lieu'),

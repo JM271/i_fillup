@@ -22,8 +22,12 @@ class OfferWaterForm extends StatefulWidget {
     required this.onSave,
     this.addressLookup = searchAddresses,
     this.isDemo = true,
+    this.initial,
   });
   final Future<void> Function(WaterPlace) onSave;
+
+  /// The place being edited; null when offering a new one.
+  final WaterPlace? initial;
   final AddressLookup addressLookup;
   final bool isDemo;
   @override
@@ -51,6 +55,23 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
       widget.addressLookup == searchAddresses;
 
   @override
+  void initState() {
+    super.initState();
+    final place = widget.initial;
+    if (place == null) return;
+    name.text = place.name;
+    address.text = place.area;
+    hours.text = place.openingTimes;
+    price.text = priceAmount(place.price) ?? price.text;
+    businessInfo.text = place.businessInfo;
+    website.text = place.website;
+    location = place.location;
+    photo = place.photo;
+    vehicles.addAll(place.vehicles);
+    services.addAll(place.services);
+  }
+
+  @override
   void dispose() {
     name.dispose();
     address.dispose();
@@ -70,8 +91,12 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           WaterBanner(
-            title: tr.bannerOfferTitle,
-            subtitle: tr.bannerOfferSubtitle,
+            title: widget.initial == null
+                ? tr.bannerOfferTitle
+                : tr.editPlaceTitle,
+            subtitle: widget.initial == null
+                ? tr.bannerOfferSubtitle
+                : tr.editPlaceSubtitle,
           ),
           const SizedBox(height: 16),
           TextFormField(
@@ -301,12 +326,14 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
                         WaterPlace(
                           name.text.trim(),
                           address.text.trim(),
-                          tr.localHost,
-                          true,
+                          widget.initial?.host ?? tr.localHost,
+                          widget.initial?.private ?? true,
                           refillPriceLabel(price.text)!,
-                          tr.contactConfirm,
-                          Icons.cottage_outlined,
+                          widget.initial?.description ?? tr.contactConfirm,
+                          widget.initial?.icon ?? Icons.cottage_outlined,
                           location!,
+                          id: widget.initial?.id,
+                          ownerId: widget.initial?.ownerId,
                           openingTimes: hours.text.trim(),
                           photo: photo,
                           vehicles: [
@@ -337,7 +364,7 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
                     } finally {
                       if (mounted) setState(() => saving = false);
                     }
-                    if (!mounted) return;
+                    if (!mounted || widget.initial != null) return;
                     name.clear();
                     address.clear();
                     hours.clear();
@@ -352,7 +379,13 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
                     });
                   },
             icon: const Icon(Icons.save_outlined),
-            label: Text(saving ? tr.saving : tr.saveOffer),
+            label: Text(
+              saving
+                  ? tr.saving
+                  : widget.initial == null
+                  ? tr.saveOffer
+                  : tr.saveChanges,
+            ),
           ),
           const SizedBox(height: 12),
           Text(widget.isDemo ? tr.previewOfferNote : tr.liveOfferNote),
@@ -371,4 +404,10 @@ String? refillPriceLabel(String input) {
   if (!RegExp(r'^\d{1,6}(\.\d{1,2})?$').hasMatch(normalized)) return null;
   final amount = double.parse(normalized);
   return amount == 0 ? 'Free' : 'CHF ${amount.toStringAsFixed(2)} / fill';
+}
+
+/// The amount in a stored price label, for the price field: "0" for free.
+String? priceAmount(String label) {
+  if (label == 'Free') return '0';
+  return RegExp(r'^CHF (\d+(?:\.\d+)?) / fill$').firstMatch(label)?.group(1);
 }

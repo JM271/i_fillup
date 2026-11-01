@@ -928,6 +928,22 @@ class AppLocalizationsFr extends AppLocalizations {
       'Les paiements se règlent directement avec les voyageurs. L’app n’encaisse aucun paiement et n’enregistre aucun revenu.';
 
   @override
+  String get editPlace => 'Modifier le point d’eau';
+
+  @override
+  String get editPlaceTitle => 'Modifier votre\npoint d’eau';
+
+  @override
+  String get editPlaceSubtitle =>
+      'Modifiez ce que vous voulez et enregistrez. Les voyageurs voient la mise à jour immédiatement.';
+
+  @override
+  String get saveChanges => 'Enregistrer les modifications';
+
+  @override
+  String get changesSaved => 'Modifications enregistrées';
+
+  @override
   String get bannerOfferTitle => 'Proposez de l’eau.\nGagnez de l’argent.';
 
   @override

@@ -44,6 +44,8 @@ class ProfileRepository implements WaterRepository {
   @override
   Future<void> saveOffer(WaterPlace place) async {}
   @override
+  Future<void> updateOffer(WaterPlace place) async {}
+  @override
   Future<void> deleteOffer(WaterPlace place) async {}
   @override
   Future<void> keepOnlyOffer(WaterPlace keep, List<WaterPlace> others) async {}

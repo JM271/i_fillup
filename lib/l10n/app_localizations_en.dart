@@ -915,6 +915,22 @@ class AppLocalizationsEn extends AppLocalizations {
       'Payments are arranged directly with travelers. The app does not collect payments or record earnings.';
 
   @override
+  String get editPlace => 'Edit water place';
+
+  @override
+  String get editPlaceTitle => 'Edit your\nwater place';
+
+  @override
+  String get editPlaceSubtitle =>
+      'Change any detail and save. Travelers see the update right away.';
+
+  @override
+  String get saveChanges => 'Save changes';
+
+  @override
+  String get changesSaved => 'Changes saved';
+
+  @override
   String get bannerOfferTitle => 'Offer water.\nEarn cash.';
 
   @override

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:i_fillup/offer_water_form.dart';
 import 'package:i_fillup/offer_water_home.dart';
 import 'package:i_fillup/traveler_profile.dart';
 import 'package:i_fillup/water_place.dart';
@@ -42,6 +43,9 @@ class LegacyRepository implements WaterRepository {
   Future<void> saveMyProfile(TravelerProfile profile) async {}
   @override
   Future<void> saveOffer(WaterPlace place) async {}
+  final updated = <WaterPlace>[];
+  @override
+  Future<void> updateOffer(WaterPlace place) async => updated.add(place);
   @override
   Future<void> deleteOffer(WaterPlace place) async {}
   @override
@@ -189,5 +193,44 @@ void main() {
     showRequests.value++;
     await tester.pumpAndSettle();
     expect(find.text('Incoming requests'), findsOneWidget);
+  });
+
+  testWidgets('Hosts can edit their water place', (tester) async {
+    tester.view.physicalSize = const Size(800, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final repository = LegacyRepository();
+    repository.myPlaces
+      ..clear()
+      ..add(legacyPlace('me', 'Garden tap'));
+    await tester.pumpWidget(
+      MaterialApp(home: GiverHome(repository: repository)),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('Edit water place'));
+    await tester.pumpAndSettle();
+    expect(find.text('Edit your\nwater place'), findsOneWidget);
+    expect(find.widgetWithText(TextFormField, 'Garden tap'), findsOneWidget);
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Garden tap'),
+      'Farm tap',
+    );
+    // Older places have no vehicles yet, so the form asks for one.
+    await tester.tap(find.text('Campervan up to 6 m'));
+    await tester.tap(find.text('Save changes'));
+    await tester.pumpAndSettle();
+
+    expect(repository.updated.single.name, 'Farm tap');
+    expect(repository.updated.single.vehicles, ['campervan']);
+    expect(find.text('Changes saved'), findsOneWidget);
+    expect(find.text('Edit your\nwater place'), findsNothing);
+  });
+
+  test('Stored prices fill the price field', () {
+    expect(priceAmount('Free'), '0');
+    expect(priceAmount('CHF 5.00 / fill'), '5.00');
+    expect(priceAmount('a coffee'), isNull);
   });
 }

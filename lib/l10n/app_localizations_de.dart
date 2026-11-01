@@ -925,6 +925,22 @@ class AppLocalizationsDe extends AppLocalizations {
       'Zahlungen vereinbarst du direkt mit den Reisenden. Die App wickelt keine Zahlungen ab und erfasst keine Einnahmen.';
 
   @override
+  String get editPlace => 'Wasserstelle bearbeiten';
+
+  @override
+  String get editPlaceTitle => 'Deine Wasserstelle\nbearbeiten';
+
+  @override
+  String get editPlaceSubtitle =>
+      'Ändere, was du willst, und speichere. Reisende sehen die Änderung sofort.';
+
+  @override
+  String get saveChanges => 'Änderungen speichern';
+
+  @override
+  String get changesSaved => 'Änderungen gespeichert';
+
+  @override
   String get bannerOfferTitle => 'Wasser anbieten.\nGeld verdienen.';
 
   @override
