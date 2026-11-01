@@ -154,7 +154,6 @@ class _AddressSearchPageState extends State<AddressSearchPage> {
                   textInputAction: TextInputAction.search,
                   decoration: const InputDecoration(
                     labelText: 'Street, house number and town',
-                    border: OutlineInputBorder(),
                   ),
                   onSubmitted: (_) => search(),
                   onChanged: (_) => setState(() {

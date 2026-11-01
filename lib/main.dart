@@ -37,22 +37,7 @@ class FillupApp extends StatelessWidget {
   Widget build(BuildContext context) => MaterialApp(
     title: 'i fillup',
     debugShowCheckedModeBanner: false,
-    theme: ThemeData(
-      useMaterial3: true,
-      visualDensity: VisualDensity.compact,
-      navigationBarTheme: const NavigationBarThemeData(height: 64),
-      scaffoldBackgroundColor: const Color(0xFFF6F8F4),
-      colorScheme: ColorScheme.fromSeed(seedColor: teal),
-      textTheme: const TextTheme(
-        headlineLarge: TextStyle(
-          fontSize: 28,
-          fontWeight: FontWeight.w800,
-          color: ink,
-          height: 1.12,
-        ),
-        titleLarge: TextStyle(fontWeight: FontWeight.w700, color: ink),
-      ),
-    ),
+    theme: waterTheme,
     home: auth == null
         ? FillupHome(repository: repository)
         : AuthenticationGate(

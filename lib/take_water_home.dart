@@ -258,7 +258,7 @@ class _RefillHomeState extends State<RefillHome> {
                 Text('To ${place.host}'),
                 Text(
                   'From ${requester.name} · ${requester.vehicle}',
-                  style: const TextStyle(color: Color(0xFF617575)),
+                  style: const TextStyle(color: muted),
                 ),
                 const SizedBox(height: 16),
                 Align(
@@ -339,7 +339,6 @@ class _RefillHomeState extends State<RefillHome> {
                   keyboardType: TextInputType.number,
                   decoration: const InputDecoration(
                     labelText: 'Water needed (liters)',
-                    border: OutlineInputBorder(),
                   ),
                   validator: (value) => (int.tryParse(value ?? '') ?? 0) > 0
                       ? null
@@ -353,7 +352,6 @@ class _RefillHomeState extends State<RefillHome> {
                   decoration: const InputDecoration(
                     labelText: 'Arrival time & message',
                     hintText: 'Tomorrow at 10:00, with a 6 m campervan…',
-                    border: OutlineInputBorder(),
                   ),
                   validator: (value) => value == null || value.trim().isEmpty
                       ? 'Add your arrival time and a message'
@@ -612,10 +610,7 @@ class _RefillHomeState extends State<RefillHome> {
                         aroundMe
                             ? 'Driving distance from where you are'
                             : '${formatKm(planned.meters)} drive from your location',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFF617575),
-                        ),
+                        style: const TextStyle(fontSize: 12, color: muted),
                       ),
                     ],
                   ),
@@ -723,7 +718,6 @@ class _RefillHomeState extends State<RefillHome> {
             : routeStops.keys.toList();
         return Scaffold(
           appBar: AppBar(
-            backgroundColor: const Color(0xFFF6F8F4),
             leading: IconButton(
               tooltip: 'Home',
               icon: const Icon(Icons.home_outlined),
@@ -765,14 +759,9 @@ class _RefillHomeState extends State<RefillHome> {
                     ? ListView(
                         padding: const EdgeInsets.all(16),
                         children: [
-                          Text(
-                            'Fresh water.\nOpen roads.',
-                            style: Theme.of(context).textTheme.headlineLarge,
-                          ),
-                          const SizedBox(height: 4),
-                          const Text(
-                            'Refill stops and private hosts for your campervan.',
-                            style: TextStyle(color: Color(0xFF617575)),
+                          const WaterBanner(
+                            title: 'Fresh water.\nOpen roads.',
+                            subtitle: 'Refill stops and private hosts for your campervan.',
                           ),
                           const SizedBox(height: 12),
                           TextField(
@@ -859,7 +848,7 @@ class _RefillHomeState extends State<RefillHome> {
                                           : '${visible.length} ${repository.isDemo ? 'demo ' : ''}places · ${repository.isDemo ? 'Sample places in Switzerland' : 'Live community listings'}',
                                       style: const TextStyle(
                                         fontSize: 12,
-                                        color: Color(0xFF617575),
+                                        color: muted,
                                       ),
                                     ),
                                   ],
@@ -936,8 +925,8 @@ class _RefillHomeState extends State<RefillHome> {
                                           clipBehavior: Clip.antiAlias,
                                           decoration: BoxDecoration(
                                             color: place.private
-                                                ? const Color(0xFFDDEBE0)
-                                                : const Color(0xFFDCECEE),
+                                                ? foam
+                                                : sky.withValues(alpha: 0.18),
                                             borderRadius: BorderRadius.circular(
                                               12,
                                             ),
@@ -969,7 +958,7 @@ class _RefillHomeState extends State<RefillHome> {
                                                 overflow: TextOverflow.ellipsis,
                                                 style: const TextStyle(
                                                   fontSize: 13,
-                                                  color: Color(0xFF617575),
+                                                  color: muted,
                                                 ),
                                               ),
                                               if (place.services.isNotEmpty)

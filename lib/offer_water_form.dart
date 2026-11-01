@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 
 import 'google_address_picker.dart';
 import 'address_search.dart';
+import 'app_style.dart';
 
 import 'package:flutter/material.dart';
 
@@ -67,13 +68,9 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            'Offer water.\nEarn cash.',
-            style: Theme.of(context).textTheme.headlineLarge,
-          ),
-          const SizedBox(height: 12),
-          const Text(
-            'Set your price for a campervan refill, add your place and choose your opening times.',
+          const WaterBanner(
+            title: 'Offer water.\nEarn cash.',
+            subtitle: 'Set your price for a campervan refill, add your place and choose your opening times.',
           ),
           const SizedBox(height: 16),
           TextFormField(
@@ -81,7 +78,6 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
             decoration: const InputDecoration(
               labelText: 'Place name',
               hintText: 'Water at our farm',
-              border: OutlineInputBorder(),
             ),
             validator: requiredText,
           ),
@@ -93,7 +89,6 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
             decoration: const InputDecoration(
               labelText: 'Address / place',
               hintText: 'Street, house number, postcode, town, country',
-              border: OutlineInputBorder(),
             ),
             validator: requiredText,
           ),
@@ -183,7 +178,6 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
               helperText:
                   'Include days, local times and any appointment requirements.',
               helperMaxLines: 2,
-              border: OutlineInputBorder(),
             ),
             validator: requiredText,
           ),
@@ -198,7 +192,6 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
               helperText:
                   'One price per refill. Enter 0 to offer water for free.',
               helperMaxLines: 2,
-              border: OutlineInputBorder(),
             ),
             validator: (value) => refillPriceLabel(value ?? '') == null
                 ? 'Enter a price of 0 or more, with up to 2 decimals'
@@ -276,7 +269,6 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
               alignLabelWithHint: true,
               hintText:
                   'Organic farm shop: eggs, cheese and bread. Sat 08:00–12:00.',
-              border: OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 8),
@@ -287,7 +279,6 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
             decoration: const InputDecoration(
               labelText: 'Website',
               hintText: 'https://www.example.ch',
-              border: OutlineInputBorder(),
             ),
             validator: (value) => validWebsite(value?.trim() ?? '')
                 ? null

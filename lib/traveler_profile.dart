@@ -128,7 +128,6 @@ class _ProfilePageState extends State<ProfilePage> {
               decoration: const InputDecoration(
                 labelText: 'Name',
                 hintText: 'First name or nickname',
-                border: OutlineInputBorder(),
               ),
               validator: required,
             ),
@@ -139,7 +138,6 @@ class _ProfilePageState extends State<ProfilePage> {
               decoration: const InputDecoration(
                 labelText: 'Vehicle',
                 hintText: 'Campervan, 6 m',
-                border: OutlineInputBorder(),
               ),
               validator: required,
             ),
@@ -153,7 +151,6 @@ class _ProfilePageState extends State<ProfilePage> {
                 hintText: '+41 79 123 45 67',
                 helperText: 'Only shared with hosts you send a request to.',
                 helperMaxLines: 2,
-                border: OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 8),
@@ -164,7 +161,6 @@ class _ProfilePageState extends State<ProfilePage> {
               decoration: const InputDecoration(
                 labelText: 'About me (optional)',
                 hintText: 'Travelling with two kids and a dog, own hose',
-                border: OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 8),

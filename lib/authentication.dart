@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import 'app_style.dart';
 import 'push_notifications.dart';
 import 'water_repository.dart';
 
@@ -307,14 +308,20 @@ class _LoginScreenState extends State<LoginScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.water_drop_outlined, size: 56),
+                    const Center(child: WaterIcon(Icons.water_drop, size: 72)),
                     const SizedBox(height: 16),
                     Text(
                       'i fillup',
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.headlineLarge,
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 4),
+                    const Text(
+                      'Fresh water for life on the road.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: muted),
+                    ),
+                    const SizedBox(height: 16),
                     Text(
                       registering ? 'Create your account' : 'Log in',
                       textAlign: TextAlign.center,
@@ -326,7 +333,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       enabled: !busy,
                       decoration: const InputDecoration(
                         labelText: 'Email',
-                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.mail_outline),
                       ),
                       keyboardType: TextInputType.emailAddress,
                       autocorrect: false,
@@ -353,7 +360,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ],
                       decoration: InputDecoration(
                         labelText: 'Password',
-                        border: const OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.lock_outline),
                         suffixIcon: IconButton(
                           tooltip: hidePassword
                               ? 'Show password'

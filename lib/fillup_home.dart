@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'app_style.dart';
 import 'authentication.dart';
@@ -63,70 +64,99 @@ class _FillupHomeState extends State<FillupHome> {
     index: section,
     children: [
       Scaffold(
-        appBar: AppBar(
-          title: const Text('i fillup'),
-          actions: [
-            AccountButton(
-              auth: widget.auth,
-              onEditProfile: () {
-                final repository =
-                    widget.repository ?? const DemoWaterRepository();
-                editProfile(
-                  context,
-                  load: repository.loadMyProfile,
-                  save: repository.saveMyProfile,
-                );
-              },
-            ),
-          ],
-        ),
-        body: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 560),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const Icon(
-                      Icons.water_drop_outlined,
-                      size: 48,
-                      color: teal,
+        body: AnnotatedRegion<SystemUiOverlayStyle>(
+          // White status bar icons on the dark water header.
+          value: SystemUiOverlayStyle.light,
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                WaveHeader(
+                  child: SafeArea(
+                    bottom: false,
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            const Expanded(
+                              child: Text(
+                                'i fillup',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ),
+                            AccountButton(
+                              auth: widget.auth,
+                              onEditProfile: () {
+                                final repository =
+                                    widget.repository ??
+                                    const DemoWaterRepository();
+                                editProfile(
+                                  context,
+                                  load: repository.loadMyProfile,
+                                  save: repository.saveMyProfile,
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        const DropBadge(size: 80),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Welcome to i fillup',
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.headlineLarge
+                              ?.copyWith(color: Colors.white),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          'Fresh water. Shared journeys.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.white.withValues(alpha: 0.9),
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Welcome to i fillup',
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.headlineLarge,
-                    ),
-                    const SizedBox(height: 4),
-                    const Text(
-                      'Fresh water. Shared journeys.',
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 16),
-                    _HomeChoice(
-                      title: 'Take water',
-                      description: 'Find a refill place, check the details and arrange your next fill-up.',
-                      icon: Icons.water_drop_outlined,
-                      onTap: () => open(1),
-                    ),
-                    const SizedBox(height: 12),
-                    _HomeChoice(
-                      title: 'Offer water',
-                      description: 'Share your water point, set your price and manage traveler requests.',
-                      icon: Icons.add_location_alt_outlined,
-                      onTap: () => open(2),
-                    ),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'One app. Take water or offer water whenever you need.',
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
+                  ),
                 ),
-              ),
+                Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 560),
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          _HomeChoice(
+                            title: 'Take water',
+                            description: 'Find a refill place, check the details and arrange your next fill-up.',
+                            icon: Icons.water_drop_outlined,
+                            onTap: () => open(1),
+                          ),
+                          const SizedBox(height: 12),
+                          _HomeChoice(
+                            title: 'Offer water',
+                            description: 'Share your water point, set your price and manage traveler requests.',
+                            icon: Icons.add_location_alt_outlined,
+                            onTap: () => open(2),
+                          ),
+                          const SizedBox(height: 20),
+                          const Text(
+                            'One app. Take water or offer water whenever you need.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(color: muted),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -167,24 +197,23 @@ class _HomeChoice extends StatelessWidget {
     child: InkWell(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(18),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, color: teal, size: 28),
+            WaterIcon(icon, size: 52),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(title, style: Theme.of(context).textTheme.titleLarge),
-                  const SizedBox(height: 8),
-                  Text(description),
+                  const SizedBox(height: 4),
+                  Text(description, style: const TextStyle(color: muted)),
                 ],
               ),
             ),
             const SizedBox(width: 8),
-            const Icon(Icons.arrow_forward, color: teal),
+            const Icon(Icons.arrow_forward_ios_rounded, color: teal, size: 18),
           ],
         ),
       ),
