@@ -67,6 +67,10 @@ class ProfileRepository implements WaterRepository {
   @override
   Future<void> deleteMyRequest(RefillRequest request) async =>
       deletedRequests.add(request.id);
+  final arrived = <String>[];
+  @override
+  Future<void> announceArrival(RefillRequest request) async =>
+      arrived.add(request.id);
   @override
   Future<void> savePushToken(String token) async {}
   @override
@@ -321,9 +325,7 @@ void main() {
     expect(find.byTooltip('Delete request'), findsNothing);
   });
 
-  testWidgets('A tapped answer notification opens My requests', (
-    tester,
-  ) async {
+  testWidgets('A tapped answer notification opens My requests', (tester) async {
     final showRequests = ValueNotifier(0);
     addTearDown(showRequests.dispose);
     await tester.pumpWidget(
@@ -333,5 +335,83 @@ void main() {
     showRequests.value++;
     await tester.pumpAndSettle();
     expect(find.text('Your next stop starts here'), findsOneWidget);
+  });
+
+  testWidgets('Water takers announce their arrival once', (tester) async {
+    tester.view.physicalSize = const Size(800, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final repository = ProfileRepository(
+      mine: [
+        const RefillRequest(
+          id: 'm1',
+          placeName: 'Garden tap',
+          liters: 80,
+          message: 'ASAP',
+          status: 'accepted',
+        ),
+        RefillRequest(
+          id: 'm2',
+          placeName: 'Farm well',
+          liters: 40,
+          message: 'ASAP',
+          status: 'accepted',
+          arrivedAt: DateTime(2026, 11, 1, 14, 5),
+        ),
+        const RefillRequest(
+          id: 'm3',
+          placeName: 'Old tap',
+          liters: 40,
+          message: 'Last week',
+          status: 'declined',
+        ),
+      ],
+    );
+    await tester.pumpWidget(
+      MaterialApp(home: RefillHome(repository: repository)),
+    );
+    await tester.tap(find.text('Requests'));
+    await tester.pumpAndSettle();
+    expect(find.text('I’ve arrived'), findsOneWidget);
+    expect(find.text('Arrival announced'), findsOneWidget);
+
+    await tester.tap(find.text('I’ve arrived'));
+    await tester.pumpAndSettle();
+    expect(
+      find.text('Garden tap gets a notification that you are there.'),
+      findsOneWidget,
+    );
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+    expect(repository.arrived, isEmpty);
+
+    await tester.tap(find.text('I’ve arrived'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Announce'));
+    await tester.pumpAndSettle();
+    expect(repository.arrived, ['m1']);
+  });
+
+  testWidgets('Hosts see when the water taker arrived', (tester) async {
+    final repository = ProfileRepository(
+      incoming: [
+        RefillRequest(
+          id: 'r1',
+          placeName: 'Garden tap',
+          liters: 80,
+          message: 'ASAP',
+          status: 'accepted',
+          requester: lea,
+          arrivedAt: DateTime(2026, 11, 1, 14, 5),
+        ),
+      ],
+    );
+    await tester.pumpWidget(
+      MaterialApp(home: GiverHome(repository: repository)),
+    );
+    await tester.tap(find.text('Requests'));
+    await tester.pumpAndSettle();
+    expect(find.text('Arrived · 14:05'), findsOneWidget);
   });
 }

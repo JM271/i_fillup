@@ -21,11 +21,9 @@ class GiverHome extends StatefulWidget {
     this.repository,
     this.auth,
     this.onHome,
-    this.onTakeWater,
     this.showRequests,
   });
   final VoidCallback? onHome;
-  final VoidCallback? onTakeWater;
 
   /// Switches to Requests whenever it notifies, e.g. on a tapped push.
   final Listenable? showRequests;
@@ -243,12 +241,6 @@ class _GiverHomeState extends State<GiverHome> {
         style: TextStyle(fontWeight: FontWeight.w800, color: ink),
       ),
       actions: [
-        if (widget.onTakeWater != null)
-          TextButton.icon(
-            onPressed: widget.onTakeWater,
-            icon: const Icon(Icons.swap_horiz),
-            label: Text(tr.switchToTake),
-          ),
         AccountButton(
           auth: widget.auth,
           onEditProfile: () => editProfile(
@@ -562,6 +554,33 @@ class _GiverHomeState extends State<GiverHome> {
                                         requestStatus(request.status),
                                       ),
                                     ),
+                                    if (request.arrivedAt case final arrivedAt?)
+                                      Padding(
+                                        padding: const EdgeInsets.only(top: 4),
+                                        child: Row(
+                                          children: [
+                                            const Icon(
+                                              Icons.where_to_vote,
+                                              color: teal,
+                                              size: 20,
+                                            ),
+                                            const SizedBox(width: 6),
+                                            Text(
+                                              tr.arrivedAt(
+                                                formatTime(
+                                                  TimeOfDay.fromDateTime(
+                                                    arrivedAt.toLocal(),
+                                                  ),
+                                                ),
+                                              ),
+                                              style: const TextStyle(
+                                                color: teal,
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
                                     if (request.status == 'pending' &&
                                         !repository.isDemo)
                                       Wrap(

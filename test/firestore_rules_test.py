@@ -90,6 +90,11 @@ status_path = '/refillRequests/' + request_id + '?updateMask.fieldPaths=status&u
 request('PATCH', status_path, 'traveler', dict(status='accepted', updatedAt=''), 403)
 request('PATCH', status_path, host, dict(status='accepted', updatedAt=''))
 request('PATCH', status_path, host, dict(status='declined', updatedAt=''), 403)
+# Only the water taker announces their arrival, and only once.
+arrive_path = '/refillRequests/' + request_id + '?updateMask.fieldPaths=arrivedAt&updateMask.fieldPaths=updatedAt'
+request('PATCH', arrive_path, host, dict(arrivedAt='', updatedAt=''), 403)
+request('PATCH', arrive_path, 'traveler', dict(arrivedAt='', updatedAt=''))
+request('PATCH', arrive_path, 'traveler', dict(arrivedAt='', updatedAt=''), 403)
 hide_path = '/refillRequests/' + request_id + '?updateMask.fieldPaths=hostHidden&updateMask.fieldPaths=updatedAt'
 request('PATCH', hide_path, 'traveler', dict(hostHidden=True, updatedAt=''), 403)
 request('PATCH', hide_path, host, dict(hostHidden=True, updatedAt=''))
@@ -98,4 +103,4 @@ request('PATCH', mine_path, host, dict(requesterHidden=True, updatedAt=''), 403)
 request('PATCH', mine_path, 'traveler', dict(requesterHidden=True, updatedAt=''))
 request('DELETE', '/waterPlaces/' + place_id, 'stranger', expected=403)
 request('DELETE', '/waterPlaces/' + place_id, host)
-print('25 Firestore rules checks passed (local emulator only).')
+print('28 Firestore rules checks passed (local emulator only).')

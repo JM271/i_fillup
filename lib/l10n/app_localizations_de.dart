@@ -36,12 +36,6 @@ class AppLocalizationsDe extends AppLocalizations {
       'Teile deinen Wasserhahn, lege deinen Preis fest und verwalte Anfragen von Reisenden.';
 
   @override
-  String get switchToTake => 'Wasser holen';
-
-  @override
-  String get switchToOffer => 'Wasser anbieten';
-
-  @override
   String get homeFooter =>
       'Eine App. Wasser holen oder anbieten, wann immer du willst.';
 
@@ -906,6 +900,33 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String statusLine(String status) {
     return 'Status: $status';
+  }
+
+  @override
+  String get announceArrival => 'Ich bin da';
+
+  @override
+  String get announceArrivalTitle => 'Ankunft melden?';
+
+  @override
+  String announceArrivalBody(String place) {
+    return '$place erhält eine Benachrichtigung, dass du da bist.';
+  }
+
+  @override
+  String get announce => 'Melden';
+
+  @override
+  String get arrivalAnnounced => 'Ankunft gemeldet';
+
+  @override
+  String announceArrivalFailed(String error) {
+    return 'Ankunft konnte nicht gemeldet werden: $error';
+  }
+
+  @override
+  String arrivedAt(String time) {
+    return 'Angekommen · $time';
   }
 
   @override

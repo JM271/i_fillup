@@ -8,8 +8,6 @@
   "takeWaterDescription": "Find a refill place, check the details and arrange your next fill-up.",
   "offerWater": "Offer water",
   "offerWaterDescription": "Share your water point, set your price and manage traveler requests.",
-  "switchToTake": "Take water",
-  "switchToOffer": "Offer water",
   "homeFooter": "One app. Take water or offer water whenever you need.",
   "home": "Home",
   "language": "Language",
@@ -547,6 +545,34 @@
   "@statusLine": {
     "placeholders": {
       "status": {
+        "type": "String"
+      }
+    }
+  },
+  "announceArrival": "I’ve arrived",
+  "announceArrivalTitle": "Announce your arrival?",
+  "announceArrivalBody": "{place} gets a notification that you are there.",
+  "@announceArrivalBody": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "announce": "Announce",
+  "arrivalAnnounced": "Arrival announced",
+  "announceArrivalFailed": "Could not announce your arrival: {error}",
+  "@announceArrivalFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "arrivedAt": "Arrived · {time}",
+  "@arrivedAt": {
+    "placeholders": {
+      "time": {
         "type": "String"
       }
     }

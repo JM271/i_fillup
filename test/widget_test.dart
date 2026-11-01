@@ -420,8 +420,10 @@ void main() {
       scrollable: find.byType(Scrollable).first,
     );
     expect(find.textContaining('No places match'), findsOneWidget);
-    expect(find.text('Offer water'), findsOneWidget);
-    await tester.pumpWidget(const FillupApp());
+    // Switching between taking and offering water happens on home only.
+    expect(find.byIcon(Icons.swap_horiz), findsNothing);
+    await tester.tap(find.byTooltip('Home'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Offer water'));
     await tester.pumpAndSettle();
     expect(find.text('Your water place'), findsOneWidget);

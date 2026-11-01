@@ -36,12 +36,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Share your water point, set your price and manage traveler requests.';
 
   @override
-  String get switchToTake => 'Take water';
-
-  @override
-  String get switchToOffer => 'Offer water';
-
-  @override
   String get homeFooter =>
       'One app. Take water or offer water whenever you need.';
 
@@ -896,6 +890,33 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String statusLine(String status) {
     return 'Status: $status';
+  }
+
+  @override
+  String get announceArrival => 'I’ve arrived';
+
+  @override
+  String get announceArrivalTitle => 'Announce your arrival?';
+
+  @override
+  String announceArrivalBody(String place) {
+    return '$place gets a notification that you are there.';
+  }
+
+  @override
+  String get announce => 'Announce';
+
+  @override
+  String get arrivalAnnounced => 'Arrival announced';
+
+  @override
+  String announceArrivalFailed(String error) {
+    return 'Could not announce your arrival: $error';
+  }
+
+  @override
+  String arrivedAt(String time) {
+    return 'Arrived · $time';
   }
 
   @override

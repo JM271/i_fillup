@@ -148,18 +148,6 @@ abstract class AppLocalizations {
   /// **'Share your water point, set your price and manage traveler requests.'**
   String get offerWaterDescription;
 
-  /// No description provided for @switchToTake.
-  ///
-  /// In en, this message translates to:
-  /// **'Take water'**
-  String get switchToTake;
-
-  /// No description provided for @switchToOffer.
-  ///
-  /// In en, this message translates to:
-  /// **'Offer water'**
-  String get switchToOffer;
-
   /// No description provided for @homeFooter.
   ///
   /// In en, this message translates to:
@@ -1581,6 +1569,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Status: {status}'**
   String statusLine(String status);
+
+  /// No description provided for @announceArrival.
+  ///
+  /// In en, this message translates to:
+  /// **'I’ve arrived'**
+  String get announceArrival;
+
+  /// No description provided for @announceArrivalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Announce your arrival?'**
+  String get announceArrivalTitle;
+
+  /// No description provided for @announceArrivalBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{place} gets a notification that you are there.'**
+  String announceArrivalBody(String place);
+
+  /// No description provided for @announce.
+  ///
+  /// In en, this message translates to:
+  /// **'Announce'**
+  String get announce;
+
+  /// No description provided for @arrivalAnnounced.
+  ///
+  /// In en, this message translates to:
+  /// **'Arrival announced'**
+  String get arrivalAnnounced;
+
+  /// No description provided for @announceArrivalFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not announce your arrival: {error}'**
+  String announceArrivalFailed(String error);
+
+  /// No description provided for @arrivedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Arrived · {time}'**
+  String arrivedAt(String time);
 
   /// No description provided for @accept.
   ///

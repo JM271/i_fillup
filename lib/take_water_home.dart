@@ -24,14 +24,12 @@ class RefillHome extends StatefulWidget {
     this.repository,
     this.auth,
     this.onHome,
-    this.onOfferWater,
     this.showRequests,
     this.routeService,
     this.locate = currentRefillLocation,
     this.chooseDestination = chooseRouteDestination,
   });
   final VoidCallback? onHome;
-  final VoidCallback? onOfferWater;
 
   /// Opens My requests whenever it notifies, e.g. for a tapped answer.
   final Listenable? showRequests;
@@ -455,6 +453,37 @@ class _RefillHomeState extends State<RefillHome> {
     liters.dispose();
   }
 
+  /// Tells the host the water taker is there, after a confirmation so a
+  /// mistaken tap does not notify them.
+  Future<void> announceArrival(RefillRequest request) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(tr.announceArrivalTitle),
+        content: Text(tr.announceArrivalBody(request.placeName)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text(tr.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: Text(tr.announce),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await repository.announceArrival(request);
+    } on FirebaseException catch (error) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(tr.announceArrivalFailed('${error.message}'))),
+      );
+    }
+  }
+
   Widget deleteRequestButton({
     required bool pending,
     required Future<void> Function() onDelete,
@@ -771,12 +800,6 @@ class _RefillHomeState extends State<RefillHome> {
               style: TextStyle(fontWeight: FontWeight.w800, color: ink),
             ),
             actions: [
-              if (widget.onOfferWater != null)
-                TextButton.icon(
-                  onPressed: widget.onOfferWater,
-                  icon: const Icon(Icons.swap_horiz),
-                  label: Text(tr.switchToOffer),
-                ),
               AccountButton(
                 auth: widget.auth,
                 onEditProfile: () => editProfile(
@@ -1121,26 +1144,40 @@ class _RefillHomeState extends State<RefillHome> {
                                   children: savedRequests
                                       .map(
                                         (request) => Card(
-                                          child: ListTile(
-                                            isThreeLine: true,
-                                            leading: const Icon(
-                                              Icons.water_drop_outlined,
-                                              color: teal,
-                                            ),
-                                            title: Text(request.placeName),
-                                            subtitle: Text(
-                                              tr.requestSummary(
-                                                request.liters,
-                                                request.message,
-                                                requestStatus(request.status),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              ListTile(
+                                                isThreeLine: true,
+                                                leading: const Icon(
+                                                  Icons.water_drop_outlined,
+                                                  color: teal,
+                                                ),
+                                                title: Text(request.placeName),
+                                                subtitle: Text(
+                                                  tr.requestSummary(
+                                                    request.liters,
+                                                    request.message,
+                                                    requestStatus(
+                                                      request.status,
+                                                    ),
+                                                  ),
+                                                ),
+                                                trailing: deleteRequestButton(
+                                                  pending:
+                                                      request.status ==
+                                                      'pending',
+                                                  onDelete: () => repository
+                                                      .deleteMyRequest(request),
+                                                ),
                                               ),
-                                            ),
-                                            trailing: deleteRequestButton(
-                                              pending:
-                                                  request.status == 'pending',
-                                              onDelete: () => repository
-                                                  .deleteMyRequest(request),
-                                            ),
+                                              _ArrivalRow(
+                                                request: request,
+                                                onAnnounce: () =>
+                                                    announceArrival(request),
+                                              ),
+                                            ],
                                           ),
                                         ),
                                       )
@@ -1178,6 +1215,39 @@ class _RefillHomeState extends State<RefillHome> {
           ),
         );
       },
+    );
+  }
+}
+
+/// The water taker's "I've arrived" button, or a note once it was used.
+class _ArrivalRow extends StatelessWidget {
+  const _ArrivalRow({required this.request, required this.onAnnounce});
+  final RefillRequest request;
+  final VoidCallback onAnnounce;
+
+  @override
+  Widget build(BuildContext context) {
+    final Widget child;
+    if (request.canAnnounceArrival) {
+      child = FilledButton.tonalIcon(
+        onPressed: onAnnounce,
+        icon: const Icon(Icons.where_to_vote_outlined),
+        label: Text(tr.announceArrival),
+      );
+    } else if (request.arrivedAt != null) {
+      child = Row(
+        children: [
+          const Icon(Icons.where_to_vote, color: teal, size: 20),
+          const SizedBox(width: 8),
+          Text(tr.arrivalAnnounced, style: const TextStyle(color: muted)),
+        ],
+      );
+    } else {
+      return const SizedBox.shrink();
+    }
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+      child: child,
     );
   }
 }

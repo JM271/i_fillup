@@ -32,6 +32,10 @@ const messages = {
       title: 'Request declined',
       body: (place) => `${place} declined your refill request.`,
     },
+    arrival: {
+      title: 'Arrival',
+      body: (traveler, place) => `${traveler} is at ${place} now.`,
+    },
   },
   de: {
     title: 'Neue Wasseranfrage',
@@ -46,6 +50,10 @@ const messages = {
       title: 'Anfrage abgelehnt',
       body: (place) => `${place} hat deine Wasseranfrage abgelehnt.`,
     },
+    arrival: {
+      title: 'Ankunft',
+      body: (traveler, place) => `${traveler} ist jetzt bei ${place}.`,
+    },
   },
   fr: {
     title: 'Nouvelle demande d’eau',
@@ -59,6 +67,10 @@ const messages = {
     declined: {
       title: 'Demande refusée',
       body: (place) => `${place} a refusé votre demande d’eau.`,
+    },
+    arrival: {
+      title: 'Arrivée',
+      body: (traveler, place) => `${traveler} est maintenant à ${place}.`,
     },
   },
 };
@@ -130,6 +142,28 @@ exports.notifyTravelerOfAnswer = onDocumentUpdated(
         body: text[status].body(request.placeName),
       }),
       {type: 'requestAnswer', requestId: event.params.requestId, status},
+    );
+  },
+);
+
+// Tells the host when the traveler announces they arrived at the place.
+exports.notifyHostOfArrival = onDocumentUpdated(
+  {document: 'refillRequests/{requestId}', region},
+  async (event) => {
+    const before = event.data?.before.data();
+    const request = event.data?.after.data();
+    if (!request?.hostUid || before?.arrivedAt || !request.arrivedAt) return;
+
+    await notifyUser(
+      request.hostUid,
+      (text) => ({
+        title: text.arrival.title,
+        body: text.arrival.body(
+          request.requester?.name || text.traveler,
+          request.placeName,
+        ),
+      }),
+      {type: 'arrival', requestId: event.params.requestId},
     );
   },
 );

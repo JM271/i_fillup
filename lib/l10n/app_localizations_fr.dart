@@ -36,12 +36,6 @@ class AppLocalizationsFr extends AppLocalizations {
       'Partagez votre point d’eau, fixez votre prix et gérez les demandes des voyageurs.';
 
   @override
-  String get switchToTake => 'Trouver';
-
-  @override
-  String get switchToOffer => 'Offrir';
-
-  @override
   String get homeFooter =>
       'Une seule app. Trouvez ou proposez de l’eau quand vous le souhaitez.';
 
@@ -909,6 +903,33 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String statusLine(String status) {
     return 'Statut : $status';
+  }
+
+  @override
+  String get announceArrival => 'Je suis sur place';
+
+  @override
+  String get announceArrivalTitle => 'Signaler votre arrivée ?';
+
+  @override
+  String announceArrivalBody(String place) {
+    return '$place reçoit une notification indiquant que vous êtes sur place.';
+  }
+
+  @override
+  String get announce => 'Signaler';
+
+  @override
+  String get arrivalAnnounced => 'Arrivée signalée';
+
+  @override
+  String announceArrivalFailed(String error) {
+    return 'Impossible de signaler votre arrivée : $error';
+  }
+
+  @override
+  String arrivedAt(String time) {
+    return 'Sur place · $time';
   }
 
   @override

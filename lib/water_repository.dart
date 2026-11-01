@@ -16,6 +16,7 @@ class RefillRequest {
     this.requester,
     this.hostHidden = false,
     this.requesterHidden = false,
+    this.arrivedAt,
   });
 
   final String id;
@@ -33,6 +34,14 @@ class RefillRequest {
   /// Whether the water taker deleted the request from their list.
   final bool requesterHidden;
 
+  /// When the water taker announced they arrived at the place.
+  final DateTime? arrivedAt;
+
+  /// Water takers can announce their arrival once, until the request is
+  /// declined or cancelled.
+  bool get canAnnounceArrival =>
+      arrivedAt == null && (status == 'pending' || status == 'accepted');
+
   factory RefillRequest.fromFirestore(String id, Map<String, dynamic> data) =>
       RefillRequest(
         id: id,
@@ -43,6 +52,7 @@ class RefillRequest {
         requester: TravelerProfile.fromMap(data['requester']),
         hostHidden: data['hostHidden'] == true,
         requesterHidden: data['requesterHidden'] == true,
+        arrivedAt: (data['arrivedAt'] as Timestamp?)?.toDate(),
       );
 }
 
@@ -81,6 +91,9 @@ abstract interface class WaterRepository {
   /// Removes a request from the water taker's list, cancelling it if still
   /// pending.
   Future<void> deleteMyRequest(RefillRequest request);
+
+  /// Tells the host that the water taker has arrived at the place.
+  Future<void> announceArrival(RefillRequest request);
 }
 
 class DemoWaterRepository implements WaterRepository {
@@ -145,6 +158,9 @@ class DemoWaterRepository implements WaterRepository {
 
   @override
   Future<void> deleteMyRequest(RefillRequest request) async {}
+
+  @override
+  Future<void> announceArrival(RefillRequest request) async {}
 }
 
 class FirebaseWaterRepository implements WaterRepository {
@@ -361,6 +377,13 @@ class FirebaseWaterRepository implements WaterRepository {
       _firestore.collection('refillRequests').doc(request.id).update({
         if (request.status == 'pending') 'status': 'cancelled',
         'requesterHidden': true,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+
+  @override
+  Future<void> announceArrival(RefillRequest request) =>
+      _firestore.collection('refillRequests').doc(request.id).update({
+        'arrivedAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
       });
 }
