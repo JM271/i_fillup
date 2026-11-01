@@ -80,22 +80,121 @@ class WaterBanner extends StatelessWidget {
   );
 }
 
-/// The app's drop mark: a white drop on a glassy circle.
-class DropBadge extends StatelessWidget {
-  const DropBadge({super.key, this.size = 72});
-  final double size;
+/// A schematic campervan with a water-wave stripe, for the home header.
+class CampervanPicture extends StatelessWidget {
+  const CampervanPicture({super.key, this.width = 220});
+  final double width;
 
   @override
-  Widget build(BuildContext context) => Container(
-    width: size,
-    height: size,
-    decoration: BoxDecoration(
-      shape: BoxShape.circle,
-      color: Colors.white.withValues(alpha: 0.18),
-      border: Border.all(color: Colors.white.withValues(alpha: 0.5), width: 2),
-    ),
-    child: Icon(Icons.water_drop, size: size * 0.55, color: Colors.white),
+  Widget build(BuildContext context) => SizedBox(
+    width: width,
+    height: width * _CampervanPainter.height / _CampervanPainter.width,
+    child: const CustomPaint(painter: _CampervanPainter()),
   );
+}
+
+/// Draws on a 200 × 110 grid, scaled to the given size.
+class _CampervanPainter extends CustomPainter {
+  const _CampervanPainter();
+
+  static const width = 200.0;
+  static const height = 110.0;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    canvas.scale(size.width / width, size.height / height);
+
+    // Dashed road under the wheels.
+    final road = Paint()
+      ..color = Colors.white.withValues(alpha: 0.45)
+      ..strokeWidth = 3
+      ..strokeCap = StrokeCap.round;
+    for (var x = 4.0; x < width; x += 22) {
+      canvas.drawLine(Offset(x, 104), Offset(x + 10, 104), road);
+    }
+
+    // Pop-top roof.
+    canvas.drawRRect(
+      RRect.fromLTRBR(40, 10, 112, 22, const Radius.circular(5)),
+      Paint()..color = Colors.white.withValues(alpha: 0.8),
+    );
+
+    // Body: boxy at the back, sloped windscreen and short bonnet in front.
+    final body = Path()
+      ..moveTo(24, 86)
+      ..quadraticBezierTo(14, 86, 14, 76)
+      ..lineTo(14, 30)
+      ..quadraticBezierTo(14, 20, 24, 20)
+      ..lineTo(140, 20)
+      ..quadraticBezierTo(150, 20, 155, 28)
+      ..lineTo(172, 54)
+      ..quadraticBezierTo(188, 56, 188, 68)
+      ..lineTo(188, 78)
+      ..quadraticBezierTo(188, 86, 180, 86)
+      ..close();
+    canvas.drawShadow(body, deep, 6, false);
+    canvas.drawPath(body, Paint()..color = Colors.white);
+
+    // Water-wave stripe along the side.
+    canvas.save();
+    canvas.clipPath(body);
+    final wave = Path()..moveTo(0, 62);
+    for (var x = 0.0; x < width; x += 40) {
+      wave
+        ..quadraticBezierTo(x + 10, 56, x + 20, 62)
+        ..quadraticBezierTo(x + 30, 68, x + 40, 62);
+    }
+    wave
+      ..lineTo(width, 72)
+      ..lineTo(0, 72)
+      ..close();
+    canvas.drawPath(wave, Paint()..color = teal);
+    canvas.restore();
+
+    // Windows, windscreen and the sliding door's seam.
+    final glass = Paint()..color = sky.withValues(alpha: 0.75);
+    for (final left in [26.0, 72.0]) {
+      canvas.drawRRect(
+        RRect.fromLTRBR(left, 30, left + 36, 50, const Radius.circular(5)),
+        glass,
+      );
+    }
+    canvas.drawPath(
+      Path()
+        ..moveTo(124, 30)
+        ..lineTo(149, 30)
+        ..lineTo(163, 50)
+        ..lineTo(124, 50)
+        ..close(),
+      glass,
+    );
+    canvas.drawLine(
+      const Offset(118, 28),
+      const Offset(118, 82),
+      Paint()
+        ..color = deep.withValues(alpha: 0.25)
+        ..strokeWidth = 1.5,
+    );
+
+    // Headlight.
+    canvas.drawCircle(const Offset(182, 64), 3.5, Paint()..color = foam);
+    canvas.drawCircle(
+      const Offset(182, 64),
+      3.5,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..color = deep.withValues(alpha: 0.4),
+    );
+
+    // Wheels.
+    for (final x in [50.0, 156.0]) {
+      canvas.drawCircle(Offset(x, 88), 14, Paint()..color = ink);
+      canvas.drawCircle(Offset(x, 88), 6, Paint()..color = foam);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_CampervanPainter oldDelegate) => false;
 }
 
 /// Small gradient circle holding an icon, used on choice cards.

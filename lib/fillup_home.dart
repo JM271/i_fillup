@@ -117,7 +117,7 @@ class _FillupHomeState extends State<FillupHome> {
                           ],
                         ),
                         const SizedBox(height: 16),
-                        const DropBadge(size: 80),
+                        const CampervanPicture(),
                         const SizedBox(height: 16),
                         Text(
                           tr.welcome,
