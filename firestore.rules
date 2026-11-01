@@ -67,12 +67,36 @@ service cloud.firestore {
         && get(/databases/$(database)/documents/waterPlaces/$(placeId)).data.isActive == true;
     }
 
+    // A place hidden after travelers' reports; written only by the
+    // hideReportedPlace function and removed once the place was checked.
+    function suspended(placeId) {
+      return exists(/databases/$(database)/documents/suspensions/$(placeId));
+    }
+
+    // Travelers report a listed place once each, never their own; nobody
+    // reads reports in the app.
+    match /reports/{reportId} {
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly([
+          'placeId', 'reporterUid', 'reason', 'createdAt'
+        ])
+        && request.resource.data.placeId is string
+        && reportId == request.resource.data.placeId + '_' + request.auth.uid
+        && request.resource.data.reporterUid == request.auth.uid
+        && request.resource.data.reason in ['noWater', 'doesNotExist', 'wrongLocation']
+        && request.resource.data.createdAt is timestamp
+        && activePlace(request.resource.data.placeId)
+        && get(/databases/$(database)/documents/waterPlaces/$(request.resource.data.placeId)).data.ownerUid
+          != request.auth.uid;
+    }
+
     match /waterPlaces/{placeId} {
       allow read: if resource.data.isActive == true
         || (signedIn() && resource.data.ownerUid == request.auth.uid);
       // One place per account: the document ID is the owner's UID.
       allow create: if signedIn()
         && placeId == request.auth.uid
+        && !suspended(placeId)
         && request.resource.data.keys().hasOnly([
           'name', 'area', 'host', 'private', 'price', 'description',
           'openingTimes', 'latitude', 'longitude', 'photo', 'vehicles',
@@ -105,6 +129,7 @@ service cloud.firestore {
         && request.resource.data.private is bool;
       allow update: if signedIn()
         && resource.data.ownerUid == request.auth.uid
+        && !suspended(placeId)
         && request.resource.data.ownerUid == resource.data.ownerUid
         && request.resource.data.isActive is bool
         && validPlaceExtras(request.resource.data)

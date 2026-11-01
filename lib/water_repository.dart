@@ -99,7 +99,14 @@ abstract interface class WaterRepository {
 
   /// Tells the host that the water taker has arrived at the place.
   Future<void> announceArrival(RefillRequest request);
+
+  /// Reports a problem with a place, once per traveler; enough reports hide
+  /// it until it is checked.
+  Future<void> reportPlace(WaterPlace place, String reason);
 }
+
+/// Why a traveler reports a place, as stored with the report.
+const reportReasons = ['noWater', 'doesNotExist', 'wrongLocation'];
 
 class DemoWaterRepository implements WaterRepository {
   const DemoWaterRepository();
@@ -166,6 +173,9 @@ class DemoWaterRepository implements WaterRepository {
 
   @override
   Future<void> announceArrival(RefillRequest request) async {}
+
+  @override
+  Future<void> reportPlace(WaterPlace place, String reason) async {}
 }
 
 class FirebaseWaterRepository implements WaterRepository {
@@ -383,6 +393,16 @@ class FirebaseWaterRepository implements WaterRepository {
         if (request.status == 'pending') 'status': 'cancelled',
         'requesterHidden': true,
         'updatedAt': FieldValue.serverTimestamp(),
+      });
+
+  @override
+  Future<void> reportPlace(WaterPlace place, String reason) =>
+      // One report per traveler and place: the rules only allow this ID.
+      _firestore.collection('reports').doc('${place.id}_$_userId').set({
+        'placeId': place.id,
+        'reporterUid': _userId,
+        'reason': reason,
+        'createdAt': FieldValue.serverTimestamp(),
       });
 
   @override

@@ -36,7 +36,10 @@ def field(value):
 
 def request(method, path, uid, data=None, expected=200):
     headers = {'Content-Type': 'application/json'}
-    if uid:
+    if uid == 'owner':
+        # The emulator's admin access, standing in for the Cloud Functions.
+        headers['Authorization'] = 'Bearer owner'
+    elif uid:
         headers['Authorization'] = 'Bearer ' + token(uid)
     body = None if data is None else json.dumps({'fields': {
         key: ({'timestampValue': '2026-10-31T12:00:00Z'} if key.endswith('At') else field(value))
@@ -101,6 +104,21 @@ request('PATCH', hide_path, host, dict(hostHidden=True, updatedAt=''))
 mine_path = '/refillRequests/' + request_id + '?updateMask.fieldPaths=requesterHidden&updateMask.fieldPaths=updatedAt'
 request('PATCH', mine_path, host, dict(requesterHidden=True, updatedAt=''), 403)
 request('PATCH', mine_path, 'traveler', dict(requesterHidden=True, updatedAt=''))
+# Travelers report a listed place once each, never their own.
+report = dict(placeId=place_id, reporterUid='traveler', reason='noWater', createdAt='')
+report_path = '/reports/' + place_id + '_traveler'
+request('PATCH', report_path, 'traveler', dict(report, reason='spam'), 403)
+request('PATCH', '/reports/other_traveler', 'traveler', report, 403)
+request('PATCH', report_path, 'traveler', report)
+request('PATCH', report_path, 'traveler', report, 403)
+request('GET', report_path, 'traveler', expected=403)
+request('PATCH', '/reports/' + place_id + '_' + host, host,
+        dict(report, reporterUid=host), 403)
+# A place hidden after reports cannot be changed or listed again.
+request('PATCH', '/suspensions/' + place_id, 'stranger', dict(reports=2), 403)
+request('PATCH', '/suspensions/' + place_id, 'owner', dict(reports=2))
+request('PATCH', '/waterPlaces/' + place_id, host, place, 403)
 request('DELETE', '/waterPlaces/' + place_id, 'stranger', expected=403)
 request('DELETE', '/waterPlaces/' + place_id, host)
-print('28 Firestore rules checks passed (local emulator only).')
+request('PATCH', '/waterPlaces/' + place_id, host, place, 403)
+print('38 Firestore rules checks passed (local emulator only).')

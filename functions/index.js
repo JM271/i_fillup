@@ -36,6 +36,11 @@ const messages = {
       title: 'Arrival',
       body: (traveler, place) => `${traveler} is at ${place} now.`,
     },
+    hidden: {
+      title: 'Water place hidden',
+      body: 'Travelers reported a problem with your water place. ' +
+        'Write to petehon1205@gmail.com so we can check it.',
+    },
   },
   de: {
     title: 'Neue Wasseranfrage',
@@ -54,6 +59,11 @@ const messages = {
       title: 'Ankunft',
       body: (traveler, place) => `${traveler} ist jetzt bei ${place}.`,
     },
+    hidden: {
+      title: 'Wasserstelle ausgeblendet',
+      body: 'Reisende haben ein Problem mit deiner Wasserstelle gemeldet. ' +
+        'Schreib an petehon1205@gmail.com, damit wir sie prüfen können.',
+    },
   },
   fr: {
     title: 'Nouvelle demande d’eau',
@@ -71,6 +81,11 @@ const messages = {
     arrival: {
       title: 'Arrivée',
       body: (traveler, place) => `${traveler} est maintenant à ${place}.`,
+    },
+    hidden: {
+      title: 'Point d’eau masqué',
+      body: 'Des voyageurs ont signalé un problème avec votre point d’eau. ' +
+        'Écrivez à petehon1205@gmail.com pour que nous le vérifiions.',
     },
   },
 };
@@ -168,6 +183,46 @@ exports.notifyHostOfArrival = onDocumentUpdated(
   },
 );
 
+// Reports from this many different travelers hide a place until it is
+// checked: delete its suspensions document and reports, then set isActive.
+const reportsToHide = 2;
+
+// Hides a place once enough travelers reported it, and tells the host.
+exports.hideReportedPlace = onDocumentCreated(
+  {document: 'reports/{reportId}', region},
+  async (event) => {
+    const placeId = event.data?.data()?.placeId;
+    if (!placeId) return;
+
+    const db = getFirestore();
+    const reports = await db.collection('reports')
+      .where('placeId', '==', placeId).count().get();
+    const count = reports.data().count;
+    if (count < reportsToHide) return;
+
+    const place = db.doc(`waterPlaces/${placeId}`);
+    const snapshot = await place.get();
+    await db.doc(`suspensions/${placeId}`).set({
+      reports: count,
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+    if (!snapshot.exists || snapshot.get('isActive') !== true) return;
+    await place.update({
+      isActive: false,
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+
+    const owner = snapshot.get('ownerUid');
+    if (owner) {
+      await notifyUser(
+        owner,
+        (text) => ({title: text.hidden.title, body: text.hidden.body}),
+        {type: 'placeHidden', placeId},
+      );
+    }
+  },
+);
+
 // Removes everything that belongs to a deleted account. Requests are deleted
 // on both sides, as they hold the traveler's profile and the host's place.
 exports.deleteUserData = functionsV1
@@ -175,13 +230,15 @@ exports.deleteUserData = functionsV1
   .auth.user()
   .onDelete(async (user) => {
     const db = getFirestore();
-    const [places, sent, received] = await Promise.all([
+    const [places, sent, received, reported] = await Promise.all([
       db.collection('waterPlaces').where('ownerUid', '==', user.uid).get(),
       db.collection('refillRequests').where('requesterUid', '==', user.uid).get(),
       db.collection('refillRequests').where('hostUid', '==', user.uid).get(),
+      db.collection('reports').where('reporterUid', '==', user.uid).get(),
     ]);
     const writer = db.bulkWriter();
-    for (const document of [...places.docs, ...sent.docs, ...received.docs]) {
+    const documents = [...places.docs, ...sent.docs, ...received.docs, ...reported.docs];
+    for (const document of documents) {
       writer.delete(document.ref);
     }
     writer.delete(db.doc(`profiles/${user.uid}`));

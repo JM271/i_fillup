@@ -69,6 +69,10 @@ class ProfileRepository implements WaterRepository {
   @override
   Future<void> deleteMyRequest(RefillRequest request) async =>
       deletedRequests.add(request.id);
+  final reported = <(String?, String)>[];
+  @override
+  Future<void> reportPlace(WaterPlace place, String reason) async =>
+      reported.add((place.id, reason));
   final arrived = <String>[];
   @override
   Future<void> announceArrival(RefillRequest request) async =>

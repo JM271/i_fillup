@@ -251,11 +251,67 @@ class _RefillHomeState extends State<RefillHome> {
                   child: Text(tr.arrangeFillUp(place.host)),
                 ),
               ),
+              // Hosts cannot report their own place.
+              if (!repository.isDemo &&
+                  (place.ownerId == null ||
+                      place.ownerId != widget.auth?.currentUser?.uid))
+                Center(
+                  child: TextButton.icon(
+                    onPressed: () {
+                      Navigator.pop(sheetContext);
+                      reportPlace(place);
+                    },
+                    icon: const Icon(Icons.flag_outlined),
+                    label: Text(tr.reportProblem),
+                  ),
+                ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  /// Lets a traveler report a place that is missing or has no water.
+  Future<void> reportPlace(WaterPlace place) async {
+    final reasons = {
+      'noWater': tr.reportNoWater,
+      'doesNotExist': tr.reportDoesNotExist,
+      'wrongLocation': tr.reportWrongLocation,
+    };
+    final reason = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => SimpleDialog(
+        title: Text(tr.reportTitle(place.name)),
+        children: [
+          for (final key in reportReasons)
+            SimpleDialogOption(
+              onPressed: () => Navigator.pop(dialogContext, key),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: Text(reasons[key]!),
+              ),
+            ),
+          Align(
+            alignment: Alignment.centerRight,
+            child: Padding(
+              padding: const EdgeInsets.only(right: 16),
+              child: TextButton(
+                onPressed: () => Navigator.pop(dialogContext),
+                child: Text(tr.cancel),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (reason == null || !mounted) return;
+    try {
+      await repository.reportPlace(place, reason);
+      showMessage(tr.reportThanks);
+    } on FirebaseException {
+      showMessage(tr.reportFailed);
+    }
   }
 
   Future<void> requestWater(WaterPlace place) async {

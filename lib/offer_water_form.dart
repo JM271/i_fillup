@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'location_picker.dart';
 import 'opening_times.dart';
 import 'photo_field.dart';
+import 'take_water_home.dart' show formatKm;
 
 import 'package:latlong2/latlong.dart';
 
@@ -24,6 +25,7 @@ class OfferWaterForm extends StatefulWidget {
     this.addressLookup = searchAddresses,
     this.isDemo = true,
     this.initial,
+    this.locate = currentRefillLocation,
   });
   final Future<void> Function(WaterPlace) onSave;
 
@@ -31,6 +33,13 @@ class OfferWaterForm extends StatefulWidget {
   final WaterPlace? initial;
   final AddressLookup addressLookup;
   final bool isDemo;
+
+  /// The phone's position, to check that hosts list a place where they are.
+  final Future<LatLng> Function() locate;
+
+  /// How far from a new pin the host may be when saving it.
+  static const onSiteMeters = 200.0;
+
   @override
   State<OfferWaterForm> createState() => _OfferWaterFormState();
 }
@@ -51,6 +60,9 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
   bool hose = false;
   bool selfService = false;
   bool missingLocation = false;
+
+  /// Why the pin cannot be saved from where the host is.
+  String? siteError;
   bool missingVehicles = false;
   bool saving = false;
   bool get useGoogle =>
@@ -160,6 +172,7 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
                       address.text = selected.label;
                       location = selected.location;
                       missingLocation = false;
+                      siteError = null;
                     });
                   }
                 },
@@ -167,6 +180,12 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
                 label: Text(
                   useGoogle ? tr.chooseAddressGoogle : tr.chooseAddressList,
                 ),
+              ),
+              const SizedBox(height: 8),
+              OutlinedButton.icon(
+                onPressed: useMyLocation,
+                icon: const Icon(Icons.my_location),
+                label: Text(tr.useMyLocation),
               ),
               const SizedBox(height: 8),
               OutlinedButton.icon(
@@ -180,6 +199,7 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
                     setState(() {
                       location = selected;
                       missingLocation = false;
+                      siteError = null;
                     });
                   }
                 },
@@ -207,16 +227,27 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
                     ],
                   ),
                 ),
-              if (missingLocation)
+              for (final error in [
+                if (missingLocation) tr.chooseOnMapError,
+                ?siteError,
+              ])
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: Text(
-                    tr.chooseOnMapError,
+                    error,
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.error,
                     ),
                   ),
                 ),
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Text(
+                  tr.onSiteNote,
+                  style: Theme.of(context).textTheme.bodySmall
+                      ?.copyWith(color: muted),
+                ),
+              ),
             ],
           ),
           _FormSection(
@@ -394,6 +425,17 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
                       return;
                     }
                     setState(() => saving = true);
+                    final problem = await onSiteProblem();
+                    if (problem != null) {
+                      if (!mounted) return;
+                      setState(() {
+                        saving = false;
+                        siteError = problem;
+                      });
+                      ScaffoldMessenger.of(this.context)
+                          .showSnackBar(SnackBar(content: Text(problem)));
+                      return;
+                    }
                     try {
                       await widget.onSave(
                         WaterPlace(
@@ -474,6 +516,42 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
       ),
     ),
   );
+
+  Future<void> useMyLocation() async {
+    try {
+      final here = await widget.locate();
+      if (!mounted) return;
+      setState(() {
+        location = here;
+        missingLocation = false;
+        siteError = null;
+      });
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(tr.onSiteCheckFailed(errorText(error)))),
+      );
+    }
+  }
+
+  /// Why the host cannot save the pin from where they are, or null. Only new
+  /// or moved pins are checked, so hosts can edit other details anywhere.
+  Future<String?> onSiteProblem() async {
+    final pin = location!;
+    if (widget.isDemo || pin == widget.initial?.location) return null;
+    try {
+      final meters = const Distance()(await widget.locate(), pin);
+      return meters > OfferWaterForm.onSiteMeters
+          ? tr.notAtPlace(formatKm(meters))
+          : null;
+    } catch (error) {
+      return tr.onSiteCheckFailed(errorText(error));
+    }
+  }
+
+  /// Location errors carry translated messages inside an Exception.
+  static String errorText(Object error) =>
+      '$error'.replaceFirst('Exception: ', '');
 
   String? requiredText(String? value) =>
       value == null || value.trim().isEmpty ? tr.fillInField : null;

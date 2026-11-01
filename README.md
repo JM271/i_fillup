@@ -107,3 +107,10 @@ The local refill-request rule now checks that the referenced place is active and
 ## Local rules verification
 
 Start the Firestore emulator with project ID `demo-i-fillup`, port `8787` and `firestore.rules`, then run `python3 test/firestore_rules_test.py`. This test only contacts the local emulator and does not write production data.
+
+## Keeping places real
+
+Hosts must be at their water place to list it: when a new or moved pin is saved, the app compares it with the phone's position and refuses beyond 200 m (`OfferWaterForm.onSiteMeters`). Editing other details works anywhere.
+
+Travelers can **Report a problem** on a place (no water, does not exist, wrong location), once per place: the report is stored as `reports/{placeId}_{uid}`. When two different travelers have reported a place, the `hideReportedPlace` function sets its `isActive` to false, writes `suspensions/{placeId}` and tells the host. While that document exists, the rules stop the host from changing or re-creating the place. After checking it in the Firebase console, delete the suspension and the place's reports, then set `isActive` back to true.
+

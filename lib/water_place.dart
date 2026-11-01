@@ -68,6 +68,7 @@ class WaterPlace {
     this.website = '',
     this.hose,
     this.selfService,
+    this.isActive = true,
   });
   final String name, area, host, price, description;
   final bool private;
@@ -90,6 +91,9 @@ class WaterPlace {
   /// Whether a hose is there to use, and whether travelers can fill up
   /// without the host; null for places saved before these questions.
   final bool? hose, selfService;
+
+  /// False once travelers' reports have hidden the place from the list.
+  final bool isActive;
 
   bool get promotesBusiness =>
       services.isNotEmpty || businessInfo.isNotEmpty || website.isNotEmpty;
@@ -131,6 +135,7 @@ class WaterPlace {
       website: data['website'] as String? ?? '',
       hose: data['hose'] as bool?,
       selfService: data['selfService'] as bool?,
+      isActive: data['isActive'] != false,
     );
   }
 }

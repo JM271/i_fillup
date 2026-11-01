@@ -975,6 +975,52 @@ class AppLocalizationsDe extends AppLocalizations {
   String get sectionPrice => 'Preis';
 
   @override
+  String get onSiteNote =>
+      'Sei bei deiner Wasserstelle, um sie einzutragen: Die App prüft deinen Standort, wenn du einen neuen Pin speicherst.';
+
+  @override
+  String notAtPlace(String distance) {
+    return 'Du bist $distance vom Pin entfernt. Sei bei deiner Wasserstelle, um sie einzutragen.';
+  }
+
+  @override
+  String onSiteCheckFailed(String error) {
+    return 'Standort konnte nicht geprüft werden: $error';
+  }
+
+  @override
+  String get reportProblem => 'Problem melden';
+
+  @override
+  String reportTitle(String place) {
+    return 'Was stimmt nicht mit $place?';
+  }
+
+  @override
+  String get reportNoWater => 'Hier gibt es kein Wasser';
+
+  @override
+  String get reportDoesNotExist => 'Den Ort gibt es nicht';
+
+  @override
+  String get reportWrongLocation => 'Falscher Standort';
+
+  @override
+  String get reportSend => 'Melden';
+
+  @override
+  String get reportThanks =>
+      'Danke. Orte mit mehreren Meldungen werden ausgeblendet, bis sie geprüft sind.';
+
+  @override
+  String get reportFailed =>
+      'Meldung konnte nicht gesendet werden. Du kannst jeden Ort einmal melden.';
+
+  @override
+  String get placeHidden =>
+      'Deine Wasserstelle ist ausgeblendet: Reisende haben ein Problem gemeldet. Schreib an petehon1205@gmail.com, damit wir sie prüfen können.';
+
+  @override
   String get placeName => 'Name des Ortes';
 
   @override

@@ -584,7 +584,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get planning => 'Calcul…';
 
   @override
-  String get useMyLocation => 'Utiliser ma position';
+  String get useMyLocation => 'Utiliser ma position actuelle';
 
   @override
   String get chooseDestination => 'Choisir une destination';
@@ -976,6 +976,52 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get sectionPrice => 'Prix';
+
+  @override
+  String get onSiteNote =>
+      'Soyez sur place pour inscrire votre point d’eau : l’app vérifie votre position quand vous enregistrez un nouveau repère.';
+
+  @override
+  String notAtPlace(String distance) {
+    return 'Vous êtes à $distance du repère. Soyez sur place pour inscrire votre point d’eau.';
+  }
+
+  @override
+  String onSiteCheckFailed(String error) {
+    return 'Impossible de vérifier votre position : $error';
+  }
+
+  @override
+  String get reportProblem => 'Signaler un problème';
+
+  @override
+  String reportTitle(String place) {
+    return 'Quel est le problème avec $place ?';
+  }
+
+  @override
+  String get reportNoWater => 'Pas d’eau ici';
+
+  @override
+  String get reportDoesNotExist => 'Ce lieu n’existe pas';
+
+  @override
+  String get reportWrongLocation => 'Mauvais emplacement';
+
+  @override
+  String get reportSend => 'Signaler';
+
+  @override
+  String get reportThanks =>
+      'Merci. Les lieux signalés plusieurs fois sont masqués jusqu’à vérification.';
+
+  @override
+  String get reportFailed =>
+      'Impossible d’envoyer le signalement. Vous pouvez signaler chaque lieu une fois.';
+
+  @override
+  String get placeHidden =>
+      'Votre point d’eau est masqué : des voyageurs ont signalé un problème. Écrivez à petehon1205@gmail.com pour que nous le vérifiions.';
 
   @override
   String get placeName => 'Nom du lieu';

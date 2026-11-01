@@ -574,7 +574,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get planning => 'Planning…';
 
   @override
-  String get useMyLocation => 'Use my location';
+  String get useMyLocation => 'Use my current location';
 
   @override
   String get chooseDestination => 'Choose a destination';
@@ -963,6 +963,52 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sectionPrice => 'Price';
+
+  @override
+  String get onSiteNote =>
+      'Be at your water place to list it: the app checks your location when you save a new pin.';
+
+  @override
+  String notAtPlace(String distance) {
+    return 'You are $distance away from the pin. Be at your water place to list it.';
+  }
+
+  @override
+  String onSiteCheckFailed(String error) {
+    return 'Could not check your location: $error';
+  }
+
+  @override
+  String get reportProblem => 'Report a problem';
+
+  @override
+  String reportTitle(String place) {
+    return 'What is wrong with $place?';
+  }
+
+  @override
+  String get reportNoWater => 'No water here';
+
+  @override
+  String get reportDoesNotExist => 'The place does not exist';
+
+  @override
+  String get reportWrongLocation => 'Wrong location';
+
+  @override
+  String get reportSend => 'Report';
+
+  @override
+  String get reportThanks =>
+      'Thank you. Places with several reports are hidden until they are checked.';
+
+  @override
+  String get reportFailed =>
+      'Could not send the report. You can report each place once.';
+
+  @override
+  String get placeHidden =>
+      'Your water place is hidden: travelers reported a problem with it. Write to petehon1205@gmail.com so we can check it.';
 
   @override
   String get placeName => 'Place name';

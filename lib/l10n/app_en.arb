@@ -297,7 +297,7 @@
   "requestDeleted": "Request deleted",
   "locating": "Locating…",
   "planning": "Planning…",
-  "useMyLocation": "Use my location",
+  "useMyLocation": "Use my current location",
   "chooseDestination": "Choose a destination",
   "nearYourLocation": "Near your location",
   "toDestination": "To {destination}",
@@ -591,6 +591,39 @@
   "bannerOfferSubtitle": "Set your price for a campervan refill, add your place and choose your opening times.",
   "sectionPlace": "Name and location",
   "sectionPrice": "Price",
+  "onSiteNote": "Be at your water place to list it: the app checks your location when you save a new pin.",
+  "notAtPlace": "You are {distance} away from the pin. Be at your water place to list it.",
+  "@notAtPlace": {
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
+  "onSiteCheckFailed": "Could not check your location: {error}",
+  "@onSiteCheckFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "reportProblem": "Report a problem",
+  "reportTitle": "What is wrong with {place}?",
+  "@reportTitle": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "reportNoWater": "No water here",
+  "reportDoesNotExist": "The place does not exist",
+  "reportWrongLocation": "Wrong location",
+  "reportSend": "Report",
+  "reportThanks": "Thank you. Places with several reports are hidden until they are checked.",
+  "reportFailed": "Could not send the report. You can report each place once.",
+  "placeHidden": "Your water place is hidden: travelers reported a problem with it. Write to petehon1205@gmail.com so we can check it.",
   "placeName": "Place name",
   "placeNameHint": "Water at our farm",
   "addressPlace": "Address / place",

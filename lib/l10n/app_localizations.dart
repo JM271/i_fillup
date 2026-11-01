@@ -1099,7 +1099,7 @@ abstract class AppLocalizations {
   /// No description provided for @useMyLocation.
   ///
   /// In en, this message translates to:
-  /// **'Use my location'**
+  /// **'Use my current location'**
   String get useMyLocation;
 
   /// No description provided for @chooseDestination.
@@ -1695,6 +1695,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Price'**
   String get sectionPrice;
+
+  /// No description provided for @onSiteNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Be at your water place to list it: the app checks your location when you save a new pin.'**
+  String get onSiteNote;
+
+  /// No description provided for @notAtPlace.
+  ///
+  /// In en, this message translates to:
+  /// **'You are {distance} away from the pin. Be at your water place to list it.'**
+  String notAtPlace(String distance);
+
+  /// No description provided for @onSiteCheckFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not check your location: {error}'**
+  String onSiteCheckFailed(String error);
+
+  /// No description provided for @reportProblem.
+  ///
+  /// In en, this message translates to:
+  /// **'Report a problem'**
+  String get reportProblem;
+
+  /// No description provided for @reportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What is wrong with {place}?'**
+  String reportTitle(String place);
+
+  /// No description provided for @reportNoWater.
+  ///
+  /// In en, this message translates to:
+  /// **'No water here'**
+  String get reportNoWater;
+
+  /// No description provided for @reportDoesNotExist.
+  ///
+  /// In en, this message translates to:
+  /// **'The place does not exist'**
+  String get reportDoesNotExist;
+
+  /// No description provided for @reportWrongLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong location'**
+  String get reportWrongLocation;
+
+  /// No description provided for @reportSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Report'**
+  String get reportSend;
+
+  /// No description provided for @reportThanks.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you. Places with several reports are hidden until they are checked.'**
+  String get reportThanks;
+
+  /// No description provided for @reportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not send the report. You can report each place once.'**
+  String get reportFailed;
+
+  /// No description provided for @placeHidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Your water place is hidden: travelers reported a problem with it. Write to petehon1205@gmail.com so we can check it.'**
+  String get placeHidden;
 
   /// No description provided for @placeName.
   ///

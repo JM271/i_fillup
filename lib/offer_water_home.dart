@@ -303,6 +303,17 @@ class _GiverHomeState extends State<GiverHome> {
                         Text(tr.yourWaterPlacesIntro),
                         const SizedBox(height: 12),
                         if (offers.isEmpty) Text(tr.noPlacesYet),
+                        if (offers.any((place) => !place.isActive))
+                          Card(
+                            margin: const EdgeInsets.only(bottom: 8),
+                            color: Theme.of(context).colorScheme.errorContainer,
+                            child: ListTile(
+                              leading: const Icon(
+                                Icons.visibility_off_outlined,
+                              ),
+                              title: Text(tr.placeHidden),
+                            ),
+                          ),
                         if (mustChoosePlace(offers))
                           Card(
                             margin: const EdgeInsets.only(bottom: 8),
