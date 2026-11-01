@@ -20,17 +20,19 @@ class ProfileRepository implements WaterRepository {
     this.profile,
     this.incoming = const [],
     this.mine = const [],
+    this.listed = places,
   });
   TravelerProfile? profile;
   final List<RefillRequest> incoming;
   final List<RefillRequest> mine;
+  final List<WaterPlace> listed;
   final sent = <TravelerProfile>[];
   final deletedRequests = <String>[];
 
   @override
   bool get isDemo => false;
   @override
-  Stream<List<WaterPlace>> watchPlaces() => Stream.value(places);
+  Stream<List<WaterPlace>> watchPlaces() => Stream.value(listed);
   @override
   Stream<List<WaterPlace>> watchMyPlaces() => Stream.value(const []);
   @override
@@ -413,5 +415,66 @@ void main() {
     await tester.tap(find.text('Requests'));
     await tester.pumpAndSettle();
     expect(find.text('Arrived · 14:05'), findsOneWidget);
+  });
+
+  testWidgets('Open requests link to directions in Google Maps', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(800, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final tap = WaterPlace(
+      'Garden tap',
+      'Thun, Switzerland',
+      'Anna',
+      true,
+      'Free',
+      '',
+      Icons.cottage_outlined,
+      places.first.location,
+      id: 'anna',
+      ownerId: 'anna',
+    );
+    final repository = ProfileRepository(
+      listed: [tap],
+      mine: const [
+        RefillRequest(
+          id: 'm1',
+          placeId: 'anna',
+          placeName: 'Garden tap',
+          liters: 80,
+          message: 'ASAP',
+          status: 'accepted',
+        ),
+        RefillRequest(
+          id: 'm2',
+          placeId: 'anna',
+          placeName: 'Garden tap',
+          liters: 40,
+          message: 'Last week',
+          status: 'declined',
+        ),
+        RefillRequest(
+          id: 'm3',
+          placeId: 'gone',
+          placeName: 'Deleted tap',
+          liters: 40,
+          message: 'ASAP',
+          status: 'pending',
+        ),
+      ],
+    );
+    await tester.pumpWidget(
+      MaterialApp(home: RefillHome(repository: repository)),
+    );
+    await tester.tap(find.text('Requests'));
+    await tester.pumpAndSettle();
+    // Only the open request whose place is still listed.
+    expect(find.text('Directions'), findsOneWidget);
+    expect(
+      directionsUrl(tap).toString(),
+      'https://www.google.com/maps/dir/?api=1&destination=46.758%2C7.628',
+    );
   });
 }

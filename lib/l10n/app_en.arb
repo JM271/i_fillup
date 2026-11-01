@@ -561,6 +561,7 @@
     }
   },
   "announce": "Announce",
+  "directions": "Directions",
   "arrivalAnnounced": "Arrival announced",
   "announceArrivalFailed": "Could not announce your arrival: {error}",
   "@announceArrivalFailed": {

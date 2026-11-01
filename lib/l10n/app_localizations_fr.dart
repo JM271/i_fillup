@@ -923,6 +923,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get announce => 'Signaler';
 
   @override
+  String get directions => 'Itinéraire';
+
+  @override
   String get arrivalAnnounced => 'Arrivée signalée';
 
   @override

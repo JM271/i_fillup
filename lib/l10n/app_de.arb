@@ -250,6 +250,7 @@
   "announceArrivalTitle": "Ankunft melden?",
   "announceArrivalBody": "{place} erhält eine Benachrichtigung, dass du da bist.",
   "announce": "Melden",
+  "directions": "Route",
   "arrivalAnnounced": "Ankunft gemeldet",
   "announceArrivalFailed": "Ankunft konnte nicht gemeldet werden: {error}",
   "arrivedAt": "Angekommen · {time}",

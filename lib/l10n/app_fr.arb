@@ -250,6 +250,7 @@
   "announceArrivalTitle": "Signaler votre arrivée ?",
   "announceArrivalBody": "{place} reçoit une notification indiquant que vous êtes sur place.",
   "announce": "Signaler",
+  "directions": "Itinéraire",
   "arrivalAnnounced": "Arrivée signalée",
   "announceArrivalFailed": "Impossible de signaler votre arrivée : {error}",
   "arrivedAt": "Sur place · {time}",

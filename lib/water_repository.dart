@@ -9,6 +9,7 @@ import 'texts.dart';
 class RefillRequest {
   const RefillRequest({
     required this.id,
+    this.placeId,
     required this.placeName,
     required this.liters,
     required this.message,
@@ -20,6 +21,7 @@ class RefillRequest {
   });
 
   final String id;
+  final String? placeId;
   final String placeName;
   final int liters;
   final String message;
@@ -39,12 +41,15 @@ class RefillRequest {
 
   /// Water takers can announce their arrival once, until the request is
   /// declined or cancelled.
-  bool get canAnnounceArrival =>
-      arrivedAt == null && (status == 'pending' || status == 'accepted');
+  bool get canAnnounceArrival => open && arrivedAt == null;
+
+  /// Whether the water taker may still be on their way to the place.
+  bool get open => status == 'pending' || status == 'accepted';
 
   factory RefillRequest.fromFirestore(String id, Map<String, dynamic> data) =>
       RefillRequest(
         id: id,
+        placeId: data['placeId'] as String?,
         placeName: data['placeName'] as String,
         liters: data['liters'] as int,
         message: data['message'] as String,

@@ -910,6 +910,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get announce => 'Announce';
 
   @override
+  String get directions => 'Directions';
+
+  @override
   String get arrivalAnnounced => 'Arrival announced';
 
   @override

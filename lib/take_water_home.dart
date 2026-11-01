@@ -1172,8 +1172,15 @@ class _RefillHomeState extends State<RefillHome> {
                                                       .deleteMyRequest(request),
                                                 ),
                                               ),
-                                              _ArrivalRow(
+                                              _RequestActions(
                                                 request: request,
+                                                place: allPlaces
+                                                    .where(
+                                                      (place) =>
+                                                          place.id ==
+                                                          request.placeId,
+                                                    )
+                                                    .firstOrNull,
                                                 onAnnounce: () =>
                                                     announceArrival(request),
                                               ),
@@ -1219,35 +1226,63 @@ class _RefillHomeState extends State<RefillHome> {
   }
 }
 
-/// The water taker's "I've arrived" button, or a note once it was used.
-class _ArrivalRow extends StatelessWidget {
-  const _ArrivalRow({required this.request, required this.onAnnounce});
+/// Driving directions to [place] in Google Maps.
+Uri directionsUrl(WaterPlace place) =>
+    Uri.https('www.google.com', '/maps/dir/', {
+      'api': '1',
+      'destination': '${place.location.latitude},${place.location.longitude}',
+    });
+
+/// Directions to the place and the water taker's "I've arrived" button, or
+/// a note once that was used.
+class _RequestActions extends StatelessWidget {
+  const _RequestActions({
+    required this.request,
+    required this.place,
+    required this.onAnnounce,
+  });
   final RefillRequest request;
+
+  /// The listed place, or null when it is no longer listed.
+  final WaterPlace? place;
   final VoidCallback onAnnounce;
 
   @override
   Widget build(BuildContext context) {
-    final Widget child;
-    if (request.canAnnounceArrival) {
-      child = FilledButton.tonalIcon(
-        onPressed: onAnnounce,
-        icon: const Icon(Icons.where_to_vote_outlined),
-        label: Text(tr.announceArrival),
-      );
-    } else if (request.arrivedAt != null) {
-      child = Row(
-        children: [
-          const Icon(Icons.where_to_vote, color: teal, size: 20),
-          const SizedBox(width: 8),
-          Text(tr.arrivalAnnounced, style: const TextStyle(color: muted)),
-        ],
-      );
-    } else {
-      return const SizedBox.shrink();
-    }
+    final place = this.place;
+    final children = [
+      if (place != null && request.open)
+        OutlinedButton.icon(
+          onPressed: () => launchUrl(
+            directionsUrl(place),
+            mode: LaunchMode.externalApplication,
+          ),
+          icon: const Icon(Icons.directions_outlined),
+          label: Text(tr.directions),
+        ),
+      if (request.canAnnounceArrival)
+        FilledButton.tonalIcon(
+          onPressed: onAnnounce,
+          icon: const Icon(Icons.where_to_vote_outlined),
+          label: Text(tr.announceArrival),
+        )
+      else if (request.arrivedAt != null)
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.where_to_vote, color: teal, size: 20),
+              const SizedBox(width: 8),
+              Text(tr.arrivalAnnounced, style: const TextStyle(color: muted)),
+            ],
+          ),
+        ),
+    ];
+    if (children.isEmpty) return const SizedBox.shrink();
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-      child: child,
+      child: Wrap(spacing: 8, runSpacing: 8, children: children),
     );
   }
 }

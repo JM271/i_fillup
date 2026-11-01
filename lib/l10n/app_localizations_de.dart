@@ -920,6 +920,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get announce => 'Melden';
 
   @override
+  String get directions => 'Route';
+
+  @override
   String get arrivalAnnounced => 'Ankunft gemeldet';
 
   @override

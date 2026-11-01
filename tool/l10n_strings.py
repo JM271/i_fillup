@@ -269,6 +269,7 @@ S = {
  'announceArrivalTitle': ('Announce your arrival?', 'Ankunft melden?', 'Signaler votre arrivée ?'),
  'announceArrivalBody': ('{place} gets a notification that you are there.', '{place} erhält eine Benachrichtigung, dass du da bist.', '{place} reçoit une notification indiquant que vous êtes sur place.'),
  'announce': ('Announce', 'Melden', 'Signaler'),
+ 'directions': ('Directions', 'Route', 'Itinéraire'),
  'arrivalAnnounced': ('Arrival announced', 'Ankunft gemeldet', 'Arrivée signalée'),
  'announceArrivalFailed': ('Could not announce your arrival: {error}', 'Ankunft konnte nicht gemeldet werden: {error}', 'Impossible de signaler votre arrivée : {error}'),
  'arrivedAt': ('Arrived · {time}', 'Angekommen · {time}', 'Sur place · {time}'),
