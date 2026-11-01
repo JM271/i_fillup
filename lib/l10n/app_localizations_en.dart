@@ -84,7 +84,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deleteAccountBody =>
-      'This permanently deletes your account, your water place, your profile and your refill requests. It cannot be undone.';
+      'This permanently deletes your account, your water place, your profile, your favorites and your refill requests. It cannot be undone.';
 
   @override
   String get password => 'Password';
@@ -668,7 +668,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String demoPlacesCount(int count) {
-    return '$count demo places · Sample places in Switzerland';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count demo places · Sample places in Switzerland',
+      one: '1 demo place · Sample places in Switzerland',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -980,6 +986,24 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reportProblem => 'Report a problem';
+
+  @override
+  String get favorites => 'Favorites';
+
+  @override
+  String get addFavorite => 'Save as favorite';
+
+  @override
+  String get removeFavorite => 'Remove from favorites';
+
+  @override
+  String get noFavorites =>
+      'No favorites yet. Tap the heart on a place to keep it here.';
+
+  @override
+  String favoriteFailed(String error) {
+    return 'Could not save your favorite: $error';
+  }
 
   @override
   String reportTitle(String place) {

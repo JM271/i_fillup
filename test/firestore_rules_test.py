@@ -104,6 +104,14 @@ request('PATCH', hide_path, host, dict(hostHidden=True, updatedAt=''))
 mine_path = '/refillRequests/' + request_id + '?updateMask.fieldPaths=requesterHidden&updateMask.fieldPaths=updatedAt'
 request('PATCH', mine_path, host, dict(requesterHidden=True, updatedAt=''), 403)
 request('PATCH', mine_path, 'traveler', dict(requesterHidden=True, updatedAt=''))
+# Favorites are private to their owner.
+favorites = dict(placeIds=[place_id], updatedAt='')
+request('PATCH', '/favorites/traveler', 'traveler', favorites)
+request('GET', '/favorites/traveler', 'traveler')
+request('GET', '/favorites/traveler', 'stranger', expected=403)
+request('PATCH', '/favorites/traveler', 'stranger', favorites, 403)
+request('PATCH', '/favorites/traveler', 'traveler', dict(favorites, note='x'), 403)
+request('PATCH', '/favorites/traveler', 'traveler', dict(favorites, placeIds='x'), 403)
 # Travelers report a listed place once each, never their own.
 report = dict(placeId=place_id, reporterUid='traveler', reason='noWater', createdAt='')
 report_path = '/reports/' + place_id + '_traveler'
@@ -121,4 +129,4 @@ request('PATCH', '/waterPlaces/' + place_id, host, place, 403)
 request('DELETE', '/waterPlaces/' + place_id, 'stranger', expected=403)
 request('DELETE', '/waterPlaces/' + place_id, host)
 request('PATCH', '/waterPlaces/' + place_id, host, place, 403)
-print('38 Firestore rules checks passed (local emulator only).')
+print('44 Firestore rules checks passed (local emulator only).')

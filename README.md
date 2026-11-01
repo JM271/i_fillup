@@ -114,3 +114,7 @@ Hosts must be at their water place to list it: when a new or moved pin is saved,
 
 Travelers can **Report a problem** on a place (no water, does not exist, wrong location), once per place: the report is stored as `reports/{placeId}_{uid}`. When two different travelers have reported a place, the `hideReportedPlace` function sets its `isActive` to false, writes `suspensions/{placeId}` and tells the host. While that document exists, the rules stop the host from changing or re-creating the place. After checking it in the Firebase console, delete the suspension and the place's reports, then set `isActive` back to true.
 
+## Favorites
+
+Travelers tap the heart on a place, in the list or in its details, to save it as a favorite; the **Favorites** chip shows only those. Favorites are stored as `favorites/{uid}` with a `placeIds` list (up to 200), readable and writable only by that user, and deleted with the account. Places that are no longer listed simply drop out of the favorites list. In the demo, favorites last for the session.
+

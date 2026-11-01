@@ -241,7 +241,7 @@ abstract class AppLocalizations {
   /// No description provided for @deleteAccountBody.
   ///
   /// In en, this message translates to:
-  /// **'This permanently deletes your account, your water place, your profile and your refill requests. It cannot be undone.'**
+  /// **'This permanently deletes your account, your water place, your profile, your favorites and your refill requests. It cannot be undone.'**
   String get deleteAccountBody;
 
   /// No description provided for @password.
@@ -1243,7 +1243,7 @@ abstract class AppLocalizations {
   /// No description provided for @demoPlacesCount.
   ///
   /// In en, this message translates to:
-  /// **'{count} demo places · Sample places in Switzerland'**
+  /// **'{count, plural, =1{1 demo place · Sample places in Switzerland} other{{count} demo places · Sample places in Switzerland}}'**
   String demoPlacesCount(int count);
 
   /// No description provided for @livePlacesCount.
@@ -1719,6 +1719,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Report a problem'**
   String get reportProblem;
+
+  /// No description provided for @favorites.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorites'**
+  String get favorites;
+
+  /// No description provided for @addFavorite.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as favorite'**
+  String get addFavorite;
+
+  /// No description provided for @removeFavorite.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from favorites'**
+  String get removeFavorite;
+
+  /// No description provided for @noFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'No favorites yet. Tap the heart on a place to keep it here.'**
+  String get noFavorites;
+
+  /// No description provided for @favoriteFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save your favorite: {error}'**
+  String favoriteFailed(String error);
 
   /// No description provided for @reportTitle.
   ///

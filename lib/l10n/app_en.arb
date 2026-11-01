@@ -23,7 +23,7 @@
   "passwordIncorrect": "The password is incorrect.",
   "deleteAccountFailed": "Could not delete your account. Please try again.",
   "deleteAccountTitle": "Delete your account?",
-  "deleteAccountBody": "This permanently deletes your account, your water place, your profile and your refill requests. It cannot be undone.",
+  "deleteAccountBody": "This permanently deletes your account, your water place, your profile, your favorites and your refill requests. It cannot be undone.",
   "password": "Password",
   "keepAccount": "Keep account",
   "deleting": "Deleting…",
@@ -355,7 +355,7 @@
       }
     }
   },
-  "demoPlacesCount": "{count} demo places · Sample places in Switzerland",
+  "demoPlacesCount": "{count, plural, =1{1 demo place · Sample places in Switzerland} other{{count} demo places · Sample places in Switzerland}}",
   "@demoPlacesCount": {
     "placeholders": {
       "count": {
@@ -609,6 +609,18 @@
     }
   },
   "reportProblem": "Report a problem",
+  "favorites": "Favorites",
+  "addFavorite": "Save as favorite",
+  "removeFavorite": "Remove from favorites",
+  "noFavorites": "No favorites yet. Tap the heart on a place to keep it here.",
+  "favoriteFailed": "Could not save your favorite: {error}",
+  "@favoriteFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "reportTitle": "What is wrong with {place}?",
   "@reportTitle": {
     "placeholders": {

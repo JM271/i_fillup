@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -88,8 +90,48 @@ class DistanceFilter {
 class _RefillHomeState extends State<RefillHome> {
   String query = '';
 
-  /// 0: all places, 1: private hosts, 2: refill stops.
+  /// 0: all places, 1: favorites, 2: private hosts, 3: refill stops.
   int filter = 0;
+
+  /// The user's favorite places, by ID; demo places have none, so the demo
+  /// uses their names.
+  final favorites = ValueNotifier<Set<String>>(const {});
+  StreamSubscription<Set<String>>? favoritesSubscription;
+
+  static String favoriteKey(WaterPlace place) => place.id ?? place.name;
+  bool isFavorite(WaterPlace place) =>
+      favorites.value.contains(favoriteKey(place));
+
+  Future<void> toggleFavorite(WaterPlace place) async {
+    final key = favoriteKey(place);
+    final favorite = !favorites.value.contains(key);
+    Set<String> toggled(Set<String> ids, bool add) =>
+        add ? {...ids, key} : ({...ids}..remove(key));
+    // Shown at once; saving confirms it through the favorites stream.
+    favorites.value = toggled(favorites.value, favorite);
+    if (repository.isDemo) return;
+    try {
+      await repository.setFavorite(key, favorite);
+    } on FirebaseException catch (error) {
+      favorites.value = toggled(favorites.value, !favorite);
+      showMessage(tr.favoriteFailed('${error.message}'));
+    }
+  }
+
+  Widget favoriteButton(WaterPlace place) => ValueListenableBuilder(
+    valueListenable: favorites,
+    builder: (context, _, _) {
+      final favorite = isFavorite(place);
+      return IconButton(
+        tooltip: favorite ? tr.removeFavorite : tr.addFavorite,
+        onPressed: () => toggleFavorite(place),
+        icon: Icon(
+          favorite ? Icons.favorite : Icons.favorite_border,
+          color: teal,
+        ),
+      );
+    },
+  );
   int page = 0;
   final List<String> demoRequests = [];
   DistanceMode mode = DistanceMode.all;
@@ -108,15 +150,27 @@ class _RefillHomeState extends State<RefillHome> {
 
   void openRequests() => setState(() => page = 1);
 
+  void showFavorites() => setState(() {});
+
   @override
   void initState() {
     super.initState();
     widget.showRequests?.addListener(openRequests);
+    favorites.addListener(showFavorites);
+    if (!repository.isDemo) {
+      favoritesSubscription = repository.watchFavorites().listen(
+        (ids) => favorites.value = ids,
+        onError: (Object error) =>
+            debugPrint('Could not load favorites: $error'),
+      );
+    }
   }
 
   @override
   void dispose() {
     widget.showRequests?.removeListener(openRequests);
+    favoritesSubscription?.cancel();
+    favorites.dispose();
     super.dispose();
   }
 
@@ -152,9 +206,16 @@ class _RefillHomeState extends State<RefillHome> {
               else
                 Icon(place.icon, size: 48, color: teal),
               const SizedBox(height: 16),
-              Text(
-                place.name,
-                style: Theme.of(context).textTheme.headlineSmall,
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      place.name,
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                  ),
+                  favoriteButton(place),
+                ],
               ),
               Text(tr.areaPrice(place.area, displayPrice(place.price))),
               const SizedBox(height: 12),
@@ -834,7 +895,12 @@ class _RefillHomeState extends State<RefillHome> {
             '${p.name} ${p.area} ${p.host}'.toLowerCase().contains(
               query.toLowerCase(),
             ) &&
-            (filter == 0 || (filter == 1 ? p.private : !p.private));
+            switch (filter) {
+              1 => isFavorite(p),
+              2 => p.private,
+              3 => !p.private,
+              _ => true,
+            };
         final routeStops = {
           for (final stop in stops ?? const <RouteStop>[])
             if (filterDistance(route!, stop) <= radiusKm * 1000 &&
@@ -901,31 +967,29 @@ class _RefillHomeState extends State<RefillHome> {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: Row(
-                              children:
-                                  [
-                                        tr.allPlaces,
-                                        tr.privateHosts,
-                                        tr.refillStops,
-                                      ].indexed
-                                      .map(
-                                        (entry) => Padding(
-                                          padding: const EdgeInsets.only(
-                                            right: 8,
-                                          ),
-                                          child: ChoiceChip(
-                                            label: Text(entry.$2),
-                                            selected: filter == entry.$1,
-                                            onSelected: (_) => setState(
-                                              () => filter = entry.$1,
-                                            ),
-                                          ),
-                                        ),
-                                      )
-                                      .toList(),
-                            ),
+                          // Wraps, so every filter stays in sight on a phone.
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 4,
+                            children: [
+                              for (final (index, label) in [
+                                tr.allPlaces,
+                                tr.favorites,
+                                tr.privateHosts,
+                                tr.refillStops,
+                              ].indexed)
+                                ChoiceChip(
+                                  // Once selected, the check mark shows
+                                  // instead, as on the other filters.
+                                  avatar: index == 1 && filter != 1
+                                      ? const Icon(Icons.favorite, size: 18)
+                                      : null,
+                                  label: Text(label),
+                                  selected: filter == index,
+                                  onSelected: (_) =>
+                                      setState(() => filter = index),
+                                ),
+                            ],
                           ),
                           const SizedBox(height: 8),
                           SegmentedButton<DistanceMode>(
@@ -1037,6 +1101,8 @@ class _RefillHomeState extends State<RefillHome> {
                                     ? route!.aroundStart
                                           ? tr.noPlacesNearYou(radiusKm)
                                           : tr.noPlacesNearRoute(radiusKm)
+                                    : filter == 1 && query.isEmpty
+                                    ? tr.noFavorites
                                     : tr.noPlacesMatch,
                               ),
                             ),
@@ -1130,10 +1196,7 @@ class _RefillHomeState extends State<RefillHome> {
                                             ],
                                           ),
                                         ),
-                                        const Icon(
-                                          Icons.chevron_right,
-                                          color: teal,
-                                        ),
+                                        favoriteButton(place),
                                       ],
                                     ),
                                   ),

@@ -374,11 +374,11 @@ void main() {
     await tester.tap(find.text('Refill stops'));
     await tester.pumpAndSettle();
     await tester.scrollUntilVisible(
-      find.textContaining('1 demo places'),
+      find.textContaining('1 demo place ·'),
       100,
       scrollable: find.byType(Scrollable).first,
     );
-    expect(find.textContaining('1 demo places'), findsOneWidget);
+    expect(find.textContaining('1 demo place ·'), findsOneWidget);
     expect(find.text('A little stop by the lake'), findsNothing);
     await tester.scrollUntilVisible(
       find.text('Riverside camper stop'),

@@ -243,5 +243,6 @@ exports.deleteUserData = functionsV1
     }
     writer.delete(db.doc(`profiles/${user.uid}`));
     writer.delete(db.doc(`devices/${user.uid}`));
+    writer.delete(db.doc(`favorites/${user.uid}`));
     await writer.close();
   });

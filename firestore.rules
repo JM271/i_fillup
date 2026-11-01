@@ -73,6 +73,16 @@ service cloud.firestore {
       return exists(/databases/$(database)/documents/suspensions/$(placeId));
     }
 
+    // Each user's favorite water places, private to them.
+    match /favorites/{uid} {
+      allow read: if signedIn() && request.auth.uid == uid;
+      allow create, update: if signedIn() && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['placeIds', 'updatedAt'])
+        && request.resource.data.placeIds is list
+        && request.resource.data.placeIds.size() <= 200
+        && request.resource.data.updatedAt is timestamp;
+    }
+
     // Travelers report a listed place once each, never their own; nobody
     // reads reports in the app.
     match /reports/{reportId} {

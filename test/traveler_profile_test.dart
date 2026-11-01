@@ -69,6 +69,12 @@ class ProfileRepository implements WaterRepository {
   @override
   Future<void> deleteMyRequest(RefillRequest request) async =>
       deletedRequests.add(request.id);
+  final favoriteIds = <String>{};
+  @override
+  Stream<Set<String>> watchFavorites() => Stream.value(favoriteIds);
+  @override
+  Future<void> setFavorite(String placeId, bool favorite) async =>
+      favorite ? favoriteIds.add(placeId) : favoriteIds.remove(placeId);
   final reported = <(String?, String)>[];
   @override
   Future<void> reportPlace(WaterPlace place, String reason) async =>

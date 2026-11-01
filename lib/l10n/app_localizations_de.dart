@@ -85,7 +85,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deleteAccountBody =>
-      'Damit werden dein Konto, deine Wasserstelle, dein Profil und deine Anfragen endgültig gelöscht. Das kann nicht rückgängig gemacht werden.';
+      'Damit werden dein Konto, deine Wasserstelle, dein Profil, deine Favoriten und deine Anfragen endgültig gelöscht. Das kann nicht rückgängig gemacht werden.';
 
   @override
   String get password => 'Passwort';
@@ -676,7 +676,13 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String demoPlacesCount(int count) {
-    return '$count Demo-Orte · Beispiele in der Schweiz';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Demo-Orte · Beispiele in der Schweiz',
+      one: '1 Demo-Ort · Beispiele in der Schweiz',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -990,6 +996,24 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get reportProblem => 'Problem melden';
+
+  @override
+  String get favorites => 'Favoriten';
+
+  @override
+  String get addFavorite => 'Als Favorit speichern';
+
+  @override
+  String get removeFavorite => 'Aus Favoriten entfernen';
+
+  @override
+  String get noFavorites =>
+      'Noch keine Favoriten. Tippe bei einem Ort auf das Herz, um ihn hier zu sammeln.';
+
+  @override
+  String favoriteFailed(String error) {
+    return 'Favorit konnte nicht gespeichert werden: $error';
+  }
 
   @override
   String reportTitle(String place) {

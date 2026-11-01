@@ -85,7 +85,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get deleteAccountBody =>
-      'Cela supprime définitivement votre compte, votre point d’eau, votre profil et vos demandes. Cette action est irréversible.';
+      'Cela supprime définitivement votre compte, votre point d’eau, votre profil, vos favoris et vos demandes. Cette action est irréversible.';
 
   @override
   String get password => 'Mot de passe';
@@ -678,7 +678,13 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String demoPlacesCount(int count) {
-    return '$count lieux de démo · Exemples en Suisse';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count lieux de démo · Exemples en Suisse',
+      one: '1 lieu de démo · Exemples en Suisse',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -993,6 +999,24 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get reportProblem => 'Signaler un problème';
+
+  @override
+  String get favorites => 'Favoris';
+
+  @override
+  String get addFavorite => 'Ajouter aux favoris';
+
+  @override
+  String get removeFavorite => 'Retirer des favoris';
+
+  @override
+  String get noFavorites =>
+      'Pas encore de favoris. Touchez le cœur d’un lieu pour le garder ici.';
+
+  @override
+  String favoriteFailed(String error) {
+    return 'Impossible d’enregistrer le favori : $error';
+  }
 
   @override
   String reportTitle(String place) {

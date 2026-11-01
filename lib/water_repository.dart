@@ -103,6 +103,10 @@ abstract interface class WaterRepository {
   /// Reports a problem with a place, once per traveler; enough reports hide
   /// it until it is checked.
   Future<void> reportPlace(WaterPlace place, String reason);
+
+  /// IDs of the places the user saved as favorites.
+  Stream<Set<String>> watchFavorites();
+  Future<void> setFavorite(String placeId, bool favorite);
 }
 
 /// Why a traveler reports a place, as stored with the report.
@@ -176,6 +180,12 @@ class DemoWaterRepository implements WaterRepository {
 
   @override
   Future<void> reportPlace(WaterPlace place, String reason) async {}
+
+  @override
+  Stream<Set<String>> watchFavorites() => Stream.value(const {});
+
+  @override
+  Future<void> setFavorite(String placeId, bool favorite) async {}
 }
 
 class FirebaseWaterRepository implements WaterRepository {
@@ -394,6 +404,27 @@ class FirebaseWaterRepository implements WaterRepository {
         'requesterHidden': true,
         'updatedAt': FieldValue.serverTimestamp(),
       });
+
+  @override
+  Stream<Set<String>> watchFavorites() => _firestore
+      .collection('favorites')
+      .doc(_userId)
+      .snapshots()
+      .map(
+        (snapshot) => {
+          for (final id in snapshot.data()?['placeIds'] as List? ?? const [])
+            if (id is String) id,
+        },
+      );
+
+  @override
+  Future<void> setFavorite(String placeId, bool favorite) =>
+      _firestore.collection('favorites').doc(_userId).set({
+        'placeIds': favorite
+            ? FieldValue.arrayUnion([placeId])
+            : FieldValue.arrayRemove([placeId]),
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
 
   @override
   Future<void> reportPlace(WaterPlace place, String reason) =>
