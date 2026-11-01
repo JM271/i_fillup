@@ -76,7 +76,11 @@ async function notifyUser(uid, notification, data) {
     tokens,
     notification: notification(text),
     data,
-    android: {priority: 'high'},
+    // The channel is created by the app (MainActivity.kt) with sound on.
+    android: {
+      priority: 'high',
+      notification: {channelId: 'refill_requests', defaultSound: true},
+    },
     apns: {payload: {aps: {sound: 'default'}}},
   });
 

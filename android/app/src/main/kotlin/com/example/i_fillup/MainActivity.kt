@@ -1,7 +1,11 @@
 package com.example.i_fillup
 
 import android.app.Activity
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Intent
+import android.os.Build
+import android.os.Bundle
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.net.FetchPlaceRequest
@@ -13,6 +17,21 @@ import io.flutter.plugin.common.MethodChannel
 class MainActivity : FlutterActivity() {
     private var pendingAddress: MethodChannel.Result? = null
     private val addressRequest = 7201
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        // Request notifications play a sound and pop up, also while the app is
+        // in the background. The Cloud Functions send to this channel.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            getSystemService(NotificationManager::class.java).createNotificationChannel(
+                NotificationChannel(
+                    "refill_requests",
+                    getString(R.string.requests_channel_name),
+                    NotificationManager.IMPORTANCE_HIGH,
+                )
+            )
+        }
+    }
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
