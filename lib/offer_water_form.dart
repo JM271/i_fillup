@@ -250,7 +250,13 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
             children: [
               for (final MapEntry(:key, :value) in placeServices.entries)
                 FilterChip(
-                  avatar: Icon(placeServiceIcons[key], size: 18),
+                  showCheckmark: false,
+                  avatar: Icon(
+                    services.contains(key)
+                        ? Icons.check
+                        : placeServiceIcons[key],
+                    size: 18,
+                  ),
                   label: Text(value),
                   selected: services.contains(key),
                   onSelected: (selected) => setState(

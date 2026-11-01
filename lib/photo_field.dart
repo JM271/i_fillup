@@ -4,6 +4,8 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+import 'app_style.dart';
+
 /// Photos are stored inside Firestore documents, so they are kept small.
 const maxPhotoBytes = 200 * 1024;
 
@@ -84,9 +86,13 @@ class PhotoField extends StatelessWidget {
           child: AspectRatio(
             aspectRatio: 16 / 9,
             child: image == null
-                ? ColoredBox(
-                    color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                    child: const Icon(Icons.photo_camera_outlined, size: 40),
+                ? const ColoredBox(
+                    color: foam,
+                    child: Icon(
+                      Icons.photo_camera_outlined,
+                      size: 40,
+                      color: teal,
+                    ),
                   )
                 : Image.memory(image, fit: BoxFit.cover),
           ),
