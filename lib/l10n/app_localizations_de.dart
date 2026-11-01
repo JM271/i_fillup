@@ -969,6 +969,12 @@ class AppLocalizationsDe extends AppLocalizations {
       'Lege deinen Preis für eine Füllung fest, trag deinen Ort ein und wähle deine Öffnungszeiten.';
 
   @override
+  String get sectionPlace => 'Name und Standort';
+
+  @override
+  String get sectionPrice => 'Preis';
+
+  @override
   String get placeName => 'Name des Ortes';
 
   @override

@@ -127,6 +127,7 @@ class OpeningTimesField extends StatelessWidget {
     required this.onChanged,
     this.error,
     this.previous,
+    this.showTitle = true,
   });
   final OpeningTimes value;
   final ValueChanged<OpeningTimes> onChanged;
@@ -135,12 +136,17 @@ class OpeningTimesField extends StatelessWidget {
   /// Free-text times saved before these choices, shown for reference.
   final String? previous;
 
+  /// False when the surrounding card already names the field.
+  final bool showTitle;
+
   @override
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
-      Text(tr.openingTimes, style: Theme.of(context).textTheme.titleSmall),
-      const SizedBox(height: 8),
+      if (showTitle) ...[
+        Text(tr.openingTimes, style: Theme.of(context).textTheme.titleSmall),
+        const SizedBox(height: 8),
+      ],
       SegmentedButton<OpeningMode>(
         showSelectedIcon: false,
         segments: [

@@ -104,140 +104,172 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
                 : tr.editPlaceSubtitle,
           ),
           const SizedBox(height: 16),
-          TextFormField(
-            controller: name,
-            decoration: InputDecoration(
-              labelText: tr.placeName,
-              hintText: tr.placeNameHint,
-            ),
-            validator: requiredText,
-          ),
-          const SizedBox(height: 12),
-          TextFormField(
-            controller: address,
-            onChanged: (_) => setState(() => location = null),
-            maxLines: 2,
-            decoration: InputDecoration(
-              labelText: tr.addressPlace,
-              hintText: tr.addressPlaceHint,
-            ),
-            validator: requiredText,
-          ),
-          const SizedBox(height: 12),
-          OutlinedButton.icon(
-            onPressed: () async {
-              AddressMatch? match;
-              try {
-                if (useGoogle) {
-                  match = await chooseGoogleAddress(address.text);
-                } else {
-                  match = await Navigator.of(context).push<AddressMatch>(
-                    MaterialPageRoute(
-                      builder: (_) => AddressSearchPage(
-                        initialQuery: address.text,
-                        lookup: widget.addressLookup,
-                      ),
-                    ),
-                  );
-                }
-              } on PlatformException catch (error) {
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(error.message ?? tr.googleSearchFailed),
-                    ),
-                  );
-                }
-                return;
-              }
-              final selected = match;
-              if (selected != null && mounted) {
-                setState(() {
-                  address.text = selected.label;
-                  location = selected.location;
-                  missingLocation = false;
-                });
-              }
-            },
-            icon: const Icon(Icons.search),
-            label: Text(
-              useGoogle ? tr.chooseAddressGoogle : tr.chooseAddressList,
-            ),
-          ),
-          const SizedBox(height: 12),
-          OutlinedButton.icon(
-            onPressed: () async {
-              final selected = await Navigator.of(context).push<LatLng>(
-                MaterialPageRoute(
-                  builder: (_) => LocationPicker(initial: location),
-                ),
-              );
-              if (selected != null && mounted) {
-                setState(() {
-                  location = selected;
-                  missingLocation = false;
-                });
-              }
-            },
-            icon: const Icon(Icons.pin_drop_outlined),
-            label: Text(
-              location == null ? tr.choosePlaceOnMap : tr.changeMapLocation,
-            ),
-          ),
-          if (location != null)
-            Text(
-              tr.pinAt(
-                location!.latitude.toStringAsFixed(5),
-                location!.longitude.toStringAsFixed(5),
-              ),
-            ),
-          if (missingLocation)
-            Text(
-              tr.chooseOnMapError,
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
-            ),
-          const SizedBox(height: 16),
-          OpeningTimesField(
-            value: openingTimes,
-            error: openingError,
-            previous:
-                widget.initial != null &&
-                    OpeningTimes.parse(widget.initial!.openingTimes) == null
-                ? widget.initial!.openingTimes
-                : null,
-            onChanged: (value) => setState(() {
-              openingTimes = value;
-              if (openingError != null) openingError = value.problem;
-            }),
-          ),
-          const SizedBox(height: 16),
-          TextFormField(
-            key: const ValueKey('offer-price'),
-            controller: price,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: InputDecoration(
-              labelText: tr.pricePerFillUp,
-              prefixText: 'CHF ',
-              helperText: tr.priceHelper,
-              helperMaxLines: 2,
-            ),
-            validator: (value) =>
-                refillPriceLabel(value ?? '') == null ? tr.priceError : null,
-          ),
-          const SizedBox(height: 12),
-          Text(tr.paymentNoteForm),
-          const SizedBox(height: 16),
-          // One child, so the error line cannot shift the fields around it.
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          _FormSection(
+            icon: Icons.place_outlined,
+            title: tr.sectionPlace,
             children: [
-              Text(
-                tr.whichVehicles,
-                style: Theme.of(context).textTheme.titleSmall,
+              TextFormField(
+                controller: name,
+                decoration: InputDecoration(
+                  labelText: tr.placeName,
+                  hintText: tr.placeNameHint,
+                ),
+                validator: requiredText,
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: address,
+                onChanged: (_) => setState(() => location = null),
+                maxLines: 2,
+                decoration: InputDecoration(
+                  labelText: tr.addressPlace,
+                  hintText: tr.addressPlaceHint,
+                ),
+                validator: requiredText,
+              ),
+              const SizedBox(height: 12),
+              OutlinedButton.icon(
+                onPressed: () async {
+                  AddressMatch? match;
+                  try {
+                    if (useGoogle) {
+                      match = await chooseGoogleAddress(address.text);
+                    } else {
+                      match = await Navigator.of(context).push<AddressMatch>(
+                        MaterialPageRoute(
+                          builder: (_) => AddressSearchPage(
+                            initialQuery: address.text,
+                            lookup: widget.addressLookup,
+                          ),
+                        ),
+                      );
+                    }
+                  } on PlatformException catch (error) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(error.message ?? tr.googleSearchFailed),
+                        ),
+                      );
+                    }
+                    return;
+                  }
+                  final selected = match;
+                  if (selected != null && mounted) {
+                    setState(() {
+                      address.text = selected.label;
+                      location = selected.location;
+                      missingLocation = false;
+                    });
+                  }
+                },
+                icon: const Icon(Icons.search),
+                label: Text(
+                  useGoogle ? tr.chooseAddressGoogle : tr.chooseAddressList,
+                ),
+              ),
+              const SizedBox(height: 8),
+              OutlinedButton.icon(
+                onPressed: () async {
+                  final selected = await Navigator.of(context).push<LatLng>(
+                    MaterialPageRoute(
+                      builder: (_) => LocationPicker(initial: location),
+                    ),
+                  );
+                  if (selected != null && mounted) {
+                    setState(() {
+                      location = selected;
+                      missingLocation = false;
+                    });
+                  }
+                },
+                icon: const Icon(Icons.pin_drop_outlined),
+                label: Text(
+                  location == null ? tr.choosePlaceOnMap : tr.changeMapLocation,
+                ),
+              ),
+              if (location != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.check_circle, color: teal, size: 18),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          tr.pinAt(
+                            location!.latitude.toStringAsFixed(5),
+                            location!.longitude.toStringAsFixed(5),
+                          ),
+                          style: const TextStyle(color: muted),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              if (missingLocation)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Text(
+                    tr.chooseOnMapError,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          _FormSection(
+            icon: Icons.schedule,
+            title: tr.openingTimes,
+            children: [
+              OpeningTimesField(
+                showTitle: false,
+                value: openingTimes,
+                error: openingError,
+                previous:
+                    widget.initial != null &&
+                        OpeningTimes.parse(widget.initial!.openingTimes) == null
+                    ? widget.initial!.openingTimes
+                    : null,
+                onChanged: (value) => setState(() {
+                  openingTimes = value;
+                  if (openingError != null) openingError = value.problem;
+                }),
+              ),
+            ],
+          ),
+          _FormSection(
+            icon: Icons.payments_outlined,
+            title: tr.sectionPrice,
+            children: [
+              TextFormField(
+                key: const ValueKey('offer-price'),
+                controller: price,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                decoration: InputDecoration(
+                  labelText: tr.pricePerFillUp,
+                  prefixText: 'CHF ',
+                  helperText: tr.priceHelper,
+                  helperMaxLines: 2,
+                ),
+                validator: (value) => refillPriceLabel(value ?? '') == null
+                    ? tr.priceError
+                    : null,
+              ),
+              const SizedBox(height: 12),
+              Text(tr.paymentNoteForm, style: const TextStyle(color: muted)),
+            ],
+          ),
+          _FormSection(
+            icon: Icons.airport_shuttle_outlined,
+            title: tr.whichVehicles,
+            children: [
               Wrap(
                 spacing: 8,
+                runSpacing: 8,
                 children: [
                   for (final MapEntry(:key, :value) in vehicleAccess.entries)
                     FilterChip(
@@ -251,87 +283,100 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
                 ],
               ),
               if (missingVehicles)
-                Text(
-                  tr.chooseVehicle,
-                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Text(
+                    tr.chooseVehicle,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                  ),
                 ),
             ],
           ),
-          const SizedBox(height: 16),
-          Text(tr.atTheTap, style: Theme.of(context).textTheme.titleSmall),
-          SwitchListTile(
-            contentPadding: EdgeInsets.zero,
-            secondary: const Icon(Icons.water_outlined, color: teal),
-            title: Text(tr.hoseAvailable),
-            subtitle: Text(tr.hoseAvailableHelp),
-            value: hose,
-            onChanged: (value) => setState(() => hose = value),
-          ),
-          SwitchListTile(
-            contentPadding: EdgeInsets.zero,
-            secondary: const Icon(Icons.self_improvement_outlined, color: teal),
-            title: Text(tr.selfService),
-            subtitle: Text(tr.selfServiceHelp),
-            value: selfService,
-            onChanged: (value) => setState(() => selfService = value),
-          ),
-          const SizedBox(height: 16),
-          PhotoField(
-            label: tr.placePhoto,
-            photo: photo,
-            onChanged: (value) => setState(() => photo = value),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            tr.promoteBusiness,
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          Text(tr.promoteBusinessIntro),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
+          _FormSection(
+            icon: Icons.water,
+            title: tr.atTheTap,
             children: [
-              for (final MapEntry(:key, :value) in placeServices.entries)
-                FilterChip(
-                  showCheckmark: false,
-                  avatar: Icon(
-                    services.contains(key)
-                        ? Icons.check
-                        : placeServiceIcons[key],
-                    size: 18,
-                  ),
-                  label: Text(value),
-                  selected: services.contains(key),
-                  onSelected: (selected) => setState(
-                    () => selected ? services.add(key) : services.remove(key),
-                  ),
-                ),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(tr.hoseAvailable),
+                subtitle: Text(tr.hoseAvailableHelp),
+                value: hose,
+                onChanged: (value) => setState(() => hose = value),
+              ),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(tr.selfService),
+                subtitle: Text(tr.selfServiceHelp),
+                value: selfService,
+                onChanged: (value) => setState(() => selfService = value),
+              ),
             ],
           ),
-          const SizedBox(height: 12),
-          TextFormField(
-            controller: businessInfo,
-            maxLines: 3,
-            maxLength: 500,
-            decoration: InputDecoration(
-              labelText: tr.aboutBusiness,
-              alignLabelWithHint: true,
-              hintText: tr.aboutBusinessHint,
-            ),
+          _FormSection(
+            icon: Icons.photo_camera_outlined,
+            title: tr.placePhoto,
+            children: [
+              PhotoField(
+                photo: photo,
+                onChanged: (value) => setState(() => photo = value),
+              ),
+            ],
+          ),
+          _FormSection(
+            icon: Icons.storefront_outlined,
+            title: tr.promoteBusiness,
+            subtitle: tr.promoteBusinessIntro,
+            children: [
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  for (final MapEntry(:key, :value) in placeServices.entries)
+                    FilterChip(
+                      showCheckmark: false,
+                      avatar: Icon(
+                        services.contains(key)
+                            ? Icons.check
+                            : placeServiceIcons[key],
+                        size: 18,
+                      ),
+                      label: Text(value),
+                      selected: services.contains(key),
+                      onSelected: (selected) => setState(
+                        () =>
+                            selected ? services.add(key) : services.remove(key),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: businessInfo,
+                maxLines: 3,
+                maxLength: 500,
+                decoration: InputDecoration(
+                  labelText: tr.aboutBusiness,
+                  alignLabelWithHint: true,
+                  hintText: tr.aboutBusinessHint,
+                ),
+              ),
+              const SizedBox(height: 8),
+              TextFormField(
+                controller: website,
+                keyboardType: TextInputType.url,
+                maxLength: 200,
+                decoration: InputDecoration(
+                  labelText: tr.website,
+                  hintText: 'https://www.example.ch',
+                ),
+                validator: (value) =>
+                    validWebsite(value?.trim() ?? '') ? null : tr.websiteError,
+              ),
+            ],
           ),
           const SizedBox(height: 8),
-          TextFormField(
-            controller: website,
-            keyboardType: TextInputType.url,
-            maxLength: 200,
-            decoration: InputDecoration(
-              labelText: tr.website,
-              hintText: 'https://www.example.ch',
-            ),
-            validator: (value) =>
-                validWebsite(value?.trim() ?? '') ? null : tr.websiteError,
-          ),
-          const SizedBox(height: 16),
           FilledButton.icon(
             onPressed: saving
                 ? null
@@ -420,7 +465,11 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
             ),
           ),
           const SizedBox(height: 12),
-          Text(widget.isDemo ? tr.previewOfferNote : tr.liveOfferNote),
+          Text(
+            widget.isDemo ? tr.previewOfferNote : tr.liveOfferNote,
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: muted),
+          ),
         ],
       ),
     ),
@@ -428,6 +477,55 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
 
   String? requiredText(String? value) =>
       value == null || value.trim().isEmpty ? tr.fillInField : null;
+}
+
+/// A white card for one group of fields, headed by an icon and a title.
+class _FormSection extends StatelessWidget {
+  const _FormSection({
+    required this.icon,
+    required this.title,
+    this.subtitle,
+    required this.children,
+  });
+  final IconData icon;
+  final String title;
+  final String? subtitle;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) => Card(
+    margin: const EdgeInsets.only(bottom: 12),
+    child: Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              WaterIcon(icon, size: 36),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: Theme.of(context).textTheme.titleMedium
+                          ?.copyWith(fontWeight: FontWeight.w700),
+                    ),
+                    if (subtitle case final subtitle?)
+                      Text(subtitle, style: const TextStyle(color: muted)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          ...children,
+        ],
+      ),
+    ),
+  );
 }
 
 /// Formats the entered CHF amount without accepting negative or non-finite values.

@@ -264,6 +264,8 @@
   "changesSaved": "Modifications enregistrées",
   "bannerOfferTitle": "Proposez de l’eau.\nGagnez de l’argent.",
   "bannerOfferSubtitle": "Fixez votre prix pour un plein, ajoutez votre lieu et choisissez vos horaires.",
+  "sectionPlace": "Nom et emplacement",
+  "sectionPrice": "Prix",
   "placeName": "Nom du lieu",
   "placeNameHint": "De l’eau à notre ferme",
   "addressPlace": "Adresse / lieu",

@@ -589,6 +589,8 @@
   "changesSaved": "Changes saved",
   "bannerOfferTitle": "Offer water.\nEarn cash.",
   "bannerOfferSubtitle": "Set your price for a campervan refill, add your place and choose your opening times.",
+  "sectionPlace": "Name and location",
+  "sectionPrice": "Price",
   "placeName": "Place name",
   "placeNameHint": "Water at our farm",
   "addressPlace": "Address / place",

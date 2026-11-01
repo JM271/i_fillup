@@ -1684,6 +1684,18 @@ abstract class AppLocalizations {
   /// **'Set your price for a campervan refill, add your place and choose your opening times.'**
   String get bannerOfferSubtitle;
 
+  /// No description provided for @sectionPlace.
+  ///
+  /// In en, this message translates to:
+  /// **'Name and location'**
+  String get sectionPlace;
+
+  /// No description provided for @sectionPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get sectionPrice;
+
   /// No description provided for @placeName.
   ///
   /// In en, this message translates to:

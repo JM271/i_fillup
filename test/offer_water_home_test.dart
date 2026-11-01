@@ -204,7 +204,7 @@ void main() {
   });
 
   testWidgets('Hosts can edit their water place', (tester) async {
-    tester.view.physicalSize = const Size(800, 2400);
+    tester.view.physicalSize = const Size(800, 3600);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);

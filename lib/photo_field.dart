@@ -37,13 +37,14 @@ Uint8List? decodePhoto(Object? data) {
 class PhotoField extends StatelessWidget {
   const PhotoField({
     super.key,
-    required this.label,
+    this.label,
     required this.photo,
     required this.onChanged,
     this.pick = pickPhoto,
   });
 
-  final String label;
+  /// Shown above the photo; null when the surrounding card names it.
+  final String? label;
   final Uint8List? photo;
   final ValueChanged<Uint8List?> onChanged;
   final PhotoSource pick;
@@ -76,8 +77,10 @@ class PhotoField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(label, style: Theme.of(context).textTheme.titleSmall),
-        const SizedBox(height: 8),
+        if (label case final label?) ...[
+          Text(label, style: Theme.of(context).textTheme.titleSmall),
+          const SizedBox(height: 8),
+        ],
         ClipRRect(
           borderRadius: BorderRadius.circular(12),
           child: AspectRatio(

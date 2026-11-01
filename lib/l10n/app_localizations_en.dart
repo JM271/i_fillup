@@ -959,6 +959,12 @@ class AppLocalizationsEn extends AppLocalizations {
       'Set your price for a campervan refill, add your place and choose your opening times.';
 
   @override
+  String get sectionPlace => 'Name and location';
+
+  @override
+  String get sectionPrice => 'Price';
+
+  @override
   String get placeName => 'Place name';
 
   @override

@@ -264,6 +264,8 @@
   "changesSaved": "Änderungen gespeichert",
   "bannerOfferTitle": "Wasser anbieten.\nGeld verdienen.",
   "bannerOfferSubtitle": "Lege deinen Preis für eine Füllung fest, trag deinen Ort ein und wähle deine Öffnungszeiten.",
+  "sectionPlace": "Name und Standort",
+  "sectionPrice": "Preis",
   "placeName": "Name des Ortes",
   "placeNameHint": "Wasser auf unserem Hof",
   "addressPlace": "Adresse / Ort",

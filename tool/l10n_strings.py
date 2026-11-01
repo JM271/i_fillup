@@ -284,6 +284,8 @@ S = {
  'changesSaved': ('Changes saved', 'Änderungen gespeichert', 'Modifications enregistrées'),
  'bannerOfferTitle': ('Offer water.\nEarn cash.', 'Wasser anbieten.\nGeld verdienen.', 'Proposez de l’eau.\nGagnez de l’argent.'),
  'bannerOfferSubtitle': ('Set your price for a campervan refill, add your place and choose your opening times.', 'Lege deinen Preis für eine Füllung fest, trag deinen Ort ein und wähle deine Öffnungszeiten.', 'Fixez votre prix pour un plein, ajoutez votre lieu et choisissez vos horaires.'),
+ 'sectionPlace': ('Name and location', 'Name und Standort', 'Nom et emplacement'),
+ 'sectionPrice': ('Price', 'Preis', 'Prix'),
  'placeName': ('Place name', 'Name des Ortes', 'Nom du lieu'),
  'placeNameHint': ('Water at our farm', 'Wasser auf unserem Hof', 'De l’eau à notre ferme'),
  'addressPlace': ('Address / place', 'Adresse / Ort', 'Adresse / lieu'),

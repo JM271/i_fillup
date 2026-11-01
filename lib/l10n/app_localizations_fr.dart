@@ -972,6 +972,12 @@ class AppLocalizationsFr extends AppLocalizations {
       'Fixez votre prix pour un plein, ajoutez votre lieu et choisissez vos horaires.';
 
   @override
+  String get sectionPlace => 'Nom et emplacement';
+
+  @override
+  String get sectionPrice => 'Prix';
+
+  @override
   String get placeName => 'Nom du lieu';
 
   @override
