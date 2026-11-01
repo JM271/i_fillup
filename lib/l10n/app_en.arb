@@ -585,8 +585,29 @@
   },
   "chooseOnMapError": "Choose your place on the map.",
   "openingTimes": "Opening times",
-  "openingTimesHint": "Mon–Fri: 08:00–18:00\nSat: 09:00–12:00\nSun: closed",
-  "openingTimesHelper": "Include days, local times and any appointment requirements.",
+  "openingOnRequest": "On request",
+  "openingOnRequestHelp": "Travelers agree on a time with you in their request.",
+  "segmentOnRequest": "On request",
+  "segmentHours": "Hours",
+  "openingAlwaysShort": "24/7",
+  "openingAlways": "Open 24 hours, every day",
+  "mondayToFriday": "Monday–Friday",
+  "saturdaySunday": "Saturday–Sunday",
+  "weekdaysShort": "Mon–Fri",
+  "weekendShort": "Sat–Sun",
+  "closed": "closed",
+  "opens": "Opens",
+  "closes": "Closes",
+  "openingNeedOne": "Open on weekdays or weekends, or choose On request.",
+  "openingOrder": "The closing time must be after the opening time.",
+  "previously": "Previously: {text}",
+  "@previously": {
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
+  },
   "pricePerFillUp": "Price per fill-up",
   "priceHelper": "One price per refill. Enter 0 to offer water for free.",
   "priceError": "Enter a price of 0 or more, with up to 2 decimals",

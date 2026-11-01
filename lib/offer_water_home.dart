@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'app_style.dart';
 import 'authentication.dart';
 import 'offer_water_form.dart';
+import 'opening_times.dart';
 import 'push_notifications.dart';
 import 'traveler_profile.dart';
 import 'water_place.dart';
@@ -361,7 +362,9 @@ class _GiverHomeState extends State<GiverHome> {
                                                 .bodySmall,
                                           ),
                                         Text(
-                                          place.openingTimes,
+                                          describeOpeningTimes(
+                                            place.openingTimes,
+                                          ),
                                           style: Theme.of(context)
                                               .textTheme
                                               .bodySmall,

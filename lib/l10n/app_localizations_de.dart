@@ -987,12 +987,57 @@ class AppLocalizationsDe extends AppLocalizations {
   String get openingTimes => 'Öffnungszeiten';
 
   @override
-  String get openingTimesHint =>
-      'Mo–Fr: 08:00–18:00\nSa: 09:00–12:00\nSo: geschlossen';
+  String get openingOnRequest => 'Auf Anfrage';
 
   @override
-  String get openingTimesHelper =>
-      'Gib Tage, Uhrzeiten und ob man sich anmelden muss an.';
+  String get openingOnRequestHelp =>
+      'Reisende vereinbaren die Zeit mit dir in ihrer Anfrage.';
+
+  @override
+  String get segmentOnRequest => 'Auf Anfrage';
+
+  @override
+  String get segmentHours => 'Zeiten';
+
+  @override
+  String get openingAlwaysShort => '24/7';
+
+  @override
+  String get openingAlways => 'Rund um die Uhr geöffnet, jeden Tag';
+
+  @override
+  String get mondayToFriday => 'Montag–Freitag';
+
+  @override
+  String get saturdaySunday => 'Samstag–Sonntag';
+
+  @override
+  String get weekdaysShort => 'Mo–Fr';
+
+  @override
+  String get weekendShort => 'Sa–So';
+
+  @override
+  String get closed => 'geschlossen';
+
+  @override
+  String get opens => 'Öffnet';
+
+  @override
+  String get closes => 'Schließt';
+
+  @override
+  String get openingNeedOne =>
+      'Wähle Öffnungszeiten unter der Woche oder am Wochenende, oder „Auf Anfrage“.';
+
+  @override
+  String get openingOrder =>
+      'Die Schließzeit muss nach der Öffnungszeit liegen.';
+
+  @override
+  String previously(String text) {
+    return 'Bisher: $text';
+  }
 
   @override
   String get pricePerFillUp => 'Preis pro Füllung';

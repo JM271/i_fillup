@@ -9,6 +9,7 @@ import 'app_style.dart';
 import 'package:flutter/material.dart';
 
 import 'location_picker.dart';
+import 'opening_times.dart';
 import 'photo_field.dart';
 
 import 'package:latlong2/latlong.dart';
@@ -38,7 +39,8 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
   final form = GlobalKey<FormState>();
   final name = TextEditingController();
   final address = TextEditingController();
-  final hours = TextEditingController();
+  var openingTimes = const OpeningTimes();
+  String? openingError;
   final price = TextEditingController(text: '5.00');
   final businessInfo = TextEditingController();
   final website = TextEditingController();
@@ -61,7 +63,7 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
     if (place == null) return;
     name.text = place.name;
     address.text = place.area;
-    hours.text = place.openingTimes;
+    openingTimes = OpeningTimes.parse(place.openingTimes) ?? openingTimes;
     price.text = priceAmount(place.price) ?? price.text;
     businessInfo.text = place.businessInfo;
     website.text = place.website;
@@ -75,7 +77,6 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
   void dispose() {
     name.dispose();
     address.dispose();
-    hours.dispose();
     price.dispose();
     businessInfo.dispose();
     website.dispose();
@@ -192,17 +193,18 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
               style: TextStyle(color: Theme.of(context).colorScheme.error),
             ),
           const SizedBox(height: 16),
-          TextFormField(
-            controller: hours,
-            maxLines: 4,
-            decoration: InputDecoration(
-              labelText: tr.openingTimes,
-              alignLabelWithHint: true,
-              hintText: tr.openingTimesHint,
-              helperText: tr.openingTimesHelper,
-              helperMaxLines: 2,
-            ),
-            validator: requiredText,
+          OpeningTimesField(
+            value: openingTimes,
+            error: openingError,
+            previous:
+                widget.initial != null &&
+                    OpeningTimes.parse(widget.initial!.openingTimes) == null
+                ? widget.initial!.openingTimes
+                : null,
+            onChanged: (value) => setState(() {
+              openingTimes = value;
+              if (openingError != null) openingError = value.problem;
+            }),
           ),
           const SizedBox(height: 16),
           TextFormField(
@@ -316,8 +318,12 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
                     setState(() {
                       missingLocation = location == null;
                       missingVehicles = vehicles.isEmpty;
+                      openingError = openingTimes.problem;
                     });
-                    if (!valid || location == null || vehicles.isEmpty) {
+                    if (!valid ||
+                        location == null ||
+                        vehicles.isEmpty ||
+                        openingError != null) {
                       return;
                     }
                     setState(() => saving = true);
@@ -334,7 +340,7 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
                           location!,
                           id: widget.initial?.id,
                           ownerId: widget.initial?.ownerId,
-                          openingTimes: hours.text.trim(),
+                          openingTimes: openingTimes.encode(),
                           photo: photo,
                           vehicles: [
                             for (final key in vehicleAccess.keys)
@@ -367,11 +373,11 @@ class _OfferWaterFormState extends State<OfferWaterForm> {
                     if (!mounted || widget.initial != null) return;
                     name.clear();
                     address.clear();
-                    hours.clear();
                     price.text = '5.00';
                     businessInfo.clear();
                     website.clear();
                     setState(() {
+                      openingTimes = const OpeningTimes();
                       location = null;
                       photo = null;
                       vehicles.clear();

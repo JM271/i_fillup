@@ -14,6 +14,7 @@ import 'traveler_profile.dart';
 import 'water_place.dart';
 import 'water_places_map.dart';
 import 'water_repository.dart';
+import 'opening_times.dart';
 import 'texts.dart';
 
 class RefillHome extends StatefulWidget {
@@ -140,7 +141,9 @@ class _RefillHomeState extends State<RefillHome> {
               ),
               Text(tr.areaPrice(place.area, displayPrice(place.price))),
               const SizedBox(height: 12),
-              Text(tr.openingTimesValue(place.openingTimes)),
+              Text(
+                tr.openingTimesValue(describeOpeningTimes(place.openingTimes)),
+              ),
               if (place.vehicles.isNotEmpty) ...[
                 const SizedBox(height: 8),
                 Text(tr.suitableFor(vehicleSummary(place.vehicles))),

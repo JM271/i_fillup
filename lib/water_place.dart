@@ -58,7 +58,7 @@ class WaterPlace {
     this.description,
     this.icon,
     this.location, {
-    this.openingTimes = 'By arrangement with the host',
+    this.openingTimes = 'on-request',
     this.id,
     this.ownerId,
     this.photo,

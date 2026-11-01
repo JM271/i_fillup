@@ -88,9 +88,8 @@ void main() {
     await tester.tap(find.text('Campervan up to 6 m'));
     await tester.tap(find.text('Farm shop'));
     await tester.tap(find.text('Fuel'));
-    await tester.enterText(find.byType(TextFormField).at(2), 'Always');
-    await tester.enterText(find.byType(TextFormField).at(4), 'Eggs, cheese');
-    await tester.enterText(find.byType(TextFormField).at(5), 'hof.ch');
+    await tester.enterText(find.byType(TextFormField).at(3), 'Eggs, cheese');
+    await tester.enterText(find.byType(TextFormField).at(4), 'hof.ch');
     await tester.tap(find.text('Save offer'));
     await tester.pumpAndSettle();
     expect(
@@ -99,7 +98,7 @@ void main() {
     );
     expect(saved, isNull);
 
-    await tester.enterText(find.byType(TextFormField).at(5), 'https://hof.ch');
+    await tester.enterText(find.byType(TextFormField).at(4), 'https://hof.ch');
     await tester.tap(find.text('Save offer'));
     await tester.pumpAndSettle();
     expect(saved!.services, ['farmShop', 'fuel']);

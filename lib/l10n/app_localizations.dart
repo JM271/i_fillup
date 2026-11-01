@@ -1726,17 +1726,101 @@ abstract class AppLocalizations {
   /// **'Opening times'**
   String get openingTimes;
 
-  /// No description provided for @openingTimesHint.
+  /// No description provided for @openingOnRequest.
   ///
   /// In en, this message translates to:
-  /// **'Mon–Fri: 08:00–18:00\nSat: 09:00–12:00\nSun: closed'**
-  String get openingTimesHint;
+  /// **'On request'**
+  String get openingOnRequest;
 
-  /// No description provided for @openingTimesHelper.
+  /// No description provided for @openingOnRequestHelp.
   ///
   /// In en, this message translates to:
-  /// **'Include days, local times and any appointment requirements.'**
-  String get openingTimesHelper;
+  /// **'Travelers agree on a time with you in their request.'**
+  String get openingOnRequestHelp;
+
+  /// No description provided for @segmentOnRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'On request'**
+  String get segmentOnRequest;
+
+  /// No description provided for @segmentHours.
+  ///
+  /// In en, this message translates to:
+  /// **'Hours'**
+  String get segmentHours;
+
+  /// No description provided for @openingAlwaysShort.
+  ///
+  /// In en, this message translates to:
+  /// **'24/7'**
+  String get openingAlwaysShort;
+
+  /// No description provided for @openingAlways.
+  ///
+  /// In en, this message translates to:
+  /// **'Open 24 hours, every day'**
+  String get openingAlways;
+
+  /// No description provided for @mondayToFriday.
+  ///
+  /// In en, this message translates to:
+  /// **'Monday–Friday'**
+  String get mondayToFriday;
+
+  /// No description provided for @saturdaySunday.
+  ///
+  /// In en, this message translates to:
+  /// **'Saturday–Sunday'**
+  String get saturdaySunday;
+
+  /// No description provided for @weekdaysShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Mon–Fri'**
+  String get weekdaysShort;
+
+  /// No description provided for @weekendShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Sat–Sun'**
+  String get weekendShort;
+
+  /// No description provided for @closed.
+  ///
+  /// In en, this message translates to:
+  /// **'closed'**
+  String get closed;
+
+  /// No description provided for @opens.
+  ///
+  /// In en, this message translates to:
+  /// **'Opens'**
+  String get opens;
+
+  /// No description provided for @closes.
+  ///
+  /// In en, this message translates to:
+  /// **'Closes'**
+  String get closes;
+
+  /// No description provided for @openingNeedOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Open on weekdays or weekends, or choose On request.'**
+  String get openingNeedOne;
+
+  /// No description provided for @openingOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'The closing time must be after the opening time.'**
+  String get openingOrder;
+
+  /// No description provided for @previously.
+  ///
+  /// In en, this message translates to:
+  /// **'Previously: {text}'**
+  String previously(String text);
 
   /// No description provided for @pricePerFillUp.
   ///

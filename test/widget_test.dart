@@ -133,10 +133,9 @@ void main() {
       expect(find.text('Pin: 46.76000, 7.63000'), findsOneWidget);
       await tester.ensureVisible(find.text('Campervan up to 6 m'));
       await tester.tap(find.text('Campervan up to 6 m'));
-      await tester.enterText(
-        find.byType(TextFormField).at(2),
-        'Mon–Fri 08:00–18:00',
-      );
+      await tester.ensureVisible(find.text('Hours'));
+      await tester.tap(find.text('Hours'));
+      await tester.pumpAndSettle();
       await tester.ensureVisible(find.text('Save offer'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Save offer'));
@@ -166,7 +165,7 @@ void main() {
       expect(saved!.area, 'Main street 1, Thun');
       expect(saved!.vehicles, ['campervan']);
       expect(saved!.location.latitude, 46.76);
-      expect(saved!.openingTimes, 'Mon–Fri 08:00–18:00');
+      expect(saved!.openingTimes, 'weekdays=08:00-18:00;weekend=closed');
     },
   );
 
@@ -312,7 +311,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Save offer'));
     await tester.pumpAndSettle();
-    expect(find.text('Please fill in this field'), findsNWidgets(3));
+    expect(find.text('Please fill in this field'), findsNWidgets(2));
     expect(find.text('Choose your place on the map.'), findsOneWidget);
     expect(find.text('Choose at least one vehicle type.'), findsOneWidget);
     expect(saved, isNull);
@@ -320,10 +319,6 @@ void main() {
     await tester.enterText(
       find.byType(TextFormField).at(1),
       'Main street 1, Thun',
-    );
-    await tester.enterText(
-      find.byType(TextFormField).at(2),
-      'Mon–Fri 08:00–18:00; weekends closed',
     );
     await tester.ensureVisible(find.text('Save offer'));
     await tester.pumpAndSettle();
