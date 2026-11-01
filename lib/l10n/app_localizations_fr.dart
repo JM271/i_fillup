@@ -696,6 +696,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get map => 'Carte';
 
   @override
+  String get edit => 'Modifier';
+
+  @override
   String placesLoadFailed(String error) {
     return 'Impossible de charger les lieux : $error';
   }

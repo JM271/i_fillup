@@ -193,6 +193,7 @@
   "demoPlacesCount": "{count} lieux de démo · Exemples en Suisse",
   "livePlacesCount": "{count, plural, =1{1 lieu · Annonces de la communauté} other{{count} lieux · Annonces de la communauté}}",
   "map": "Carte",
+  "edit": "Modifier",
   "placesLoadFailed": "Impossible de charger les lieux : {error}",
   "noPlacesNearYou": "Aucun lieu à moins de {km} km. Essayez une distance plus grande.",
   "noPlacesNearRoute": "Aucun lieu à moins de {km} km de votre trajet. Essayez une distance plus grande.",

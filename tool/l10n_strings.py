@@ -210,6 +210,7 @@ S = {
  'demoPlacesCount': ('{count} demo places · Sample places in Switzerland', '{count} Demo-Orte · Beispiele in der Schweiz', '{count} lieux de démo · Exemples en Suisse'),
  'livePlacesCount': ('{count, plural, =1{1 place · Live community listings} other{{count} places · Live community listings}}', '{count, plural, =1{1 Ort · Einträge der Community} other{{count} Orte · Einträge der Community}}', '{count, plural, =1{1 lieu · Annonces de la communauté} other{{count} lieux · Annonces de la communauté}}'),
  'map': ('Map', 'Karte', 'Carte'),
+ 'edit': ('Edit', 'Bearbeiten', 'Modifier'),
  'placesLoadFailed': ('Could not load places: {error}', 'Orte konnten nicht geladen werden: {error}', 'Impossible de charger les lieux : {error}'),
  'noPlacesNearYou': ('No places within {km} km of you. Try a wider distance.', 'Keine Orte im Umkreis von {km} km. Wähle eine größere Distanz.', 'Aucun lieu à moins de {km} km. Essayez une distance plus grande.'),
  'noPlacesNearRoute': ('No places within {km} km of your route. Try a wider distance.', 'Keine Orte bis {km} km neben deiner Route. Wähle eine größere Distanz.', 'Aucun lieu à moins de {km} km de votre trajet. Essayez une distance plus grande.'),

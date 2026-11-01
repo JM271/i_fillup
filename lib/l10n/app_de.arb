@@ -193,6 +193,7 @@
   "demoPlacesCount": "{count} Demo-Orte · Beispiele in der Schweiz",
   "livePlacesCount": "{count, plural, =1{1 Ort · Einträge der Community} other{{count} Orte · Einträge der Community}}",
   "map": "Karte",
+  "edit": "Bearbeiten",
   "placesLoadFailed": "Orte konnten nicht geladen werden: {error}",
   "noPlacesNearYou": "Keine Orte im Umkreis von {km} km. Wähle eine größere Distanz.",
   "noPlacesNearRoute": "Keine Orte bis {km} km neben deiner Route. Wähle eine größere Distanz.",

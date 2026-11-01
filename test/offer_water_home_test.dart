@@ -165,6 +165,10 @@ void main() {
   testWidgets('Owners of older places choose the one place to keep', (
     tester,
   ) async {
+    tester.view.physicalSize = const Size(800, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
     final repository = LegacyRepository();
     await tester.pumpWidget(
       MaterialApp(home: GiverHome(repository: repository)),
@@ -213,7 +217,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byTooltip('Edit water place'));
+    await tester.tap(find.widgetWithText(TextButton, 'Edit'));
     await tester.pumpAndSettle();
     expect(find.text('Edit your\nwater place'), findsOneWidget);
     expect(find.widgetWithText(TextFormField, 'Garden tap'), findsOneWidget);

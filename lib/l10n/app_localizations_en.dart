@@ -686,6 +686,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get map => 'Map';
 
   @override
+  String get edit => 'Edit';
+
+  @override
   String placesLoadFailed(String error) {
     return 'Could not load places: $error';
   }

@@ -314,133 +314,17 @@ class _GiverHomeState extends State<GiverHome> {
                             ),
                           ),
                         ...offers.map(
-                          (place) => Card(
-                            margin: const EdgeInsets.only(bottom: 8),
-                            child: Padding(
-                              padding: const EdgeInsets.fromLTRB(12, 8, 4, 8),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          place.name,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .titleMedium,
-                                        ),
-                                        Text(
-                                          tr.areaPrice(
-                                            place.area,
-                                            displayPrice(place.price),
-                                          ),
-                                        ),
-                                        if (place.vehicles.isNotEmpty)
-                                          Text(
-                                            vehicleSummary(place.vehicles),
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodySmall,
-                                          ),
-                                        if (place.hose != null ||
-                                            place.selfService != null)
-                                          Text(
-                                            [
-                                              if (place.hose case final hose?)
-                                                hose
-                                                    ? tr.hoseAvailable
-                                                    : tr.bringOwnHose,
-                                              if (place.selfService
-                                                  case final selfService?)
-                                                selfService
-                                                    ? tr.selfService
-                                                    : tr.hostPresent,
-                                            ].join(' · '),
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodySmall,
-                                          ),
-                                        if (place.services.isNotEmpty)
-                                          Text(
-                                            tr.alsoHereList(
-                                              serviceSummary(place.services),
-                                            ),
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodySmall,
-                                          ),
-                                        Text(
-                                          describeOpeningTimes(
-                                            place.openingTimes,
-                                          ),
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall,
-                                        ),
-                                        if (mustChoosePlace(offers) &&
-                                            !place.isAccountPlace)
-                                          Text(
-                                            tr.notListed,
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.w700,
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .error,
-                                            ),
-                                          ),
-                                        if (mustChoosePlace(offers))
-                                          Align(
-                                            alignment: Alignment.centerLeft,
-                                            child: TextButton.icon(
-                                              onPressed: () =>
-                                                  keepOnlyOffer(place, offers),
-                                              icon: const Icon(
-                                                Icons.check_circle_outline,
-                                              ),
-                                              label: Text(tr.keepThisOne),
-                                            ),
-                                          ),
-                                      ],
-                                    ),
-                                  ),
-                                  if (!mustChoosePlace(offers))
-                                    IconButton(
-                                      tooltip: tr.editPlace,
-                                      onPressed: () => editOffer(place),
-                                      icon: const Icon(
-                                        Icons.edit_outlined,
-                                        color: teal,
-                                      ),
-                                    ),
-                                  IconButton(
-                                    tooltip: tr.viewOnMap,
-                                    onPressed: () => Navigator.of(context)
-                                        .push<WaterPlace>(
-                                          MaterialPageRoute(
-                                            builder: (_) =>
-                                                WaterPlacesMap(places: [place]),
-                                          ),
-                                        ),
-                                    icon: const Icon(
-                                      Icons.map_outlined,
-                                      color: teal,
-                                    ),
-                                  ),
-                                  IconButton(
-                                    tooltip: tr.deletePlace,
-                                    onPressed: () => deleteOffer(place),
-                                    icon: Icon(
-                                      Icons.delete_outline,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .error,
-                                    ),
-                                  ),
-                                ],
+                          (place) => _PlaceCard(
+                            place: place,
+                            choosing: mustChoosePlace(offers),
+                            onEdit: () => editOffer(place),
+                            onMap: () => Navigator.of(context).push<WaterPlace>(
+                              MaterialPageRoute(
+                                builder: (_) => WaterPlacesMap(places: [place]),
                               ),
                             ),
+                            onDelete: () => deleteOffer(place),
+                            onKeep: () => keepOnlyOffer(place, offers),
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -450,14 +334,14 @@ class _GiverHomeState extends State<GiverHome> {
                             icon: const Icon(Icons.add),
                             label: Text(tr.offerWater),
                           ),
-                        const SizedBox(height: 16),
-                        Text(
-                          repository.isDemo
+                        const SizedBox(height: 8),
+                        _Note(
+                          icon: Icons.visibility_outlined,
+                          text: repository.isDemo
                               ? tr.demoOffersNote
                               : tr.activeOffersNote,
                         ),
-                        const SizedBox(height: 4),
-                        Text(tr.onePlaceRule),
+                        _Note(icon: Icons.info_outline, text: tr.onePlaceRule),
                       ],
                     ),
                   if (snapshot.hasError || loading)
@@ -619,6 +503,170 @@ class _GiverHomeState extends State<GiverHome> {
           ),
         ),
       ),
+    ),
+  );
+}
+
+/// The host's water place: a header, one detail per line, and the actions
+/// underneath.
+class _PlaceCard extends StatelessWidget {
+  const _PlaceCard({
+    required this.place,
+    required this.choosing,
+    required this.onEdit,
+    required this.onMap,
+    required this.onDelete,
+    required this.onKeep,
+  });
+  final WaterPlace place;
+
+  /// Whether the owner must still choose which of their older places to keep.
+  final bool choosing;
+  final VoidCallback onEdit, onMap, onDelete, onKeep;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final details = <(IconData, String)>[
+      (Icons.schedule, describeOpeningTimes(place.openingTimes)),
+      (Icons.payments_outlined, displayPrice(place.price)),
+      if (place.vehicles.isNotEmpty)
+        (Icons.airport_shuttle_outlined, vehicleSummary(place.vehicles)),
+      if (place.hose case final hose?)
+        (Icons.water, hose ? tr.hoseAvailable : tr.bringOwnHose),
+      if (place.selfService case final selfService?)
+        selfService
+            ? (Icons.touch_app_outlined, tr.selfService)
+            : (Icons.person_outline, tr.hostPresent),
+      if (place.services.isNotEmpty)
+        (
+          Icons.storefront_outlined,
+          tr.alsoHereList(serviceSummary(place.services)),
+        ),
+    ];
+    return Card(
+      margin: const EdgeInsets.only(bottom: 8),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (place.photo case final photo?)
+            AspectRatio(
+              aspectRatio: 16 / 9,
+              child: Image.memory(photo, fit: BoxFit.cover),
+            ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+            child: Row(
+              children: [
+                WaterIcon(place.icon, size: 44),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(place.name, style: theme.textTheme.titleLarge),
+                      Text(place.area, style: const TextStyle(color: muted)),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (place.description.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+              child: Text(place.description),
+            ),
+          const Divider(height: 1, indent: 16, endIndent: 16),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+            child: Column(
+              children: [
+                for (final (icon, text) in details)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 5),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(icon, size: 20, color: teal),
+                        const SizedBox(width: 12),
+                        Expanded(child: Text(text)),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          if (choosing && !place.isAccountPlace)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+              child: Text(
+                tr.notListed,
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  color: theme.colorScheme.error,
+                ),
+              ),
+            ),
+          const Divider(height: 1),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(8, 4, 4, 4),
+            child: Row(
+              children: [
+                if (choosing)
+                  TextButton.icon(
+                    onPressed: onKeep,
+                    icon: const Icon(Icons.check_circle_outline),
+                    label: Text(tr.keepThisOne),
+                  )
+                else
+                  TextButton.icon(
+                    onPressed: onEdit,
+                    icon: const Icon(Icons.edit_outlined),
+                    label: Text(tr.edit),
+                  ),
+                TextButton.icon(
+                  onPressed: onMap,
+                  icon: const Icon(Icons.map_outlined),
+                  label: Text(tr.map),
+                ),
+                const Spacer(),
+                IconButton(
+                  tooltip: tr.deletePlace,
+                  onPressed: onDelete,
+                  icon: Icon(
+                    Icons.delete_outline,
+                    color: theme.colorScheme.error,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// A short muted line with an icon, for hints under the place.
+class _Note extends StatelessWidget {
+  const _Note({required this.icon, required this.text});
+  final IconData icon;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(top: 8),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 18, color: muted),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(text, style: const TextStyle(color: muted)),
+        ),
+      ],
     ),
   );
 }
